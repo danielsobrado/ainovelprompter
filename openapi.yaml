@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: Text Management API
+  description: API for managing texts, users, chapters, and feedback with search functionality
+  version: 1.0.0
+servers:
+  - url: 'https://api.yourdomain.com/v1'
+paths:
+  /users:
+    get:
+      summary: List all users
+      operationId: listUsers
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search query for users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+
+  /users/{userId}:
+    get:
+      summary: Get a single user
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      summary: Update a user
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /texts:
+    get:
+      summary: List all texts
+      operationId: listTexts
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search query for texts
+      responses:
+        '200':
+          description: A list of texts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Text'
+    post:
+      summary: Create a new text
+      operationId: createText
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Text'
+      responses:
+        '201':
+          description: Text created successfully
+
+  /texts/{textId}:
+    get:
+      summary: Get a single text
+      operationId: getText
+      parameters:
+        - name: textId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Text'
+    put:
+      summary: Update a text
+      operationId: updateText
+      parameters:
+        - name: textId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Text'
+      responses:
+        '200':
+          description: Text updated successfully
+    delete:
+      summary: Delete a text
+      operationId: deleteText
+      parameters:
+        - name: textId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Text deleted successfully
+
+  /chapters:
+    get:
+      summary: List all chapters
+      operationId: listChapters
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search query for chapters
+      responses:
+        '200':
+          description: A list of chapters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+    post:
+      summary: Create a new chapter
+      operationId: createChapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chapter'
+      responses:
+        '201':
+          description: Chapter created successfully
+
+  /chapters/{chapterId}:
+    get:
+      summary: Get a single chapter
+      operationId: getChapter
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single chapter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+    put:
+      summary: Update a chapter
+      operationId: updateChapter
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chapter'
+      responses:
+        '200':
+          description: Chapter updated successfully
+    delete:
+      summary: Delete a chapter
+      operationId: deleteChapter
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Chapter deleted successfully
+
+  /feedback:
+    get:
+      summary: List all feedback
+      operationId: listFeedback
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search query for feedback
+      responses:
+        '200':
+          description: A list of feedback
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feedback'
+    post:
+      summary: Create a new feedback
+      operationId: createFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feedback'
+      responses:
+        '201':
+          description: Feedback created successfully
+
+  /feedback/{feedbackId}:
+    get:
+      summary: Get a single feedback
+      operationId: getFeedback
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single feedback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+    put:
+      summary: Update a feedback
+      operationId: updateFeedback
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feedback'
+      responses:
+        '200':
+          description: Feedback updated successfully
+    delete:
+      summary: Delete a feedback
+      operationId: deleteFeedback
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Feedback deleted successfully
+
+  /generate-prompt:
+    post:
+      summary: Generate a writing prompt
+      operationId: generatePrompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trait_keys:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Generated writing prompt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prompt:
+                    type: string
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        hashed_password:
+          type: string
+          format: password
+        created_at:
+          type: string
+          format: date-time
+        role:
+          type: string
+        is_active:
+          type: boolean
+      required:
+        - username
+        - email
+        - hashed_password
+        - role
+
+    Text:
+      type: object
+      properties:
+        text_id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+        text_type:
+          type: string
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - user_id
+        - text_type
+        - content
+
+    Chapter:
+      type: object
+      properties:
+        chapter_id:
+          type: integer
+          format: int64
+        text_id:
+          type: integer
+        chapter_title:
+          type: string
+        chapter_number:
+          type: integer
+      required:
+        - text_id
+        - chapter_number
+
+    Feedback:
+      type: object
+      properties:
+        feedback_id:
+          type: integer
+          format: int64
+        chapter_id:
+          type: integer
+        user_id:
+          type: integer
+          nullable: true
+        content:
+          type: string
+        rating:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - chapter_id
+        - content
