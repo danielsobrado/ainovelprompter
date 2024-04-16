@@ -325,7 +325,6 @@ paths:
       responses:
         '204':
           description: Feedback deleted successfully
-
   /generate-prompt:
     post:
       summary: Generate a writing prompt
@@ -341,6 +340,11 @@ paths:
                   type: array
                   items:
                     type: string
+                chapter_length:
+                  type: integer
+                response_format:
+                  type: string
+                  enum: [markdown, json]
       responses:
         '200':
           description: Generated writing prompt
@@ -351,8 +355,13 @@ paths:
                 properties:
                   prompt:
                     type: string
-
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     User:
       type: object
@@ -437,3 +446,7 @@ components:
       required:
         - chapter_id
         - content
+
+security:
+  - bearerAuth: []
+  

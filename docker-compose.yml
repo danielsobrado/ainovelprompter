@@ -1,0 +1,38 @@
+version: '3'
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - server
+    environment:
+      - REACT_APP_API_URL=http://server:8080
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=your_db_user
+      - DB_PASSWORD=your_db_password
+      - DB_NAME=your_db_name
+
+  postgres:
+    image: postgres:13
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=your_db_user
+      - POSTGRES_PASSWORD=your_db_password
+      - POSTGRES_DB=your_db_name
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
