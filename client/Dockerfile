@@ -1,11 +1,12 @@
-FROM node:14
+FROM node:18
 
 WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm install
-RUN npm install react-router-dom axios @mui/material @emotion/react @emotion/styled @mui/icons-material react-toastify
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 COPY . .
 RUN npm run build
