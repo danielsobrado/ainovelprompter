@@ -144,68 +144,68 @@ This small guide provides instructions on how to install PostgreSQL on the Windo
 1. **Open WSL Terminal**: Launch your WSL distribution (Ubuntu recommended).
 
 2. **Update Packages**:
-   +++bash
+   ```bash
    sudo apt update
-   +++
+   ```
 
 3. **Install PostgreSQL**:
-   +++bash
+   ```bash
    sudo apt install postgresql postgresql-contrib
-   +++
+   ```
 
 4. **Check Installation**:
-   +++bash
+   ```bash
    psql --version
-   +++
+   ```
 
 5. **Set PostgreSQL User Password**:
-   +++bash
+   ```bash
    sudo passwd postgres
-   +++
+   ```
 
 ---
 
 ### Database Operations
 
 1. **Create Database**:
-   +++bash
+   ```bash
    createdb mydb
-   +++
+   ```
 
 2. **Access Database**:
-   +++bash
+   ```bash
    psql mydb
-   +++
+   ```
 
 3. **Import Tables from SQL File**:
-   +++bash
+   ```bash
    psql -U postgres -q mydb < /path/to/file.sql
-   +++
+   ```
 
 4. **List Databases and Tables**:
-   +++sql
+   ```sql
    \l  # List databases
    \dt # List tables in the current database
-   +++
+   ```
 
 5. **Switch Database**:
-   +++sql
+   ```sql
    \c dbname
-   +++
+   ```
 
 ---
 
 ### User Management
 
 1. **Create New User**:
-   +++sql
+   ```sql
    CREATE USER your_db_user WITH PASSWORD 'your_db_password';
-   +++
+   ```
 
 2. **Grant Privileges**:
-   +++sql
+   ```sql
    ALTER USER your_db_user CREATEDB;
-   +++
+   ```
 
 ---
 
@@ -213,16 +213,16 @@ This small guide provides instructions on how to install PostgreSQL on the Windo
 
 1. **Role Does Not Exist Error**:
    Switch to the 'postgres' user:
-   +++bash
+   ```bash
    sudo -i -u postgres
    createdb your_db_name
-   +++
+   ```
 
 2. **Permission Denied to Create Extension**:
    Login as 'postgres' and execute:
-   +++sql
+   ```sql
    CREATE EXTENSION IF NOT EXISTS pg_trgm;
-   +++
+   ```
 
 3. **Unknown User Error**:
    Ensure you are using a recognized system user or correctly refer to a PostgreSQL user within the SQL environment, not via `sudo`.
