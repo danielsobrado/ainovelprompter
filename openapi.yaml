@@ -387,6 +387,49 @@ paths:
                 properties:
                   prompt:
                     type: string
+  /ollama/generate:
+    post:
+      summary: Generate response from Ollama model
+      operationId: generateResponse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        '200':
+          description: Successfully generated response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateResponse'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+  /ollama/chat:
+    post:
+      summary: Chat with Ollama model
+      operationId: chatWithModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successfully received chat messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
 components:
   LoginRequest:
     type: object
@@ -516,3 +559,45 @@ components:
 security:
   - bearerAuth: []
   
+    GenerateRequest:
+      type: object
+      properties:
+        model:
+          type: string
+        prompt:
+          type: string
+      required:
+        - model
+        - prompt
+
+    GenerateResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+
+    ChatRequest:
+      type: object
+      properties:
+        model:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+
+    ChatResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+        content:
+          type: string

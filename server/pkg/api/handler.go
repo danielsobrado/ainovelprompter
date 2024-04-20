@@ -51,9 +51,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 				protected.POST("/feedback", handler.CreateFeedback)
 				protected.GET("/feedback/:feedbackId", handler.GetFeedback)
 				protected.PUT("/feedback/:feedbackId", handler.UpdateFeedback)
-				protected.DELETE("/feedback/:feedbackId", handler.DeleteFeedback)
+				protected.DELETE("/feedback/:FeedbackId", handler.DeleteFeedback)
 
 				protected.POST("/generate-prompt", handler.GeneratePrompt)
+
+				// Ollama specific routes
+				protected.POST("/ollama/generate", handler.GenerateResponse)
+				protected.POST("/ollama/chat", handler.ChatWithModel)
 			}
 		} else {
 			// Routes without authentication
@@ -84,6 +88,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			v1.DELETE("/feedback/:feedbackId", handler.DeleteFeedback)
 
 			v1.POST("/generate-prompt", handler.GeneratePrompt)
+
+			// Ollama specific routes
+			v1.POST("/ollama/generate", handler.GenerateResponse)
+			v1.POST("/ollama/chat", handler.ChatWithModel)
 		}
 	}
 

@@ -14,3 +14,7 @@ jwt:
 
 auth:
   enabled: false
+
+ollama:
+  generate_url: "http://localhost:11434/api/generate"
+  chat_url: "http://localhost:11434/api/chat"
