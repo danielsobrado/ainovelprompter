@@ -15,7 +15,7 @@
         "react-toastify": "^8.0.0"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
