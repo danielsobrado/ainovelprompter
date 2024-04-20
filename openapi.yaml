@@ -6,6 +6,24 @@ info:
 servers:
   - url: 'http://localhost:8080/v1'
 paths:
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Unauthorized
   /users:
     get:
       summary: List all users
@@ -85,6 +103,20 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+
+  /trait-types:
+    get:
+      summary: Retrieve all trait types
+      operationId: listTraitTypes
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TraitType'
 
   /texts:
     get:
@@ -356,6 +388,23 @@ paths:
                   prompt:
                     type: string
 components:
+  LoginRequest:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+    required:
+      - username
+      - password
+
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -388,6 +437,23 @@ components:
         - email
         - hashed_password
         - role
+        
+    TraitType:
+      type: object
+      properties:
+        trait_type_id:
+          type: integer
+        trait_type:
+          type: string
+        description:
+          type: string
+        analyze_trait_description:
+          type: string
+      required:
+        - trait_type_id
+        - trait_type
+        - description
+        - analyze_trait_description
 
     Text:
       type: object

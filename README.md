@@ -134,7 +134,7 @@ This small guide provides instructions on how to install PostgreSQL on the Windo
 
 ### Prerequisites
 
-- Windows 10 or higher with WSL enabled.
+- Windows 10 or higher with WSL enabled. (Or just Ubuntu)
 - Basic familiarity with Linux command line and SQL.
 
 ---

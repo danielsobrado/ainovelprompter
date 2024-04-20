@@ -11,3 +11,6 @@ db:
 jwt:
   secret: "your-jwt-secret"
   expiration: 60 # JWT token expiration time in minutes
+
+auth:
+  enabled: false
