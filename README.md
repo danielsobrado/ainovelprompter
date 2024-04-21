@@ -9,6 +9,7 @@ AI Novel Prompter can generate writing prompts for novels based on user-specifie
 - Chapter creation and management
 - Feedback submission and management
 - Prompt generation based on traits
+- Integration with a local ollama service
 
 ## Technologies Used
 
@@ -28,8 +29,8 @@ AI Novel Prompter can generate writing prompts for novels based on user-specifie
 
 Before running the application, make sure you have the following installed:
 
-- Node.js (v14 or higher)
-- Go (v1.16 or higher)
+- Node.js (v18 or higher)
+- Go (v1.18 or higher)
 - PostgreSQL
 - Docker
 - Docker Compose
