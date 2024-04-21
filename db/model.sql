@@ -126,3 +126,85 @@ VALUES (
   <<Text>>',
   1
 );
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'initial_brainstorming_1',
+  'Initial Brainstorming 1',
+  'Give me <<NUMBER>> high-concept pitches for a bestselling
+    <<GENRE>> story with a unique twist, intriguing characters,
+    and gripping emotional stakes.'
+,
+  1
+);
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'initial_brainstorming_2',
+  'Initial Brainstorming 2',
+  'Give me <<NUMBER>> ideas for characters that are part of a
+    bestselling <<GENRE>> story that are well fleshed out, have
+    strengths and weaknesses, and undergo conflict throughout
+    the course of the story. Briefly describe their character arc.'
+,
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'outlining_prompts_1',
+  'Outlining Prompt 1',
+  'Using the following concept, write a story synopsis for a
+    <<GENRE>> book:
+    <<PITCH>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'setting_prompts_1',
+  'Setting Prompt 1',
+  'Generate a list of potential locations for a novel about
+    <<SYNOPSIS>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'character_prompts_1',
+  'Character Prompt 1',
+  'Generate a list of character possibilities for a novel about
+    <<SUMMARY>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'writing_prompts_1',
+  'Writing Prompt 1',
+  'Write 1000 words of a chapter using the following details:
+    Genre: <<GENRE>>
+    Tone: <<TONE>>
+    Point of View: <<POV>>
+    Setting: <<SETTING>>
+    Key Characters: <<CHARACTERS>>
+    Summary: <<SUMMARY>>
+    Conflict: <<CONFLICT>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'editing_prompts_1',
+  'Editing Prompt 1',
+  'Given the following scene, write a stronger hook and opening
+    paragraph in the style of a best-selling <<GENRE>> author:
+    <<SCENE>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'title_description_prompts_1',
+  'Title/Description Prompt 1',
+  'Create a list of potential titles for a novel about: <<THEME>>',
+  1
+);
