@@ -1,5 +1,5 @@
 import { Typography, Container, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid'; // Updated import
+import { DataGrid } from '@mui/x-data-grid'; 
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';

@@ -63,6 +63,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 				protected.POST("/generate-prompt", handler.GeneratePrompt)
 
+				protected.POST("/standard-prompts", handler.CreateStandardPrompt)
+				protected.PUT("/standard-prompts/:id", handler.UpdateStandardPrompt)
+				protected.GET("/standard-prompts", handler.ListStandardPrompts)
+
 				// Ollama specific routes
 				protected.POST("/ollama/generate", handler.GenerateResponse)
 				protected.POST("/ollama/chat", handler.ChatWithModel)
@@ -97,6 +101,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			v1.DELETE("/feedback/:feedbackId", handler.DeleteFeedback)
 
 			v1.POST("/generate-prompt", handler.GeneratePrompt)
+
+			v1.POST("/standard-prompts", handler.CreateStandardPrompt)
+			v1.PUT("/standard-prompts/:id", handler.UpdateStandardPrompt)
+			v1.GET("/standard-prompts", handler.ListStandardPrompts)
 
 			// Ollama specific routes
 			v1.POST("/ollama/generate", handler.GenerateResponse)

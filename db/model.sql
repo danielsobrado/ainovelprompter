@@ -80,15 +80,24 @@ CREATE TABLE IF NOT EXISTS user_actions (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Full-text search and indexes setup.
+CREATE TABLE standard_prompts (
+  id SERIAL PRIMARY KEY,
+  standard_name VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  prompt TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  version INTEGER DEFAULT 1
+);
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_standard_prompts_standard_name ON standard_prompts (standard_name);
+
 CREATE INDEX IF NOT EXISTS texts_content_gin_idx ON texts USING GIN (content gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS users_username_gin_idx ON users USING GIN (username gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS users_email_gin_idx ON users USING GIN (email gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS chapters_title_gin_idx ON chapters USING GIN (chapter_title gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS feedback_content_gin_idx ON feedback USING GIN (content gin_trgm_ops);
 
--- Insert initial data into Trait Types.
 INSERT INTO trait_types (trait_type, description, trigger_text) VALUES
     ('Narrative Devices', 'Techniques used to structure and present the story', 'Incorporate the following narrative devices into your chapter:'),
     ('Reader Engagement', 'Elements that draw the reader into the story', 'Engage the reader by including:'),
@@ -98,5 +107,22 @@ INSERT INTO trait_types (trait_type, description, trigger_text) VALUES
     ('Critique and Reviews', 'Notable points from critiques, reviews, or fan reactions', 'Address the following critique points or fan reactions in your chapter:'),
     ('Character Development', 'Elements that contribute to character growth and depth', 'Develop your characters by exploring:'),
     ('Emotional Resonance', 'Techniques used to evoke emotions in the reader', 'Create emotional resonance with the following elements:'),
-    ('Cliffhangers and Suspense', 'Elements that create tension and anticipation', 'Build suspense and anticipation with:'),
-    ('Philosophical and Intellectual Depth', 'Incorporation of thought-provoking
+    ('Cliffhangers and Suspense', 'Elements that create tension and anticipation', 'Build suspense and anticipation with:')
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'analyze_paragraph',
+  'Analyze Paragraph',
+  'Analyze the following text and give me the result on this json format, do not mention anything especifique of the story like character names etc... make it generic: {
+    "tone": "Analyze the overall tone and mood of the given text. Consider the emotional undertones, atmosphere, and the feelings evoked. Describe the tone using adjectives and elaborate on how it is conveyed through the choice of words, imagery, and literary devices employed.",
+
+    "wording": "Examine the wording and language used in the text. Identify any notable or recurring stylistic elements, such as descriptive language, figurative expressions (metaphors, similes), or unique word choices. Comment on how the wording contributes to the overall tone and meaning of the text.",
+
+    "style": "Provide an analysis of the writing style employed in the text. Identify the key characteristics that define the author''s style, such as introspection, descriptive writing, focus on internal states, or any other notable elements. Discuss how the style enhances the themes, emotions, or ideas conveyed in the text."
+  } 
+  
+  My text is: 
+
+  <<Text>>',
+  1
+);

@@ -30,10 +30,10 @@ const utilities = {
       breadcrumbs: false
     },
     {
-      id: 'feeback',
-      title: 'Feedback',
+      id: 'standard-prompts',
+      title: 'Standard Prompts',
       type: 'item',
-      url: '/feedback',
+      url: '/standard-prompts',
       icon: icons.IconDatabase,
       breadcrumbs: false
     },

@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import OllamaChat from 'views/pages/authentication/ollama-chat';
+import StandardPromptList from 'views/standard-prompts';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -89,6 +90,10 @@ const MainRoutes = {
     {
       path: 'ollama-chat',
       element: <OllamaChat />
+    },
+    {
+      path: 'standard-prompts',
+      element: <StandardPromptList />
     }
   ]
 };
