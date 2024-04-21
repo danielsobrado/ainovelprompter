@@ -47,15 +47,17 @@ func (h *Handler) UpdateStandardPrompt(c *gin.Context) {
 		return
 	}
 
-	prompt.Version = existingPrompt.Version + 1
+	existingPrompt.Title = prompt.Title
+	existingPrompt.Prompt = prompt.Prompt
+	existingPrompt.Version = existingPrompt.Version + 1
 
-	if err := h.DB.Create(&prompt).Error; err != nil {
+	if err := h.DB.Save(&existingPrompt).Error; err != nil {
 		logging.Logger.Errorf("Failed to update standard prompt: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update standard prompt"})
 		return
 	}
 
-	c.JSON(http.StatusOK, prompt)
+	c.JSON(http.StatusOK, existingPrompt)
 }
 
 func (h *Handler) ListStandardPrompts(c *gin.Context) {

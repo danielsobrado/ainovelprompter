@@ -24,6 +24,94 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '401':
           description: Unauthorized
+  /standard-prompts:
+    post:
+      summary: Create a new standard prompt
+      operationId: createStandardPrompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StandardPrompt'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPrompt'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      summary: List all standard prompts
+      operationId: listStandardPrompts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardPrompt'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /standard-prompts/{id}:
+    put:
+      summary: Update a standard prompt
+      operationId: updateStandardPrompt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StandardPrompt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPrompt'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
   /users:
     get:
       summary: List all users
@@ -480,6 +568,27 @@ components:
         - email
         - hashed_password
         - role
+        
+    StandardPrompt:
+      type: object
+      properties:
+        id:
+          type: integer
+        standard_name:
+          type: string
+        title:
+          type: string
+        prompt:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        version:
+          type: integer
+      required:
+        - standard_name
+        - title
+        - prompt
         
     TraitType:
       type: object
