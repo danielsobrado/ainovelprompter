@@ -13,12 +13,12 @@ interface StandardPrompt {
 }
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'standard_name', headerName: 'Standard Name', width: 200 },
-  { field: 'title', headerName: 'Title', width: 200 },
-  { field: 'prompt', headerName: 'Prompt', width: 400 },
-  { field: 'created_at', headerName: 'Created At', width: 200 },
-  { field: 'version', headerName: 'Version', width: 100 },
+  { field: 'id', headerName: 'ID', width: 50 },
+  { field: 'standard_name', headerName: 'Standard Name', flex: 1 },
+  { field: 'title', headerName: 'Title', flex: 1  },
+  { field: 'prompt', headerName: 'Prompt', flex: 4  },
+  { field: 'created_at', headerName: 'Created At', flex: 1  },
+  { field: 'version', headerName: 'Version', width: 80 },
 ];
 
 const StandardPromptList: React.FC = () => {
