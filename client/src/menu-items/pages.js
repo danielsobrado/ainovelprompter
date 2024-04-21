@@ -42,7 +42,7 @@ const pages = {
       id: 'chat',
       title: 'Ollama Chat',
       type: 'item',
-      url: '/pages/ollama-chat/OllamaChat',
+      url: '/ollama-chat',
       icon: icons.IconBrandHipchat,
       breadcrumbs: false
     }

@@ -17,11 +17,12 @@ interface TraitType {
 }
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 100 },
-  { field: 'traitType', headerName: 'Trait Type', width: 150 },
-  { field: 'description', headerName: 'Description', width: 250 },
-  { field: 'triggerText', headerName: 'Trigger Text', width: 250 }
+  { field: 'id', headerName: 'ID', width: 50 },
+  { field: 'traitType', headerName: 'Trait Type', flex: 1 },
+  { field: 'description', headerName: 'Description', flex: 2 },
+  { field: 'triggerText', headerName: 'Trigger Text', flex: 2 }
 ];
+
 
 const TraitTypeList = () => {
   const [traitTypes, setTraitTypes] = useState<TraitType[]>([]);
@@ -45,16 +46,17 @@ const TraitTypeList = () => {
   }, []);
 
   return (
-    <MainCard title="Trait Types">
-      <Container maxWidth="md">
+    <MainCard title="Trait Types" >
+      <Container maxWidth="lg">
         {traitTypes.length === 0 ? (
           <Typography variant="body1">No trait types found.</Typography>
         ) : (
-          <Paper style={{ height: 400, width: '100%' }}>
+          <Paper style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
             <DataGrid
               rows={traitTypes}
               columns={columns}
               checkboxSelection
+              autoHeight
             />
           </Paper>
         )}

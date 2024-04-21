@@ -1,19 +1,9 @@
 import React from 'react';
 import { useState } from 'react';
-import { useTheme } from '@mui/material/styles';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  useMediaQuery,
-  CircularProgress
-} from '@mui/material';
-import axios from 'axios';
+import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
+import api from '../../../../services/api';
 
 const OllamaChat = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,20 +11,19 @@ const OllamaChat = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
-      const res = await axios.post('/v1/ollama/generate', {
+      const res = await api.post('/ollama/generate', {
         model: 'llama3',
         prompt: prompt,
         stream: false
       });
-  
       setResponse(res.data.response);
     } catch (error) {
       console.error('Error:', error);
       setResponse('An error occurred while fetching the response.');
     }
-  
+
     setLoading(false);
   };
 
