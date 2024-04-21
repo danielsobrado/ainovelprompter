@@ -1,8 +1,8 @@
 // assets
-import { IconBrandChrome, IconHelp } from '@tabler/icons-react';
+import { IconLayersLinked, IconHelp } from '@tabler/icons-react';
 
 // constant
-const icons = { IconBrandChrome, IconHelp };
+const icons = { IconLayersLinked, IconHelp };
 
 // ==============================|| SAMPLE PAGE & DOCUMENTATION MENU ITEMS ||============================== //
 
@@ -11,18 +11,18 @@ const other = {
   type: 'group',
   children: [
     {
-      id: 'trait-types',
-      title: 'Trait Types',
+      id: 'generate-prompt',
+      title: 'Generate Prompt',
       type: 'item',
-      url: '/trait-types',
-      icon: icons.IconBrandChrome,
+      url: '/generate-prompt',
+      icon: icons.IconLayersLinked,
       breadcrumbs: false
     },
     {
-      id: 'documentation',
-      title: 'Documentation',
+      id: 'drusniel',
+      title: 'Drusniel',
       type: 'item',
-      url: 'https://codedthemes.gitbook.io/berry/',
+      url: 'https://drusniel.com/',
       icon: icons.IconHelp,
       external: true,
       target: true

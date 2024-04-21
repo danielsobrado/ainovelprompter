@@ -1,24 +1,25 @@
 // assets
-import { IconKey } from '@tabler/icons-react';
+import { IconWriting, IconBrandHipchat } from '@tabler/icons-react';
 
 // constant
 const icons = {
-  IconKey
+  IconWriting,
+  IconBrandHipchat
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const pages = {
-  id: 'pages',
-  title: 'Pages',
-  caption: 'Pages Caption',
+  id: 'localModels',
+  title: 'Local Models',
+  caption: 'Fine Tuning & Chat',
   type: 'group',
   children: [
     {
-      id: 'authentication',
-      title: 'Authentication',
+      id: 'fineTuning',
+      title: 'Fine Tuning',
       type: 'collapse',
-      icon: icons.IconKey,
+      icon: icons.IconWriting,
 
       children: [
         {
@@ -36,6 +37,14 @@ const pages = {
           target: true
         }
       ]
+    },
+    {
+      id: 'chat',
+      title: 'Ollama Chat',
+      type: 'item',
+      url: '/pages/ollama-chat/OllamaChat',
+      icon: icons.IconBrandHipchat,
+      breadcrumbs: false
     }
   ]
 };

@@ -1,65 +1,60 @@
 // assets
-import { IconTypography, IconPalette, IconShadow, IconWindmill } from '@tabler/icons-react';
+import { IconDatabase } from '@tabler/icons-react';
 
 // constant
 const icons = {
-  IconTypography,
-  IconPalette,
-  IconShadow,
-  IconWindmill
+  IconDatabase
 };
 
 // ==============================|| UTILITIES MENU ITEMS ||============================== //
 
 const utilities = {
-  id: 'utilities',
-  title: 'Utilities',
+  id: 'Prompt',
+  title: 'Prompt',
   type: 'group',
   children: [
     {
-      id: 'util-typography',
-      title: 'Typography',
+      id: 'trait-types',
+      title: 'Trait Types',
       type: 'item',
-      url: '/utils/util-typography',
-      icon: icons.IconTypography,
+      url: '/trait-types',
+      icon: icons.IconDatabase,
       breadcrumbs: false
     },
     {
-      id: 'util-color',
-      title: 'Color',
+      id: 'texts',
+      title: 'Texts',
       type: 'item',
-      url: '/utils/util-color',
-      icon: icons.IconPalette,
+      url: '/texts',
+      icon: icons.IconDatabase,
       breadcrumbs: false
     },
     {
-      id: 'util-shadow',
-      title: 'Shadow',
+      id: 'feeback',
+      title: 'Feedback',
       type: 'item',
-      url: '/utils/util-shadow',
-      icon: icons.IconShadow,
+      url: '/feedback',
+      icon: icons.IconDatabase,
       breadcrumbs: false
     },
     {
-      id: 'icons',
-      title: 'Icons',
+      id: 'chapters',
+      title: 'Chapters',
       type: 'collapse',
-      icon: icons.IconWindmill,
+      icon: icons.IconDatabase,
       children: [
         {
-          id: 'tabler-icons',
-          title: 'Tabler Icons',
+          id: 'table-chapters',
+          title: 'Chapters',
           type: 'item',
-          url: '/icons/tabler-icons',
+          url: '/model/table-chapters',
           breadcrumbs: false
         },
         {
-          id: 'material-icons',
-          title: 'Material Icons',
+          id: 'table-chapter-details',
+          title: 'Chapter Details',
           type: 'item',
-          external: true,
-          target: '_blank',
-          url: 'https://mui.com/material-ui/material-icons/',
+          url: '/model/table-chapter-details',
           breadcrumbs: false
         }
       ]
