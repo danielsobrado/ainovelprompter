@@ -144,3 +144,22 @@ func (h *Handler) ChatWithModel(c *gin.Context) {
 
 	c.JSON(http.StatusOK, chatResp)
 }
+
+func (h *Handler) GetOllamaTags(c *gin.Context) {
+	resp, err := http.Get("http://localhost:11434/api/tags")
+	if err != nil {
+		logging.Logger.Errorf("Failed to fetch Ollama tags: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch Ollama tags"})
+		return
+	}
+	defer resp.Body.Close()
+
+	var tags map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&tags); err != nil {
+		logging.Logger.Errorf("Failed to decode Ollama tags response: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode Ollama tags response"})
+		return
+	}
+
+	c.JSON(http.StatusOK, tags)
+}

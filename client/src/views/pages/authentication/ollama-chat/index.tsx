@@ -1,12 +1,44 @@
 import React from 'react';
-import { useState } from 'react';
-import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Button, TextField, Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import api from '../../../../services/api';
 
+interface Model {
+  name: string;
+  model: string;
+  modified_at: string;
+  size: number;
+  digest: string;
+  details: {
+    parent_model: string;
+    format: string;
+    family: string;
+    families: string[];
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+
 const OllamaChat = () => {
+  const [models, setModels] = useState<Model[]>([]);
+  const [selectedModel, setSelectedModel] = useState('');
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const res = await api.get('/ollama/tags');
+        setModels(res.data.models);
+        setSelectedModel(res.data.models[0]?.model || '');
+      } catch (error) {
+        console.error('Error fetching models:', error);
+      }
+    };
+
+    fetchModels();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -14,7 +46,7 @@ const OllamaChat = () => {
 
     try {
       const res = await api.post('/ollama/generate', {
-        model: 'llama3',
+        model: selectedModel,
         prompt: prompt,
         stream: false
       });
@@ -33,6 +65,22 @@ const OllamaChat = () => {
         Ollama Chat
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="model-select-label">Model</InputLabel>
+          <Select
+            labelId="model-select-label"
+            id="model-select"
+            value={selectedModel}
+            label="Model"
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            {models.map((model) => (
+              <MenuItem key={model.model} value={model.model}>
+                {model.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           fullWidth
           label="Enter your prompt"

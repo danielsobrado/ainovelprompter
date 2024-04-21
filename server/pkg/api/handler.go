@@ -66,6 +66,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 				// Ollama specific routes
 				protected.POST("/ollama/generate", handler.GenerateResponse)
 				protected.POST("/ollama/chat", handler.ChatWithModel)
+				protected.GET("/ollama/tags", handler.GetOllamaTags)
 			}
 		} else {
 			// Routes without authentication
@@ -100,6 +101,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			// Ollama specific routes
 			v1.POST("/ollama/generate", handler.GenerateResponse)
 			v1.POST("/ollama/chat", handler.ChatWithModel)
+			v1.GET("/ollama/tags", handler.GetOllamaTags)
 		}
 	}
 
