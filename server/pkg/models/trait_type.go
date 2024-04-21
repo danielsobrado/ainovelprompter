@@ -1,8 +1,8 @@
 package models
 
 type TraitType struct {
-	TraitTypeID             uint   `gorm:"primary_key"`
-	TraitType               string `gorm:"not null"`
-	Description             string `gorm:"not null"`
-	AnalyzeTraitDescription string `gorm:"not null"`
+	ID          int    `gorm:"primaryKey" json:"id"`
+	TraitType   string `gorm:"column:trait_type" json:"traitType"`
+	Description string `gorm:"column:description" json:"description"`
+	TriggerText string `gorm:"column:trigger_text" json:"triggerText"`
 }

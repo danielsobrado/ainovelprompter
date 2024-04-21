@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/danielsobrado/ainovelprompter/pkg/middleware"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
@@ -15,6 +16,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	handler := &Handler{DB: db}
 
 	router := gin.Default()
+
+	// Configure CORS middleware
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://localhost:3001"}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	router.Use(cors.New(corsConfig))
 
 	v1 := router.Group("/v1")
 	{
@@ -51,7 +59,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 				protected.POST("/feedback", handler.CreateFeedback)
 				protected.GET("/feedback/:feedbackId", handler.GetFeedback)
 				protected.PUT("/feedback/:feedbackId", handler.UpdateFeedback)
-				protected.DELETE("/feedback/:FeedbackId", handler.DeleteFeedback)
+				protected.DELETE("/feedback/:feedbackId", handler.DeleteFeedback)
 
 				protected.POST("/generate-prompt", handler.GeneratePrompt)
 

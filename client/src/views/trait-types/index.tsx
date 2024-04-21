@@ -1,5 +1,5 @@
-// material-ui
-import { Typography, List, ListItem, ListItemText, Divider, Container } from '@mui/material';
+import { Typography, Container, Paper } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid'; // Updated import
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
@@ -11,10 +11,17 @@ import api from '../../services/api';
 // ==============================|| TRAIT TYPE LIST ||============================== //
 
 interface TraitType {
-  trait_type_id: number;
-  trait_type: string;
+  id: number;
+  traitType: string;
   description: string;
 }
+
+const columns = [
+  { field: 'id', headerName: 'ID', width: 100 },
+  { field: 'traitType', headerName: 'Trait Type', width: 150 },
+  { field: 'description', headerName: 'Description', width: 250 },
+  { field: 'triggerText', headerName: 'Trigger Text', width: 250 }
+];
 
 const TraitTypeList = () => {
   const [traitTypes, setTraitTypes] = useState<TraitType[]>([]);
@@ -26,7 +33,8 @@ const TraitTypeList = () => {
         setTraitTypes(response.data);
       } catch (error) {
         if (error instanceof AxiosError) {
-          toast.error(error.response?.data.error || 'Failed to fetch trait types');
+          const errorMessage = error.response?.data.error || 'Failed to fetch trait types';
+          toast.error(errorMessage);
         } else {
           toast.error('An error occurred');
         }
@@ -42,16 +50,13 @@ const TraitTypeList = () => {
         {traitTypes.length === 0 ? (
           <Typography variant="body1">No trait types found.</Typography>
         ) : (
-          <List>
-            {traitTypes.map((traitType) => (
-              <div key={traitType.trait_type_id}>
-                <ListItem>
-                  <ListItemText primary={traitType.trait_type} secondary={traitType.description} />
-                </ListItem>
-                <Divider />
-              </div>
-            ))}
-          </List>
+          <Paper style={{ height: 400, width: '100%' }}>
+            <DataGrid
+              rows={traitTypes}
+              columns={columns}
+              checkboxSelection
+            />
+          </Paper>
         )}
       </Container>
     </MainCard>
