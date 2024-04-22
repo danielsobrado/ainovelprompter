@@ -99,15 +99,15 @@ CREATE INDEX IF NOT EXISTS chapters_title_gin_idx ON chapters USING GIN (chapter
 CREATE INDEX IF NOT EXISTS feedback_content_gin_idx ON feedback USING GIN (content gin_trgm_ops);
 
 INSERT INTO trait_types (trait_type, description, trigger_text) VALUES
-    ('Narrative Devices', 'Techniques used to structure and present the story', 'Incorporate the following narrative devices into your chapter:'),
-    ('Reader Engagement', 'Elements that draw the reader into the story', 'Engage the reader by including:'),
-    ('Stylistic Elements', 'Techniques used to enhance the writing style', 'Enhance your writing style with the following elements:'),
-    ('Inter-textual References', 'References to external works, events, or culture', 'Include the following inter-textual references in your chapter:'),
-    ('Authorial Intrusion', 'Instances where the author directly addresses the reader', 'Consider using the following authorial intrusion techniques:'),
-    ('Critique and Reviews', 'Notable points from critiques, reviews, or fan reactions', 'Address the following critique points or fan reactions in your chapter:'),
-    ('Character Development', 'Elements that contribute to character growth and depth', 'Develop your characters by exploring:'),
-    ('Emotional Resonance', 'Techniques used to evoke emotions in the reader', 'Create emotional resonance with the following elements:'),
-    ('Cliffhangers and Suspense', 'Elements that create tension and anticipation', 'Build suspense and anticipation with:')
+    ('Narrative Devices', 'Techniques used to structure and present the story', 'Incorporate the following narrative devices into your chapter: <<TEXT>>'),
+    ('Reader Engagement', 'Elements that draw the reader into the story', 'Engage the reader by including: <<TEXT>>'),
+    ('Stylistic Elements', 'Techniques used to enhance the writing style', 'Enhance your writing style with the following elements: <<TEXT>>'),
+    ('Inter-textual References', 'References to external works, events, or culture', 'Include the following inter-textual references in your chapter: <<TEXT>>'),
+    ('Authorial Intrusion', 'Instances where the author directly addresses the reader', 'Consider using the following authorial intrusion techniques: <<TEXT>>'),
+    ('Critique and Reviews', 'Notable points from critiques, reviews, or fan reactions', 'Address the following critique points or fan reactions in your chapter: <<TEXT>>'),
+    ('Character Development', 'Elements that contribute to character growth and depth', 'Develop your characters by exploring: <<TEXT>>'),
+    ('Emotional Resonance', 'Techniques used to evoke emotions in the reader', 'Create emotional resonance with the following elements: <<TEXT>>'),
+    ('Cliffhangers and Suspense', 'Elements that create tension and anticipation', 'Build suspense and anticipation with: <<TEXT>>')
 
 INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
@@ -130,21 +130,14 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'initial_brainstorming_1',
   'Initial Brainstorming 1',
-  'Give me <<NUMBER>> high-concept pitches for a bestselling
-    <<GENRE>> story with a unique twist, intriguing characters,
-    and gripping emotional stakes.'
-,
+  'Supply <<NUMBER>> high-concept ideas for a bestselling <<GENRE>> story, featuring a unique twist, captivating characters, and intense emotional stakes.',
   1
 );
 INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'initial_brainstorming_2',
   'Initial Brainstorming 2',
-  'Give me <<NUMBER>> ideas for characters that are part of a
-    bestselling <<GENRE>> story that are well fleshed out, have
-    strengths and weaknesses, and undergo conflict throughout
-    the course of the story. Briefly describe their character arc.'
-,
+  'Provide <<NUMBER>> detailed character concepts for a bestselling <<GENRE>> narrative, each with distinct strengths and weaknesses, and a journey marked by conflict. Include a brief outline of their character development.',
   1
 );
 
@@ -152,9 +145,7 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'outlining_prompts_1',
   'Outlining Prompt 1',
-  'Using the following concept, write a story synopsis for a
-    <<GENRE>> book:
-    <<PITCH>>',
+  'Develop a narrative synopsis for a <<GENRE>> book using the core idea provided: <<PITCH>>',
   1
 );
 
@@ -162,8 +153,7 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'setting_prompts_1',
   'Setting Prompt 1',
-  'Generate a list of potential locations for a novel about
-    <<SYNOPSIS>>',
+  'Identify a range of possible settings for a novel outlined in <<SYNOPSIS>>',
   1
 );
 
@@ -171,7 +161,7 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'character_prompts_1',
   'Character Prompt 1',
-  'Generate a list of character possibilities for a novel about
+  'Assemble a roster of potential characters for a story described by
     <<SUMMARY>>',
   1
 );
@@ -180,14 +170,14 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'writing_prompts_1',
   'Writing Prompt 1',
-  'Write 1000 words of a chapter using the following details:
-    Genre: <<GENRE>>
-    Tone: <<TONE>>
-    Point of View: <<POV>>
-    Setting: <<SETTING>>
-    Key Characters: <<CHARACTERS>>
-    Summary: <<SUMMARY>>
-    Conflict: <<CONFLICT>>',
+  'Compose <<NUMBER>> words from a chapter section, incorporating these specifics:
+    Literary Genre: <<GENRE>>
+    Emotional Tone: <<TONE>>
+    Narrative Perspective: <<POV>>
+    Backdrop: <<SETTING>>
+    Principal Figures: <<CHARACTERS>>
+    Synopsis: <<SUMMARY>>
+    Central Tension: <<CONFLICT>>',
   1
 );
 
@@ -195,9 +185,7 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'editing_prompts_1',
   'Editing Prompt 1',
-  'Given the following scene, write a stronger hook and opening
-    paragraph in the style of a best-selling <<GENRE>> author:
-    <<SCENE>>',
+  'Craft an enhanced hook and introductory paragraph reflecting the hallmark style of a top-selling <<GENRE>> author, based on the scene provided: <<SCENE>>',
   1
 );
 
@@ -205,6 +193,23 @@ INSERT INTO standard_prompts (standard_name, title, prompt, version)
 VALUES (
   'title_description_prompts_1',
   'Title/Description Prompt 1',
-  'Create a list of potential titles for a novel about: <<THEME>>',
+  'Compile a selection of possible titles for a novel that revolves around the theme: <<THEME>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'fine_tuning_writting_1',
+  'Fine Tuning Writting 1',
+  'System: As the <<GENRE>> author <<AUTHOR>>, upon receiving a scene beat, compose <<WORDS>> words inspired by the prompt. Begin amidst the unfolding action. Adhere strictly to the given beat instructions. Refrain from resolving the scene or incorporating foreshadowing. User: <<STORYBEAT>> Assistant: <<PROSE>>',
+  1
+);
+
+INSERT INTO standard_prompts (standard_name, title, prompt, version)
+VALUES (
+  'fine_tuning_copy_editing_1',
+  'Fine Tuning Copy Editing 1',
+  'System: You are a seasoned copy editor. When presented with prose, deliver a copy-edited version that maintains the distinctive style of <<AUTHOR>>. User: <<PROSE>> Assistant: <<EDITEDPROSE>>'
+',
   1
 );
