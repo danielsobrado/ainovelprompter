@@ -11,7 +11,7 @@ AI Novel Prompter can generate writing prompts for novels based on user-specifie
 - Prompt generation based on traits
 - Integration with a local ollama service
 - Based on Berry template (https://codedthemes.gitbook.io/berry)
-- Inspered on Jason Hamilton Youtube (https://www.youtube.com/@TheNerdyNovelist)
+- Inspired on Jason Hamilton Youtube (https://www.youtube.com/@TheNerdyNovelist)
 
 ## Technologies Used
 

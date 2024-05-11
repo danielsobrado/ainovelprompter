@@ -1,0 +1,63 @@
+You are a famous fantasy writer, you wrote many bestsellers, write a chapter for a dnd style novel, use tell, don't show, don't use flowery descriptions, use simple vocabulary, follow these rules: 
+The setting needs to be intriguing, creating an atmosphere of suspense and anticipation.
+Each character having a distinct voice that reflects their personality and background.
+Avoid the prose to be overwritten, it should be balanced with straightforward prose to maintain a good pace.
+Avoid clichéd reactions. Aim for more unique and nuanced responses to help the characters stand out.
+Consider revealing information more gradually through dialogue and action rather than a single info-dump.
+Strive for a consistent tone that matches the overall mood you want to convey.
+Use judicious cliffhangers, reveals, nonlinear timeline, and other devices to inject intrigue and propel the plot. But don't sacrifice character development.
+Prioritize brisk plotting and action, but balance with introspective passages when needed for character depth and relationships. Avoid one-dimensional characters.
+Bring contemporary settings alive while maintaining narrative momentum and page-turning suspense. Immerse readers while keeping them turning pages.
+Vary your vocabulary and sentence structure.
+Write in active voice. Do not use -ing suffixes if possible
+The reader is familiar with the characters and settings. Avoid introducing them unless the story/scene beat specifies it.
+Always follow the "show, don't tell" principle. For instance: Telling: <bad>Michael was terribly afraid of the dark.</bad>Showing: <good>Michael tensed as his mother switched off the light and left the room. "Mom, please don't go!" he whispered, gripping the sheets and holding his breath as the wind brushed past the curtain.</good>Telling: <bad>I walked through the forest. It was already Fall, and I was getting cold.</bad>Showing: <good>Dry orange leaves crunched under my feet. I pulled my coat's collar up and rubbed my hands together for some warmth.</good>
+Add sensory details (sight, smell, taste, sound, touch) to support the "showing"
+Avoid adverbs and clichés and overused/commonly used phrases. Aim for fresh and original descriptions.
+Avoid writing all sentences in the typical subject, verb, object structure. Mix short, punchy sentences with long, descriptive ones. Drop fill words to add variety. Like so: <good>Locked. Seems like someone doesn't want his secrets exposed. I can work with that.</good>
+Convey events and story through dialogue. Keep a unique voice for every character and make it consistent.
+Write dialogue that reveals characters' personalities, motivations, emotions, and attitudes in an interesting and compelling manner
+Leave dialogue unattributed. If needed, only use "he/she said said" dialogue tags and convey people's actions or face expressions through their speech. Dialogue always is standalone, never part of a paragraph. Like so: <bad>"I don't know," Helena said nonchalantly, shrugging her shoulders</bad> <good>"No idea" "Why not? It was your responsibility"</good>
+Put dialogue on its own paragraph to separate scene and action.
+Use body language to reveal hidden feelings and implied accusations to create tension
+Imply feelings and thoughts, never state them directly
+Avoid boring and mushy dialog and descriptions, have dialogue always continue the action, never stall or include unnecessary fluff. Vary the descriptions to not repeat yourself. Avoid conversations that are just "Let's go" "yes, let's" or "Are you ready?" "Yes I'm ready". Those are not interesting.
+NEVER use indicators of uncertainty like "trying" or "maybe"
+Let the dialogue and action explain the story (show, don't tell)
+Varied sentence structure and length: Use a mix of short and long sentences, as well as different sentence structures, to create a more engaging and dynamic flow of words. Mixed Cadence.
+Include plenty of dialogue, and make the dialogue sound real with common human quirks: craft dialogue that reflects natural speech patterns, but don't overdo slang or sayings.
+Intelligently shuffle and rephrase the text: Alter the sentence structure, introduce synonyms or paraphrase and adjust the arrangement of words and phrases in a sentence, as well as the relationships between them, to create subtle variations in the structure of the text.
+Perplexity measures the complexity of text. Separately, burstiness compares the variations of sentences. Humans tend to write with greater burstiness, for example, with some longer or complex sentences alongside shorter ones. AI sentences tend to be more uniform. Therefore, when writing the following content I am going to ask you to create, I need it to have a good amount of perplexity and burstiness.
+
+Write in 1500 words a chapter taking into account the following points as well:
+
+Varian and Elric walk to the outpost, both tired and worried about recent events.
+They learn from riders that goblins have killed three cows in frontier villages without taking the bodies.
+Varian reports the incident in the village where a girl was attacked, but no attacker was found.
+Captain Aldric realizes the seriousness of the situation and orders increased patrols and a search of the borders.
+Varian and Elric express concern about the outpost being short-handed, and Aldric decides to recruit men from the village.
+Aldric warns them not to enter goblin territory and only to watch and guard.
+Varian and Elric check the outpost's defenses and gather a dozen men from the village to help with patrols.
+Varian assigns the new recruits to four-hour shifts with experienced guards.
+An uneasy calm settles over the outpost as patrols begin.
+Varian and Elric discuss the stories about goblin rituals, with Varian believing that evil lives in the forest.
+During their watch, they see a movement in the trees, which turns out to be a scared rabbit.
+Varian remains unsettled by the dark and foreboding nature of the forest.
+The two friends struggle to sleep, haunted by memories and the sense of impending danger.
+The next morning, a patrol reports finding goblin tracks along the border, indicating a scouting party.
+Varian and Elric realize that the goblins are preparing to attack, and they must be ready to defend against them.
+Elric orders the men to sharpen their weapons and remain vigilant.
+Varian reflects on the bravery or foolishness of the farmers who live near the evil forest.
+He fears that a great evil is stirring in goblin territory.
+Elric reassures him that they will stand against whatever threat emerges from the trees.
+An atmosphere of nervous energy and anticipation permeates the outpost as the men prepare for the impending goblin attack.
+
+Take the following points into account when providing the text:
+
+Inquiry and Uncertainty: Varian's interaction with Alden and the outpost captain sets the tone of uncertainty and concern regarding a potential threat (goblins).
+Exposition Through Dialogue: The dialogue among Varian, Elric, and Captain Aldric reveals the background of the threat – goblin attacks without any direct sightings.
+Character Dynamics: Varian's leadership qualities are hinted at through his proactive demeanor and interactions with authority (Captain Aldric).
+Mood and Tone Setting: The description of the outpost and its environment adds a gloomy and tense mood, enhancing the fantasy setting.
+Pacing and Suspense: The narrative builds suspense as Varian and Elric discuss the outpost's preparedness and the unspoken fear of what lurks in the forest.
+Strategy and Response: Captain Aldric’s cautious yet firm strategy to increase patrols and keep a vigilant watch sets up the outpost’s defensive stance.
+Building the Stakes: The conversation about increasing the watch and the mention of the forest’s darkness elevate the stakes, indicating a looming larger threat.
