@@ -232,6 +232,14 @@ This small guide provides instructions on how to install PostgreSQL on the Windo
 
 ---
 
+## Generating Custom Training Data to Fine-Tune a Language Model (Manual Steps)
+
+To [generate custom training data](https://github.com/danielsobrado/ainovelprompter/tree/main/finetune_data_example1) for fine-tuning a language model to emulate the writing style of George MacDonald, the process begins by obtaining the full text of one of his novels, "The Princess and the Goblin," from Project Gutenberg. The text is then broken down into individual story beats or key moments using a prompt that instructs the AI to generate a JSON object for each beat, capturing the author, emotional tone, type of writing, and the actual text excerpt.
+
+Next, GPT-4 is used to rewrite each of these story beats in its own words, generating a parallel set of JSON data with unique identifiers linking each rewritten beat to its original counterpart. To simplify the data and make it more useful for training, the wide variety of emotional tones is mapped to a smaller set of core tones using a Python function. The two JSON files (original and rewritten beats) are then used to generate training prompts, where the model is asked to rephrase the GPT-4 generated text in the style of the original author. Finally, these prompts and their target outputs are formatted into JSONL and JSON files, ready to be used for fine-tuning the language model to capture MacDonald's distinctive writing style.
+
+---
+
 ## AI Writing Model Comparison
 
 In this [experiment](https://github.com/danielsobrado/ainovelprompter/tree/main/compare), I explored the capabilities and differences between various AI models in generating a 1500-word text based on a detailed prompt. I tested models from https://chat.lmsys.org/, ChatGPT4, Claude 3 Opus, and some local models in LM Studio. Each model generated the text three times to observe variability in their outputs. I also created a separate prompt for evaluating the writing of the first iteration from each model and asked ChatGPT 4 and Claude Opus 3 to provide feedback.
