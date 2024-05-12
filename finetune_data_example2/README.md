@@ -45,6 +45,10 @@ The task was simple: given a text, determine whether it is a dialogue or not, an
 
 Llama 3 version:
 
+![Llama 3 version](https://github.com/danielsobrado/ainovelprompter/blob/main/finetune_data_example2/img/Dialog_Llama3_Test.jpg)
+
 Dolphin finetuned version:
+
+![Dolphin finetuned version](https://github.com/danielsobrado/ainovelprompter/blob/main/finetune_data_example2/img/Dialog_Dolphin_Test.jpg)
 
 Generic fine-tunes should be approached with caution. A fine-tuned model, such as a LoRA (Low-Rank Adaptation) model, should be used for specific tasks, and the resulting model may no longer be suitable for other tasks.
