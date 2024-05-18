@@ -343,6 +343,102 @@ Through this process, I observed that some models exhibit higher variability bet
 
 I'm open to collaborating with others to further fine-tune prompts for each model and explore their capabilities in creative writing tasks.
 
+## Prompting Small LLMs
+
+- **Direct Instructions:**
+  - Use clean, specific, and direct commands.
+  - Avoid verbosity and unnecessary phrases.
+- **Adjective Management:**
+  - Be cautious with adjectives; they may influence the model's response inappropriately.
+- **Delimiters and Markdown:**
+  - Use backticks, brackets, or markdown to separate distinct parts of the text.
+  - Markdown helps structure and segregate sections effectively.
+- **Structured Formats:**
+  - Utilize JSON, markdown, HTML, etc., for input and output.
+  - Constrain output using JSON schema when necessary.
+- **Few-shot Examples:**
+  - Provide few-shot examples from various niches to avoid overfitting.
+  - Use these examples to "teach" the model steps in a process.
+- **Chain-of-Thought:**
+  - Implement chain-of-thought prompts to improve reasoning and procedural understanding.
+  - Break down tasks into steps and guide the model through them.
+- **Description Before Completion:**
+  - Prompt the model to describe entities before answering.
+  - Ensure that description doesn’t bleed into completion unintentionally.
+- **Context Management:**
+  - Provide essential context only, avoid unstructured paragraph dumps.
+  - Direct the model towards the desired answer with sufficient but concise context.
+- **Testing and Verification:**
+  - Test prompts multiple times to catch unexpected outputs.
+  - Use completion ranking for relevance, clarity, and coherence.
+- **Use Stories:**
+  - Control output with storytelling techniques.
+  - For example, write a narrative that includes the desired output format.
+- **GBNF Grammars:**
+  - Explore GBNF grammars to constrain and control model output.
+- **Read and Refine:**
+  - Review and refine generated prompts to remove unnecessary phrases and ensure clarity.
+
+## Prompting Llama 3 8b
+
+Models have inherent formatting biases. Some models prefer hyphens for lists, others asterisks. When using these models, it's helpful to mirror their preferences for consistent outputs.
+
+### Key Points for Llama 3 Prompting:
+
+- **Formatting Tendencies:**
+  - Llama 3 prefers lists with bolded headings and asterisks.
+  - Example:
+    **Bolded Title Case Heading**
+
+    * List items with asterisks after two newlines
+
+    * List items separated by one newline
+
+    **Next List**
+
+    * More list items
+
+    * Etc...
+
+- **Few-shot Examples:**
+  - Llama 3 follows both system prompts and few-shot examples.
+  - It is flexible with prompting methods but may quote few-shot examples verbatim.
+
+- **System Prompt Adherence:**
+  - Llama 3 responds well to system prompts with detailed instructions.
+  - Combining system prompts and few-shot examples yields better results.
+
+- **Context Window:**
+  - The current context window is small, limiting the use of extensive few-shot examples.
+  - This may be addressed in future updates.
+
+- **Censorship:**
+  - The instruct version has some censorship but is less restricted than previous versions.
+
+- **Intelligence:**
+  - Performs well in zero-shot chain-of-thought reasoning.
+  - Capable of understanding and adapting to varied inputs.
+
+- **Consistency:**
+  - Generally consistent but may directly quote examples.
+  - Performance can degrade with higher temperatures.
+
+### Usage Recommendations:
+
+- **Lists and Formatting:**
+  - Use the preferred list format for better accuracy.
+  - Explicitly instruct Llama 3 on desired output formats if different from its default.
+
+- **Chat Settings:**
+  - Suitable for tasks requiring intelligence and instruction following.
+  - Limited by context window for large tasks.
+
+- **Pipeline Settings:**
+  - Effective for GPT-4 style pipelines using system prompts.
+  - Context window limitations restrict some tasks.
+
+Llama 3 is flexible and intelligent but has context and quoting limitations. Adjust prompting methods accordingly.
+
 ## Contributing
 
 All comments are welcome. Open an issue or send a pull request if you find any bugs or have recommendations for improvement.
