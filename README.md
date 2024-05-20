@@ -240,6 +240,35 @@ Next, GPT-4 is used to rewrite each of these story beats in its own words, gener
 
 ---
 
+## Generating Custom Training Data to Fine-Tune a Language Model (Automated)
+
+In the previous example, the process of generating paraphrased text using a language model involved some manual tasks. The user had to manually provide the input text, run the script, and then review the generated output to ensure its quality. If the output did not meet the desired criteria, the user would need to manually retry the generation process with different parameters or make adjustments to the input text.
+
+However, with the [updated version](https://github.com/danielsobrado/ainovelprompter/tree/main/finetune_data_example2) of the `process_text_file` function, the entire process has been fully automated. The function takes care of reading the input text file, splitting it into paragraphs, and automatically sending each paragraph to the language model for paraphrasing. It incorporates various checks and retry mechanisms to handle cases where the generated output does not meet the specified criteria, such as containing unwanted phrases, being too short or too long, or consisting of multiple paragraphs.
+
+The automation process includes several key features:
+
+1. **Resuming from the last processed paragraph:**
+   If the script is interrupted or needs to be run multiple times, it automatically checks the output file and resumes processing from the last successfully paraphrased paragraph. This ensures that progress is not lost and the script can pick up where it left off.
+
+2. **Retry mechanism with random seed and temperature:**
+   If a generated paraphrase fails to meet the specified criteria, the script automatically retries the generation process up to a specified number of times. With each retry, it randomly changes the seed and temperature values to introduce variation in the generated responses, increasing the chances of obtaining a satisfactory output.
+
+3. **Progress saving:**
+   The script saves the progress to the output file every specified number of paragraphs (e.g., every 500 paragraphs). This safeguards against data loss in case of any interruptions or errors during the processing of a large text file.
+
+4. **Detailed logging and summary:**
+   The script provides detailed logging information, including the input paragraph, generated output, retry attempts, and reasons for failure. It also generates a summary at the end, displaying the total number of paragraphs, successfully paraphrased paragraphs, skipped paragraphs, and the total number of retries.
+
+---
+## Generating Custom Training Data to Fine-Tune a Language Model with Local LLM and LM Studio using ORPO
+
+To [generate ORPO custom training data](https://github.com/danielsobrado/ainovelprompter/tree/main/finetune_data_example3_orpo) for fine-tuning a language model to emulate the writing style of George MacDonald. 
+
+The input data should be in JSONL format, with each line containing a JSON object that includes the prompt and chosen response. (From the previous fine tuning)
+To use the script, you need to set up the OpenAI client with your API key and specify the input and output file paths. Running the script will process the JSONL file and generate a CSV file with columns for the prompt, chosen response, and a generated rejected response. The script saves progress every 100 lines and can resume from where it left off if interrupted. Upon completion, it provides a summary of the total lines processed, written lines, skipped lines, and retry details.
+
+---
 ## Fine-Tuning lessons
 
 * Dataset Quality Matters: 95% of outcomes depend on dataset quality. A clean dataset is essential since even a little bad data can hurt the model.
