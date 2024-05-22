@@ -291,6 +291,26 @@ To use the script, you need to set up the OpenAI client with your API key and sp
 
 ---
 
+## Finetuning Llama 3 issues as of May 2024
+
+The Unsloth community has helped resolve several issues with finetuning Llama3. Here are some key points to keep in mind:
+
+1. **Double BOS tokens**: Double BOS tokens during finetuning can break things. Unsloth automatically fixes this issue. 
+
+2. **GGUF conversion**: GGUF conversion is broken. Be careful of double BOS and use CPU instead of GPU for conversion. Unsloth has built-in automatic GGUF conversions.
+
+3. **Buggy base weights**: Some of Llama 3's base (not instruct) weights are "buggy" (untrained): `<|reserved_special_token_{0->250}|> <|eot_id|> <|start_header_id|> <|end_header_id|>`. This can cause NaNs and buggy results. Unsloth automatically fixes this.
+
+4. **System prompt**: According to the Unsloth community, adding a system prompt makes finetuning of the Instruct version (and possibly the base version) much better.
+
+5. **Quantization issues**: Quantization issues are common. See [this comparison](https://github.com/matt-c1/llama-3-quant-comparison) which shows that you can get good performance with Llama3, but using the wrong quantization can hurt performance. For finetuning, use bitsandbytes nf4 to boost accuracy. For GGUF, use the I versions as much as possible.
+
+6. **Long context models**: Long context models are poorly trained. They simply extend the RoPE theta, sometimes without any training, and then train on a weird concatenated dataset to make it a long dataset. This approach does not work well. A smooth, continuous long context scaling would have been much better if scaling from 8K to 1M context length.
+
+To resolve some of these issues, use [Unsloth](https://github.com/unslothai/unsloth) for finetuning Llama3.
+
+---
+
 ## Evaluation Metrics
 
 When fine-tuning a language model for paraphrasing in an author's style, it's important to evaluate the quality and effectiveness of the generated paraphrases. 
