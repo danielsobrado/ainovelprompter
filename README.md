@@ -2,6 +2,128 @@
 
 AI Novel Prompter can generate writing prompts for novels based on user-specified characteristics. 
 
+# Wails based Tool
+
+AI Novel Prompter is a desktop application designed to help writers create consistent and well-structured prompts for AI writing assistants like ChatGPT and Claude. The tool helps manage story elements, character details, and generate properly formatted prompts for continuing your novel.
+
+## Features
+
+### 1. Task & Chapter Management
+- **Task Type Selection**: Define and customize different types of writing tasks
+- **Sample Chapter Management**: Store and reference sample chapters for style consistency
+- **Chapter Content Tabs**:
+  - Story Beats: Plan the main points for your next chapter
+  - Previous Chapter: Reference the last written chapter
+  - Future Notes: Keep track of planned future developments
+
+### 2. Story Element Management
+Each category can be edited, saved, and reused across different prompts:
+
+- **Rules**: Define writing rules and style guidelines
+- **Characters**: Manage character profiles and details
+- **Locations**: Keep track of story locations and their descriptions
+- **Codex**: Store world-building elements and lore
+
+### 3. Prompt Generation
+- **Dual AI Support**: 
+  - ChatGPT-optimized formatting
+  - Claude-optimized XML formatting
+- **Real-time Preview**: See your formatted prompt as you build it
+- **Token Counting**: Track token usage for AI model limits
+- **Custom Instructions**: Add specific requirements or guidelines
+
+### 4. Data Persistence
+- All data is automatically saved locally
+- Categories include:
+  - Task types
+  - Sample chapters
+  - Rules
+  - Characters
+  - Locations
+  - Codex entries
+
+### 5. User Interface
+- **Clean, Modern Design**: Built with shadcn/ui components
+- **Responsive Layout**: Adapts to different window sizes
+- **Tabbed Interface**: Organized content access
+- **Modal Editors**: Easy editing of story elements
+
+## Technical Stack
+
+- **Frontend**:
+  - React
+  - TypeScript
+  - Tailwind CSS
+  - shadcn/ui components
+
+- **Backend**:
+  - Go
+  - Wails framework
+
+## File Management
+
+- Saves data in the user's home directory under `.code-prompter`
+- Supports files up to 500KB
+- Includes file and folder selection capabilities
+
+## Installation
+
+```bash
+# Clone the repository
+git clone [repository-url]
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Build and run the application
+cd ..
+wails dev
+```
+
+## Building for Production
+
+```bash
+wails build
+```
+
+The built application will be available in the `build` directory.
+
+## Usage Guide
+
+1. **Initial Setup**:
+   - Define your task types (e.g., "Write Next Chapter", "Revise Chapter")
+   - Add sample chapters for style reference
+   - Set up your rules and guidelines
+
+2. **Creating a Prompt**:
+   - Select your task type
+   - Reference or add your previous chapter
+   - Write your story beats
+   - Select relevant rules, characters, and locations
+   - Add any custom instructions
+
+3. **Generating Output**:
+   - Choose between ChatGPT or Claude formatting
+   - Review the generated prompt
+   - Copy to clipboard
+   - Paste into your preferred AI assistant
+
+## Development
+
+### Adding New Features
+- The codebase supports easy addition of new selectors and options
+- Modal components follow a consistent pattern
+- Data persistence is handled automatically
+
+### Customization
+- All components use Tailwind CSS for styling
+- UI components can be customized through shadcn/ui
+- Prompt formatting can be modified in the promptGenerators utility
+
+
+# Web based tool
+
 ## Features
 
 - User registration and authentication
@@ -487,6 +609,13 @@ Models have inherent formatting biases. Some models prefer hyphens for lists, ot
   - Context window limitations restrict some tasks.
 
 Llama 3 is flexible and intelligent but has context and quoting limitations. Adjust prompting methods accordingly.
+
+
+## Acknowledgments
+
+- Built with [Wails](https://wails.io/)
+- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Icons from [Lucide](https://lucide.dev/)
 
 ## Contributing
 
