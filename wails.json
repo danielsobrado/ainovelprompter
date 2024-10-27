@@ -1,0 +1,18 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "code-prompter",
+  "width": 1024, 
+  "height": 768 ,
+  "outputfilename": "code-prompter",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "danielsobrado",
+    "email": "daniel@danielsobrado.com"
+  },
+  "devtools": {
+    "enabled": true
+  }
+}
