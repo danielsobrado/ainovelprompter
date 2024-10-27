@@ -16,6 +16,8 @@ AI Novel Prompter is a desktop application designed to help writers create consi
   - Previous Chapter: Reference the last written chapter
   - Future Notes: Keep track of planned future developments
 
+[AI Novel 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/AINovel1.jpg)
+
 ### 2. Story Element Management
 Each category can be edited, saved, and reused across different prompts:
 
@@ -31,6 +33,8 @@ Each category can be edited, saved, and reused across different prompts:
 - **Real-time Preview**: See your formatted prompt as you build it
 - **Token Counting**: Track token usage for AI model limits
 - **Custom Instructions**: Add specific requirements or guidelines
+
+[AI Novel 2](https://github.com/danielsobrado/ainovelprompter/blob/main/images/AINovel2.jpg)
 
 ### 4. Data Persistence
 - All data is automatically saved locally
