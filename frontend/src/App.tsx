@@ -9,13 +9,13 @@ import {
   CharactersSelector,
   LocationsSelector,
   CodexSelector,
-  SampleChaptersSelector, // Updated name
+  SampleChaptersSelector, 
   PreviousChapterInput,
   FutureChapterInput,
   PromptSection,
 } from './components';
 import { DEFAULT_INSTRUCTIONS, PROMPT_TYPES } from './utils/constants';
-import type { PromptData } from './types';
+import type { PromptData, TaskTypeOption, RuleOption, CharacterOption, LocationOption, CodexOption, SampleChapterOption } from './types';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import TaskTypeEditModal from './components/TaskTypeEditModal';
 import RulesEditModal from './components/RulesEditModal';
@@ -24,6 +24,29 @@ import LocationsEditModal from './components/LocationsEditModal';
 import CodexEditModal from './components/CodexEditModal';
 import SampleChapterEditModal from './components/SampleChapterEditModal';
 import { ChapterSection } from './components/ChapterSection';
+
+declare global {
+  interface Window {
+    go: {
+      main: {
+        App: {
+          ReadTaskTypesFile: () => Promise<string>;
+          WriteTaskTypesFile: (content: string) => Promise<void>;
+          ReadRulesFile: () => Promise<string>;
+          WriteRulesFile: (content: string) => Promise<void>;
+          ReadCharactersFile: () => Promise<string>;
+          WriteCharactersFile: (content: string) => Promise<void>;
+          ReadLocationsFile: () => Promise<string>;
+          WriteLocationsFile: (content: string) => Promise<void>;
+          ReadCodexFile: () => Promise<string>;
+          WriteCodexFile: (content: string) => Promise<void>;
+          ReadSampleChaptersFile: () => Promise<string>;
+          WriteSampleChaptersFile: (content: string) => Promise<void>;
+        };
+      };
+    };
+  }
+}
 
 export default function App() {
   // Option management hooks
@@ -62,6 +85,102 @@ export default function App() {
 
   // Raw prompt with default instruction
   const [rawPrompt, setRawPrompt] = useState<string>(DEFAULT_INSTRUCTIONS[PROMPT_TYPES.CHATGPT]);
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const taskTypesData = await window.go.main.App.ReadTaskTypesFile();
+        if (taskTypesData) {
+          taskTypes.setOptions(JSON.parse(taskTypesData));
+        }
+
+        const rulesData = await window.go.main.App.ReadRulesFile();
+        if (rulesData) {
+          rules.setOptions(JSON.parse(rulesData));
+        }
+
+        const charactersData = await window.go.main.App.ReadCharactersFile();
+        if (charactersData) {
+          characters.setOptions(JSON.parse(charactersData));
+        }
+
+        const locationsData = await window.go.main.App.ReadLocationsFile();
+        if (locationsData) {
+          locations.setOptions(JSON.parse(locationsData));
+        }
+
+        const codexData = await window.go.main.App.ReadCodexFile();
+        if (codexData) {
+          codex.setOptions(JSON.parse(codexData));
+        }
+
+        const chaptersData = await window.go.main.App.ReadSampleChaptersFile();
+        if (chaptersData) {
+          sampleChapters.setOptions(JSON.parse(chaptersData));
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Save handlers
+  const handleTaskTypesSave = async (options: TaskTypeOption[]) => {
+    try {
+      await window.go.main.App.WriteTaskTypesFile(JSON.stringify(options));
+      taskTypes.setOptions(options);
+    } catch (error) {
+      console.error('Error saving task types:', error);
+    }
+  };
+
+  const handleRulesSave = async (options: RuleOption[]) => {
+    try {
+      await window.go.main.App.WriteRulesFile(JSON.stringify(options));
+      rules.setOptions(options);
+    } catch (error) {
+      console.error('Error saving rules:', error);
+    }
+  };
+
+  const handleCharactersSave = async (options: CharacterOption[]) => {
+    try {
+      await window.go.main.App.WriteCharactersFile(JSON.stringify(options));
+      characters.setOptions(options);
+    } catch (error) {
+      console.error('Error saving characters:', error);
+    }
+  };
+
+  const handleLocationsSave = async (options: LocationOption[]) => {
+    try {
+      await window.go.main.App.WriteLocationsFile(JSON.stringify(options));
+      locations.setOptions(options);
+    } catch (error) {
+      console.error('Error saving locations:', error);
+    }
+  };
+
+  const handleCodexSave = async (options: CodexOption[]) => {
+    try {
+      await window.go.main.App.WriteCodexFile(JSON.stringify(options));
+      codex.setOptions(options);
+    } catch (error) {
+      console.error('Error saving codex:', error);
+    }
+  };
+
+  const handleSampleChaptersSave = async (options: SampleChapterOption[]) => {
+    try {
+      await window.go.main.App.WriteSampleChaptersFile(JSON.stringify(options));
+      sampleChapters.setOptions(options);
+    } catch (error) {
+      console.error('Error saving sample chapters:', error);
+    }
+  };
   
   // Handle copy to clipboard
   const handleCopy = useCallback(() => {
@@ -191,44 +310,43 @@ export default function App() {
         isOpen={isTaskTypeEditOpen}
         onClose={() => setIsTaskTypeEditOpen(false)}
         options={taskTypes.options}
-        onSave={taskTypes.setOptions}
+        onSave={handleTaskTypesSave}
       />
 
       <SampleChapterEditModal
         isOpen={isSampleChapterEditOpen}
         onClose={() => setIsSampleChapterEditOpen(false)}
         options={sampleChapters.options}
-        onSave={sampleChapters.setOptions}
+        onSave={handleSampleChaptersSave}
       />
 
       <RulesEditModal
         isOpen={isRulesEditOpen}
         onClose={() => setIsRulesEditOpen(false)}
         options={rules.options}
-        onSave={rules.setOptions}
+        onSave={handleRulesSave}
       />
 
       <CharactersEditModal
         isOpen={isCharactersEditOpen}
         onClose={() => setIsCharactersEditOpen(false)}
         options={characters.options}
-        onSave={characters.setOptions}
+        onSave={handleCharactersSave}
       />
 
       <LocationsEditModal
         isOpen={isLocationsEditOpen}
         onClose={() => setIsLocationsEditOpen(false)}
         options={locations.options}
-        onSave={locations.setOptions}
+        onSave={handleLocationsSave}
       />
 
       <CodexEditModal
         isOpen={isCodexEditOpen}
         onClose={() => setIsCodexEditOpen(false)}
         options={codex.options}
-        onSave={codex.setOptions}
+        onSave={handleCodexSave}
       />
-
     </AppLayout>
   );
 }

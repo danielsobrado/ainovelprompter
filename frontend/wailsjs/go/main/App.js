@@ -14,12 +14,32 @@ export function ProcessFolder(arg1, arg2) {
   return window['go']['main']['App']['ProcessFolder'](arg1, arg2);
 }
 
+export function ReadCharactersFile() {
+  return window['go']['main']['App']['ReadCharactersFile']();
+}
+
+export function ReadCodexFile() {
+  return window['go']['main']['App']['ReadCodexFile']();
+}
+
 export function ReadFileContent(arg1) {
   return window['go']['main']['App']['ReadFileContent'](arg1);
 }
 
+export function ReadLocationsFile() {
+  return window['go']['main']['App']['ReadLocationsFile']();
+}
+
+export function ReadRulesFile() {
+  return window['go']['main']['App']['ReadRulesFile']();
+}
+
 export function ReadRulessFile() {
   return window['go']['main']['App']['ReadRulessFile']();
+}
+
+export function ReadSampleChaptersFile() {
+  return window['go']['main']['App']['ReadSampleChaptersFile']();
 }
 
 export function ReadSettingsFile() {
@@ -38,8 +58,28 @@ export function SelectFile() {
   return window['go']['main']['App']['SelectFile']();
 }
 
+export function WriteCharactersFile(arg1) {
+  return window['go']['main']['App']['WriteCharactersFile'](arg1);
+}
+
+export function WriteCodexFile(arg1) {
+  return window['go']['main']['App']['WriteCodexFile'](arg1);
+}
+
+export function WriteLocationsFile(arg1) {
+  return window['go']['main']['App']['WriteLocationsFile'](arg1);
+}
+
+export function WriteRulesFile(arg1) {
+  return window['go']['main']['App']['WriteRulesFile'](arg1);
+}
+
 export function WriteRulessFile(arg1) {
   return window['go']['main']['App']['WriteRulessFile'](arg1);
+}
+
+export function WriteSampleChaptersFile(arg1) {
+  return window['go']['main']['App']['WriteSampleChaptersFile'](arg1);
 }
 
 export function WriteSettingsFile(arg1) {
