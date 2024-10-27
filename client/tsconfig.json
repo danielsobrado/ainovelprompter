@@ -6,10 +6,10 @@
       "dom.iterable",
       "esnext"
     ],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
@@ -26,5 +26,5 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ]   
 }
