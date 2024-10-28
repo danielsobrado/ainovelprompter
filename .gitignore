@@ -28,14 +28,12 @@ build/
 postgres-data/
 
 node_modules
-/build
 /package-lock.json
 /frontend/node_modules
 /frontend/dist
 /frontend/repopack-output.txt
 /frontend/package.json.md5
 /frontend/package-lock.json
-/build/bin
 .history
 frontend\package.json.md5
 frontend\package-lock.json

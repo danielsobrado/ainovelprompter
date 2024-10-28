@@ -1,9 +1,9 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "code-prompter",
+  "name": "AI Novel Prompter",
   "width": 1024, 
   "height": 768 ,
-  "outputfilename": "code-prompter",
+  "outputfilename": "AINovelPrpmpter",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",

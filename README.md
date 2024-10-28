@@ -6,6 +6,8 @@ AI Novel Prompter can generate writing prompts for novels based on user-specifie
 
 AI Novel Prompter is a desktop application designed to help writers create consistent and well-structured prompts for AI writing assistants like ChatGPT and Claude. The tool helps manage story elements, character details, and generate properly formatted prompts for continuing your novel.
 
+The Executable is on build/bin [Executable](https://github.com/danielsobrado/code-prompter/tree/main/build/bin/CodePrompter.exe)
+
 ## Features
 
 ### 1. Task & Chapter Management
@@ -85,8 +87,18 @@ wails dev
 
 ## Building for Production
 
+To build a redistributable, production mode package, use `wails build`.
+
 ```bash
 wails build
+```
+
+The Executable is on build/bin [Executable](https://github.com/danielsobrado/code-prompter/tree/main/build/bin/CodePrompter.exe)
+
+Or generate it with:
+
+```console
+wails build -nsis
 ```
 
 The built application will be available in the `build` directory.
