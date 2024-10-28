@@ -20,7 +20,7 @@ import type { PromptData } from './types';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import TaskTypeEditModal from './components/TaskTypeEditModal';
+import TaskTypeEditModal from './components/TaskTypeSelector/TaskTypeEditModal';
 import RulesEditModal from './components/RulesEditModal';
 import CharactersEditModal from './components/CharactersEditModal';
 import LocationsEditModal from './components/LocationsEditModal';
@@ -30,12 +30,35 @@ import { ChapterSection } from './components/ChapterSection';
 
 export function App() {
   // Option management hooks
-  const taskTypes = useOptionManagement({ initialOptions: [] });
-  const rules = useOptionManagement({ initialOptions: [] });
-  const characters = useOptionManagement({ initialOptions: [] });
-  const locations = useOptionManagement({ initialOptions: [] });
-  const codex = useOptionManagement({ initialOptions: [] });
-  const sampleChapters = useOptionManagement({ initialOptions: [] });
+  const taskTypes = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-task-types' 
+  });
+  
+  const rules = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-rules' 
+  });
+  
+  const characters = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-characters' 
+  });
+  
+  const locations = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-locations' 
+  });
+  
+  const codex = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-codex' 
+  });
+  
+  const sampleChapters = useOptionManagement({ 
+    initialOptions: [], 
+    storageKey: 'ai-novel-prompter-sample-chapters' 
+  });
 
   // Modal states
   const [isTaskTypeEditOpen, setIsTaskTypeEditOpen] = useState(false);
@@ -51,7 +74,7 @@ export function App() {
   const [beats, setBeats] = useState('');
   
   // Task Type state
-  const [taskTypeChecked, setTaskTypeChecked] = useState(true);
+  const [taskTypeChecked, setTaskTypeChecked] = useState(false);  
   const [selectedTaskType, setSelectedTaskType] = useState('');
 
   // Prompt generation
@@ -72,11 +95,10 @@ export function App() {
     setPreviousChapter('');
     setFutureChapterNotes('');
     setBeats('');
+    setRawPrompt('');
     
-    // Reset task type and instructions
-    setSelectedTaskType('');
-    setTaskTypeChecked(true);  // This should come before setRawPrompt
-    setRawPrompt('');  // Clear the raw prompt first
+    // Reset task type
+    setSelectedTaskType('');  // This will trigger the effect above to uncheck the box
     
     // Clear all selections
     sampleChapters.setSelectedValues([]);
@@ -85,9 +107,20 @@ export function App() {
     locations.setSelectedValues([]);
     codex.setSelectedValues([]);
     
-    // Reset prompt type to ChatGPT
+    // Reset prompt type
     setPromptType('ChatGPT');
   }, [sampleChapters, rules, characters, locations, codex, setPromptType]);
+  
+  useEffect(() => {
+    // Only check the box if there's a selected task type
+    if (selectedTaskType && !taskTypeChecked) {
+      setTaskTypeChecked(true);
+    }
+    // Uncheck if no task type is selected
+    if (!selectedTaskType && taskTypeChecked) {
+      setTaskTypeChecked(false);
+    }
+  }, [selectedTaskType]);
 
   // Update raw prompt when selections change
   useEffect(() => {
@@ -198,9 +231,17 @@ export function App() {
       <div className="grid grid-cols-[1fr_1fr_auto] gap-3 mb-4 items-center">
         <TaskTypeSelector
           value={selectedTaskType}
-          onChange={setSelectedTaskType}
+          onChange={(value: string) => {
+            setSelectedTaskType(value);
+          }}
           checked={taskTypeChecked}
-          onCheckedChange={(checked: CheckedState) => setTaskTypeChecked(checked === true)}
+          onCheckedChange={(checked: CheckedState) => {
+            setTaskTypeChecked(checked === true);
+            // If unchecking, clear the selected task type
+            if (!checked) {
+              setSelectedTaskType('');
+            }
+          }}
           options={taskTypes.options}
           onEditClick={() => setIsTaskTypeEditOpen(true)}
         />

@@ -1,20 +1,35 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { BaseOption } from '../types';
 import { generateUniqueId } from '../utils/helpers';
 
 interface UseOptionManagementProps<T extends BaseOption> {
-  initialOptions: T[];
+  initialOptions?: T[];
+  storageKey: string; // Add this to identify different option types
 }
 
 export function useOptionManagement<T extends BaseOption>({ 
-  initialOptions = [] 
+  initialOptions = [],
+  storageKey,
 }: UseOptionManagementProps<T>) {
-  const [options, setOptions] = useState<T[]>(initialOptions);
+  // Initialize state from localStorage if available
+  const [options, setOptions] = useState<T[]>(() => {
+    const savedOptions = localStorage.getItem(storageKey);
+    return savedOptions ? JSON.parse(savedOptions) : initialOptions;
+  });
+  
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // Save to localStorage whenever options change
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(options));
+  }, [options, storageKey]);
+
   const addOption = useCallback((newOption: Omit<T, 'id'>) => {
-    setOptions(prev => [...prev, { ...newOption, id: generateUniqueId() } as T]);
+    setOptions(prev => {
+      const updatedOptions = [...prev, { ...newOption, id: generateUniqueId() } as T];
+      return updatedOptions;
+    });
   }, []);
 
   const updateOption = useCallback((id: string, updatedOption: Partial<T>) => {

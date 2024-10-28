@@ -1,5 +1,3 @@
-// TaskTypeSelector.tsx
-
 import React from 'react';
 import {
   Select,
@@ -12,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { TaskTypeOption } from '../types';
+import { TaskTypeOption } from '../../types';
 import { CheckedState } from '@radix-ui/react-checkbox';
 
 interface TaskTypeSelectorProps {
@@ -38,18 +36,29 @@ export default function TaskTypeSelector({
         id="task-type-checkbox"
         checked={checked}
         onCheckedChange={onCheckedChange}
+        disabled={!value} // Disable checkbox if no task type is selected
       />
       <Label htmlFor="task-type" className="whitespace-nowrap">
         Task Type
       </Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select 
+        value={value} 
+        onValueChange={onChange}
+      >
         <SelectTrigger id="task-type" className="w-full">
           <SelectValue placeholder="Select task type" />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
             <SelectItem key={option.id} value={option.label}>
-              {option.label}
+              <div className="flex items-center">
+                <div
+                  className={`mr-2 h-2 w-2 rounded-full ${
+                    value === option.label ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                ></div>
+                {option.label}
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
