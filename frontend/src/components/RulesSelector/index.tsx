@@ -2,38 +2,39 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { LocationOption } from '../types';
+import { RuleOption } from '../../types';
 import { FancyMultiSelect } from '@/components/ui/fancy-multi-select';
 
-interface LocationsSelectorProps {
+interface RulesSelectorProps {
   values: string[];
   onChange: (values: string[]) => void;
   onEditClick: () => void;
-  options: LocationOption[];
+  options: RuleOption[];
 }
 
-export default function LocationsSelector({
+export default function RulesSelector({
   values,
   onChange,
   onEditClick,
   options,
-}: LocationsSelectorProps) {
+}: RulesSelectorProps) {
+  // Convert RuleOption[] to Option[] for FancyMultiSelect
   const selectOptions = options.map(option => ({
     label: option.label,
-    value: option.label
+    value: option.label // Using label as value since that's what your current code uses
   }));
 
   return (
     <div className="flex items-center space-x-2">
-      <Label htmlFor="locations" className="whitespace-nowrap">
-        Locations
+      <Label htmlFor="rules" className="whitespace-nowrap">
+        Rules
       </Label>
       <div className="flex-1">
         <FancyMultiSelect
           options={selectOptions}
           selected={values}
           onChange={onChange}
-          placeholder="Select locations..."
+          placeholder="Select rules..."
         />
       </div>
       <Button variant="ghost" size="icon" onClick={onEditClick}>
