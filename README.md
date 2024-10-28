@@ -34,8 +34,6 @@ Each category can be edited, saved, and reused across different prompts:
 - **Token Counting**: Track token usage for AI model limits
 - **Custom Instructions**: Add specific requirements or guidelines
 
-![AI Novel 2](https://github.com/danielsobrado/ainovelprompter/blob/main/images/AINovel2.jpg)
-
 ### 4. Data Persistence
 - All data is automatically saved locally
 - Categories include:
