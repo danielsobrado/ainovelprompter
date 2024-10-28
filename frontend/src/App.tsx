@@ -21,11 +21,11 @@ import { CheckedState } from '@radix-ui/react-checkbox';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TaskTypeEditModal from './components/TaskTypeSelector/TaskTypeEditModal';
-import RulesEditModal from './components/RulesEditModal';
-import CharactersEditModal from './components/CharactersEditModal';
-import LocationsEditModal from './components/LocationsEditModal';
-import CodexEditModal from './components/CodexEditModal';
-import SampleChapterEditModal from './components/SampleChapterEditModal';
+import RulesEditModal from './components/RulesSelector/RulesEditModal';
+import CharactersEditModal from './components/Characters/CharactersEditModal';
+import LocationsEditModal from './components/Locations/LocationsEditModal';
+import CodexEditModal from './components/Codex/CodexEditModal';
+import SampleChapterEditModal from './components/SampleChapter/SampleChapterEditModal';
 import { ChapterSection } from './components/ChapterSection';
 
 export function App() {

@@ -14,7 +14,65 @@ module.exports = {
   		padding: '2rem',
   		screens: {
   			'2xl': '1400px'
-  		}
+  		},
+		extend: {
+		colors: {
+			  // ... existing colors
+			  'primary-light': 'hsl(var(--primary-light))',
+			  'primary-200': 'hsl(var(--primary-200))',
+			  'primary-800': 'hsl(var(--primary-800))',
+			  
+			  'secondary-light': 'hsl(var(--secondary-light))',
+			  'secondary-200': 'hsl(var(--secondary-200))',
+			  'secondary-800': 'hsl(var(--secondary-800))',
+			  
+			  success: {
+				light: 'hsl(var(--success-light))',
+				DEFAULT: 'hsl(var(--success))',
+				dark: 'hsl(var(--success-dark))',
+				200: 'hsl(var(--success-200))',
+			  },
+			  
+			  error: {
+				light: 'hsl(var(--error-light))',
+				DEFAULT: 'hsl(var(--error))',
+				dark: 'hsl(var(--error-dark))',
+			  },
+			  
+			  orange: {
+				light: 'hsl(var(--orange-light))',
+				DEFAULT: 'hsl(var(--orange))',
+				dark: 'hsl(var(--orange-dark))',
+			  },
+			  
+			  warning: {
+				light: 'hsl(var(--warning-light))',
+				DEFAULT: 'hsl(var(--warning))',
+				dark: 'hsl(var(--warning-dark))',
+			  },
+			  
+			  grey: {
+				50: 'hsl(var(--grey-50))',
+				100: 'hsl(var(--grey-100))',
+				200: 'hsl(var(--grey-200))',
+				300: 'hsl(var(--grey-300))',
+				500: 'hsl(var(--grey-500))',
+				600: 'hsl(var(--grey-600))',
+				700: 'hsl(var(--grey-700))',
+				900: 'hsl(var(--grey-900))',
+			  },
+			  
+			  // Dark theme specific colors
+			  'dark-paper': 'hsl(var(--paper))',
+			  'dark-level-1': 'hsl(var(--level-1))',
+			  'dark-level-2': 'hsl(var(--level-2))',
+			  'dark-text': {
+				title: 'hsl(var(--text-title))',
+				primary: 'hsl(var(--text-primary))',
+				secondary: 'hsl(var(--text-secondary))',
+			  },
+			},
+		  },
   	},
   	extend: {
   		colors: {

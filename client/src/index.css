@@ -1,53 +1,62 @@
-body {
-    margin: 0;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    /* Your new theme - purple theme */
+    --background: 262.1 100% 95%;
+    --foreground: 262.1 5% 0%;
+    --card: 262.1 50% 90%;
+    --card-foreground: 262.1 5% 10%;
+    --popover: 262.1 100% 95%;
+    --popover-foreground: 262.1 100% 0%;
+    --primary: 262.1 88.3% 57.8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 262.1 30% 70%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 224.10000000000002 30% 85%;
+    --muted-foreground: 262.1 5% 35%;
+    --accent: 224.10000000000002 30% 80%;
+    --accent-foreground: 262.1 5% 10%;
+    --destructive: 0 100% 30%;
+    --destructive-foreground: 262.1 5% 90%;
+    --border: 262.1 30% 50%;
+    --input: 262.1 30% 18%;
+    --ring: 262.1 88.3% 57.8%;
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 262.1 50% 5%;
+    --foreground: 262.1 5% 90%;
+    --card: 262.1 50% 0%;
+    --card-foreground: 262.1 5% 90%;
+    --popover: 262.1 50% 5%;
+    --popover-foreground: 262.1 5% 90%;
+    --primary: 262.1 88.3% 57.8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 262.1 30% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 224.10000000000002 30% 15%;
+    --muted-foreground: 262.1 5% 60%;
+    --accent: 224.10000000000002 30% 15%;
+    --accent-foreground: 262.1 5% 90%;
+    --destructive: 0 100% 30%;
+    --destructive-foreground: 262.1 5% 90%;
+    --border: 262.1 30% 18%;
+    --input: 262.1 30% 18%;
+    --ring: 262.1 88.3% 57.8%;
+    --radius: 0.5rem;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
     font-family: 'Roboto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
-  
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-  }
-  
-  .container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .form-input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .button:hover {
-    background-color: #0056b3;
-  }
+}
