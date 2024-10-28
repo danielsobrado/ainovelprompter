@@ -10,16 +10,16 @@ interface PreviousChapterInputProps {
 
 export function PreviousChapterInput({ value, onChange }: PreviousChapterInputProps) {
   return (
-    <div className="space-y-2">
-      <ScrollArea className="h-[400px] w-full rounded-md border">
+    <div className="space-y-1">
+      <ScrollArea className="h-[180px] w-full rounded-md border">
         <Textarea
           placeholder="Paste or type the content of the previous chapter here..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-[380px] border-0"
+          className="min-h-[160px] border-0"
         />
       </ScrollArea>
-      <div className="text-sm text-muted-foreground">
+      <div className="text-xs text-muted-foreground">
         Character count: {value.length}
       </div>
     </div>

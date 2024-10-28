@@ -30,22 +30,22 @@ export function PromptSection({
   currentPromptType,
 }: PromptSectionProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Raw Prompt Input */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Task Instructions</CardTitle>
+          <CardTitle className="text-base font-semibold">Task Instructions</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
             placeholder="Task instructions will be generated based on your selections..."
             value={rawPrompt}
             onChange={(e) => setRawPrompt(e.target.value)}
-            className="min-h-[100px]"
+            className="min-h-[80px]"
             disabled={taskTypeChecked}
           />
           {taskTypeChecked && (
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               Task instructions are currently determined by the selected task type.
               Uncheck the task type checkbox to use custom instructions.
             </p>
@@ -56,7 +56,7 @@ export function PromptSection({
       {/* Generated Prompt */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Generated Prompt</CardTitle>
+          <CardTitle className="text-base font-semibold">Generated Prompt</CardTitle>
           <div className="flex items-center space-x-2">
             <Button
               variant={currentPromptType === 'ChatGPT' ? "default" : "outline"}
@@ -83,9 +83,9 @@ export function PromptSection({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <ScrollArea className="h-[300px] w-full rounded-md border">
-              <div className="p-4">
+          <div className="space-y-2">
+            <ScrollArea className="h-[220px] w-full rounded-md border">
+              <div className="p-3">
                 <pre className="whitespace-pre-wrap font-mono text-sm">{finalPrompt}</pre>
               </div>
             </ScrollArea>

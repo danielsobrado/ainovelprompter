@@ -195,7 +195,7 @@ export function App() {
   return (
     <AppLayout>
       {/* Top Row with Task Type, Sample Chapter, and Clear All */}
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-4 mb-6 items-center">
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-3 mb-4 items-center">
         <TaskTypeSelector
           value={selectedTaskType}
           onChange={setSelectedTaskType}
@@ -237,7 +237,7 @@ export function App() {
       </div>
 
       {/* Selectors Section */}
-      <div className="space-y-4 mb-6">
+      <div className="space-y-3 mb-3">
         <RulesSelector
           values={rules.selectedValues}
           onChange={(values: string[]) => rules.setSelectedValues(values)}

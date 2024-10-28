@@ -59,8 +59,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsProps) {
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
+        <div className="grid gap-3 py-4">
+          <div className="grid grid-cols-4 items-center gap-3">
             <Label htmlFor="maxFileSize" className="text-right">
               Max File Size (KB)
             </Label>
@@ -72,7 +72,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsProps) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-3">
             <Label htmlFor="defaultLanguage" className="text-right">
               Default Language
             </Label>
@@ -83,7 +83,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsProps) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-3">
             <Label htmlFor="enableAutoSave" className="text-right">
               Enable Auto Save
             </Label>
@@ -93,7 +93,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsProps) {
               onCheckedChange={(checked) => setSettings({ ...settings, enableAutoSave: checked as boolean })}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-3">
             <Label htmlFor="theme" className="text-right">
               Theme
             </Label>

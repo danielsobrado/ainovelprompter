@@ -25,7 +25,7 @@ export function ChapterSection({
   return (
     <Card className="p-6">
       <Tabs defaultValue="beats" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="beats">Story Beats</TabsTrigger>
           <TabsTrigger value="previous">Previous Chapter</TabsTrigger>
           <TabsTrigger value="future">Future Notes</TabsTrigger>

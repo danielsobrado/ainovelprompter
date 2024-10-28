@@ -25,7 +25,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:             "AI Novel Prompter",
 		Width:             1200,
-		Height:            1280,
+		Height:            1380,
 		MinWidth:          1024,
 		MinHeight:         768,
 		MaxWidth:          1280,
