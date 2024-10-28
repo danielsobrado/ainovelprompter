@@ -93,7 +93,7 @@ To build a redistributable, production mode package, use `wails build`.
 wails build
 ```
 
-The Executable is on build/bin [Executable](https://github.com/danielsobrado/ainovelprompter/tree/main/build/bin/AINovelPrpmpter.exe)
+The Executable is on build/bin [Executable](https://github.com/danielsobrado/ainovelprompter/tree/main/build/bin/AINovelPrompter.exe)
 
 Or generate it with:
 

@@ -22,7 +22,7 @@ go.work
 
 # Node.js dependencies
 node_modules/
-build/
+client/build
 
 # DB data
 postgres-data/
