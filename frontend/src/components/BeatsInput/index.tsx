@@ -15,7 +15,7 @@ export default function BeatsInput({ value, onChange }: BeatsInputProps) {
           placeholder="Enter the main story beats for the next chapter..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-[160px] border-0"
+          className="min-h-[175px] border-0"
         />
       </ScrollArea>
       <div className="text-xs text-muted-foreground">

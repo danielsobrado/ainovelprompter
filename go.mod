@@ -1,4 +1,4 @@
-module code-prompter
+module ai-novel-prompter
 
 go 1.21
 

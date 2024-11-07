@@ -42,7 +42,7 @@ func (a *App) getAppDataDir() string {
 		runtime.LogError(a.ctx, fmt.Sprintf("Error getting user home directory: %v", err))
 		return ""
 	}
-	return filepath.Join(homeDir, ".code-prompter")
+	return filepath.Join(homeDir, ".ai-novel-prompter")
 }
 
 func (a *App) ReadTaskTypesFile() (string, error) {

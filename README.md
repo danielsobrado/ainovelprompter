@@ -66,7 +66,7 @@ Each category can be edited, saved, and reused across different prompts:
 
 ## File Management
 
-- Saves data in the user's home directory under `.code-prompter`
+- Saves data in the user's home directory under `.ai-novel-prompter`
 - Supports files up to 500KB
 - Includes file and folder selection capabilities
 

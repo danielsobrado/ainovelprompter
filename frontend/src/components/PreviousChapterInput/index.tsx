@@ -16,7 +16,7 @@ export function PreviousChapterInput({ value, onChange }: PreviousChapterInputPr
           placeholder="Paste or type the content of the previous chapter here..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-[160px] border-0"
+          className="min-h-[175px] border-0"
         />
       </ScrollArea>
       <div className="text-xs text-muted-foreground">
