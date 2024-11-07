@@ -100,6 +100,7 @@ Or generate it with:
 ```console
 wails build -nsis
 ```
+This can be done for Mac as well see the latest part of [this guide](https://wails.io/docs/guides/windows-installer/)
 
 The built application will be available in the `build` directory.
 
