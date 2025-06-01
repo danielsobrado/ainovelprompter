@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, X, Eye, EyeOff, Copy } from 'lucide-react';
 import type { ProseChange } from '@/types';
 import { cn } from '@/lib/utils';
+import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 interface ChangeReviewerProps {
   changes: ProseChange[];
@@ -107,30 +108,38 @@ export function ChangeReviewer({
                   )}
                 </div>
 
-                {/* Change content */}
+                {/* Change content - Can also use ReactDiffViewer here for a focused diff */}
                 <div className="space-y-2">
                   <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
-                    <p className="text-sm font-mono text-red-700 dark:text-red-300">
+                    <p className="text-sm font-mono text-red-700 dark:text-red-300 break-words">
                       <span className="font-semibold">Original:</span> {change.initial || '(No original text provided)'}
                     </p>
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
-                    <p className="text-sm font-mono text-green-700 dark:text-green-300">
+                    <p className="text-sm font-mono text-green-700 dark:text-green-300 break-words">
                       <span className="font-semibold">Improved:</span> {change.improved || '(No improved text provided)'}
                     </p>
                   </div>
+                  {/* Optional: Mini-diff for each change item */}
+                  {/* <ReactDiffViewer
+                      oldValue={change.initial || ''}
+                      newValue={change.improved || ''}
+                      splitView={false}
+                      hideLineNumbers={true}
+                      compareMethod={DiffMethod.WORDS}
+                  /> */}
                 </div>
 
                 {/* Reason */}
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground break-words">
                   <strong>Reason:</strong> {change.reason || '(No reason provided)'}
                 </div>
 
                 {/* Context (if enabled) */}
-                {showContext && change.startIndex !== undefined && (
+                {showContext && change.startIndex !== undefined && change.initial && (
                   <div className="p-3 bg-muted rounded-md">
                     <p className="text-xs text-muted-foreground mb-1">Context:</p>
-                    <p className="text-sm">
+                    <p className="text-sm break-words">
                       ...{originalText.slice(
                         Math.max(0, change.startIndex - 50),
                         change.startIndex
@@ -189,8 +198,17 @@ export function ChangeReviewer({
             Copy Text
           </Button>
         </div>
-        <ScrollArea className="h-[200px]">
-          <pre className="whitespace-pre-wrap font-mono text-sm">{currentText}</pre>
+        <ScrollArea className="h-[250px] border rounded-md">
+          <ReactDiffViewer
+            oldValue={originalText}
+            newValue={currentText}
+            splitView={false} // Unified view is often better for prose
+            // useDarkTheme={true} // Optional: if you want to force dark theme
+            compareMethod={DiffMethod.WORDS} // Diff by words can be good for prose
+            // For more granular diff, DiffMethod.CHARS could be used
+            // hideLineNumbers={true} // Optional: for a cleaner look with prose
+            // renderContent={highlightSyntax} // Optional: for custom syntax highlighting if needed
+          />
         </ScrollArea>
       </Card>
     </div>

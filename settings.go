@@ -224,3 +224,31 @@ func (a *App) WriteRulesFile(content string) error {
 	}
 	return nil
 }
+
+// Prose Improvement Prompts
+func (a *App) ReadProsePromptsFile() (string, error) {
+	prosePromptsPath := filepath.Join(a.getAppDataDir(), "prose_prompts.json")
+	content, err := os.ReadFile(prosePromptsPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// If the file doesn't exist, return an empty JSON array string
+			// The frontend will handle populating with defaults if necessary
+			return "[]", nil
+		}
+		return "", fmt.Errorf("error reading prose prompts file: %v", err)
+	}
+	return string(content), nil
+}
+
+func (a *App) WriteProsePromptsFile(content string) error {
+	prosePromptsPath := filepath.Join(a.getAppDataDir(), "prose_prompts.json")
+	err := os.MkdirAll(filepath.Dir(prosePromptsPath), 0755)
+	if err != nil {
+		return fmt.Errorf("error creating prose prompts directory: %v", err)
+	}
+	err = os.WriteFile(prosePromptsPath, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("error writing prose prompts file: %v", err)
+	}
+	return nil
+}

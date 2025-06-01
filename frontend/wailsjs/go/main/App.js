@@ -34,6 +34,10 @@ export function ReadLocationsFile() {
   return window['go']['main']['App']['ReadLocationsFile']();
 }
 
+export function ReadProsePromptsFile() {
+  return window['go']['main']['App']['ReadProsePromptsFile']();
+}
+
 export function ReadRulesFile() {
   return window['go']['main']['App']['ReadRulesFile']();
 }
@@ -72,6 +76,10 @@ export function WriteCodexFile(arg1) {
 
 export function WriteLocationsFile(arg1) {
   return window['go']['main']['App']['WriteLocationsFile'](arg1);
+}
+
+export function WriteProsePromptsFile(arg1) {
+  return window['go']['main']['App']['WriteProsePromptsFile'](arg1);
 }
 
 export function WriteRulesFile(arg1) {

@@ -2,6 +2,7 @@
   "dependencies": {
     "@radix-ui/react-tabs": "^1.1.1",
     "@shadcn/ui": "^0.0.4",
+    "react-diff-viewer": "^3.1.1",
     "react-select": "^5.8.2",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.5.4",

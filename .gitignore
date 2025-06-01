@@ -2,6 +2,7 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
+*.exe
 *.exe~
 *.dll
 *.so
@@ -21,25 +22,26 @@ go.work
 
 # Node.js dependencies
 node_modules/
-client/build
+package-lock.json # Assuming this is for the root package.json
+
+# Client specific ignores
+client/build/
+client/pkg/mod/ # Ensure this is correctly ignored
+
+# Frontend specific ignores
+frontend/node_modules/
+frontend/dist/
+frontend/repopack-output.txt
+frontend/package.json.md5
+frontend/package-lock.json
 
 # DB data
 postgres-data/
 
-node_modules
-/package-lock.json
-/frontend/node_modules
-/frontend/dist
-/frontend/repopack-output.txt
-/frontend/package.json.md5
-/frontend/package-lock.json
-.history
-frontend\package.json.md5
-frontend\package-lock.json
-frontend/package.json.md5
-
-.history
+# General ignores
+.history/ 
 debug.log
-repopack-output.txt
-frontend/package.json.md5
-ai-novel-prompter.exe
+repopack-output.txt 
+ai-novel-prompter.exe 
+.history/
+client/pkg/mod/

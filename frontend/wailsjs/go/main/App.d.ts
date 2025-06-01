@@ -17,6 +17,8 @@ export function ReadFileContent(arg1:string):Promise<string>;
 
 export function ReadLocationsFile():Promise<string>;
 
+export function ReadProsePromptsFile():Promise<string>;
+
 export function ReadRulesFile():Promise<string>;
 
 export function ReadRulessFile():Promise<string>;
@@ -36,6 +38,8 @@ export function WriteCharactersFile(arg1:string):Promise<void>;
 export function WriteCodexFile(arg1:string):Promise<void>;
 
 export function WriteLocationsFile(arg1:string):Promise<void>;
+
+export function WriteProsePromptsFile(arg1:string):Promise<void>;
 
 export function WriteRulesFile(arg1:string):Promise<void>;
 

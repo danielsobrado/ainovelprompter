@@ -1,4 +1,4 @@
-// frontend/src/utils/constants.ts
+import type { ProseImprovementPrompt } from '../../../frontend/src/types';
 
 export const DEFAULT_PROSE_IMPROVEMENT_PROMPTS: ProseImprovementPrompt[] = [
   {
