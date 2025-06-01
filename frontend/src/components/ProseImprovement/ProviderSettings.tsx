@@ -9,13 +9,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import type { LLMProvider } from '@/types';
 
 interface ProviderSettingsProps {
@@ -100,26 +93,17 @@ export function ProviderSettings({
               </div>
               <div>
                 <Label>Model</Label>
-                <Select
+                <Input
                   value={provider.config?.model || 'anthropic/claude-3-haiku'}
-                  onValueChange={model => onProviderChange({
+                  onChange={e => onProviderChange({
                     ...provider,
-                    config: { ...provider.config, model }
+                    config: { ...provider.config, model: e.target.value }
                   })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="anthropic/claude-3-haiku">Claude 3 Haiku</SelectItem>
-                    <SelectItem value="anthropic/claude-3-sonnet">Claude 3 Sonnet</SelectItem>
-                    <SelectItem value="openai/gpt-4-turbo">GPT-4 Turbo</SelectItem>
-                    <SelectItem value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                    <SelectItem value="google/gemini-pro">Gemini Pro</SelectItem>
-                    <SelectItem value="meta-llama/llama-2-70b-chat">Llama 2 70B</SelectItem>
-                    <SelectItem value="mistralai/mistral-medium">Mistral Medium</SelectItem>
-                  </SelectContent>
-                </Select>
+                  placeholder="e.g., anthropic/claude-3-haiku, openai/gpt-4-turbo"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter the full model identifier from OpenRouter.
+                </p>
               </div>
             </div>
           )}
