@@ -46,7 +46,7 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // getCurrentDirectory returns the current working directory
-func (a *App) getCurrentDirectory() string {
+func (a *App) GetCurrentDirectory() string {
 	dir, err := os.Getwd()
 	if err != nil {
 		runtime.LogError(a.ctx, fmt.Sprintf("Error getting current directory: %v", err))

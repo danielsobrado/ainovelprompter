@@ -17,6 +17,7 @@ import {
 import { DEFAULT_INSTRUCTIONS, PROMPT_TYPES } from './utils/constants';
 import { generateDynamicInstructions } from './utils/promptInstructions';
 import type { PromptData } from './types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import LocationsEditModal from './components/Locations/LocationsEditModal';
 import CodexEditModal from './components/Codex/CodexEditModal';
 import SampleChapterEditModal from './components/SampleChapter/SampleChapterEditModal';
 import { ChapterSection } from './components/ChapterSection';
+import { ProseImprovementTab } from './components/ProseImprovement';
 
 export function App() {
   // Option management hooks
@@ -227,101 +229,114 @@ export function App() {
 
   return (
     <AppLayout>
-      {/* Top Row with Task Type, Sample Chapter, and Clear All */}
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-3 mb-4 items-center">
-        <TaskTypeSelector
-          value={selectedTaskType}
-          onChange={(value: string) => {
-            setSelectedTaskType(value);
-          }}
-          checked={taskTypeChecked}
-          onCheckedChange={(checked: CheckedState) => {
-            setTaskTypeChecked(checked === true);
-            // If unchecking, clear the selected task type
-            if (!checked) {
-              setSelectedTaskType('');
-            }
-          }}
-          options={taskTypes.options}
-          onEditClick={() => setIsTaskTypeEditOpen(true)}
-        />
-        
-        <SampleChaptersSelector
-          value={sampleChapters.selectedValues[0] || ''}
-          onChange={(value: string) => {
-            sampleChapters.setSelectedValues(value ? [value] : []);
-          }}
-          options={sampleChapters.options}
-          onEditClick={() => setIsSampleChapterEditOpen(true)}
-        />
+      <Tabs defaultValue="prompt-generation" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="prompt-generation">Prompt Generation</TabsTrigger>
+          <TabsTrigger value="prose-improvement">Prose Improvement</TabsTrigger>
+        </TabsList>
 
-        <Button 
-          variant="destructive"
-          onClick={handleClearAll}
-          size="sm"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Clear All
-        </Button>
-      </div>
+        <TabsContent value="prompt-generation" className="space-y-6">
+          {/* Top Row with Task Type, Sample Chapter, and Clear All */}
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
+            <TaskTypeSelector
+              value={selectedTaskType}
+              onChange={(value: string) => {
+                setSelectedTaskType(value);
+              }}
+              checked={taskTypeChecked}
+              onCheckedChange={(checked: CheckedState) => {
+                setTaskTypeChecked(checked === true);
+                // If unchecking, clear the selected task type
+                if (!checked) {
+                  setSelectedTaskType('');
+                }
+              }}
+              options={taskTypes.options}
+              onEditClick={() => setIsTaskTypeEditOpen(true)}
+            />
+            
+            <SampleChaptersSelector
+              value={sampleChapters.selectedValues[0] || ''}
+              onChange={(value: string) => {
+                sampleChapters.setSelectedValues(value ? [value] : []);
+              }}
+              options={sampleChapters.options}
+              onEditClick={() => setIsSampleChapterEditOpen(true)}
+            />
 
-      {/* Tabbed Section for Beats, Previous and Future Chapters */}
-      <div className="mb-6">
-        <ChapterSection
-          beats={beats}
-          setBeats={setBeats}
-          previousChapter={previousChapter}
-          setPreviousChapter={setPreviousChapter}
-          futureChapterNotes={futureChapterNotes}
-          setFutureChapterNotes={setFutureChapterNotes}
-        />
-      </div>
+            <Button 
+              variant="destructive"
+              onClick={handleClearAll}
+              size="sm"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear All
+            </Button>
+          </div>
 
-      {/* Selectors Section */}
-      <div className="space-y-3 mb-3">
-        <RulesSelector
-          values={rules.selectedValues}
-          onChange={(values: string[]) => rules.setSelectedValues(values)}
-          options={rules.options}
-          onEditClick={() => setIsRulesEditOpen(true)}
-        />
+          {/* Tabbed Section for Beats, Previous and Future Chapters */}
+          <div>
+            <ChapterSection
+              beats={beats}
+              setBeats={setBeats}
+              previousChapter={previousChapter}
+              setPreviousChapter={setPreviousChapter}
+              futureChapterNotes={futureChapterNotes}
+              setFutureChapterNotes={setFutureChapterNotes}
+            />
+          </div>
 
-        <CharactersSelector
-          values={characters.selectedValues}
-          onChange={(values: string[]) => characters.setSelectedValues(values)}
-          options={characters.options}
-          onEditClick={() => setIsCharactersEditOpen(true)}
-        />
+          {/* Selectors Section */}
+          <div className="space-y-3">
+            <RulesSelector
+              values={rules.selectedValues}
+              onChange={(values: string[]) => rules.setSelectedValues(values)}
+              options={rules.options}
+              onEditClick={() => setIsRulesEditOpen(true)}
+            />
 
-        <LocationsSelector
-          values={locations.selectedValues}
-          onChange={(values: string[]) => locations.setSelectedValues(values)}
-          options={locations.options}
-          onEditClick={() => setIsLocationsEditOpen(true)}
-        />
+            <CharactersSelector
+              values={characters.selectedValues}
+              onChange={(values: string[]) => characters.setSelectedValues(values)}
+              options={characters.options}
+              onEditClick={() => setIsCharactersEditOpen(true)}
+            />
 
-        <CodexSelector
-          values={codex.selectedValues}
-          onChange={(values: string[]) => codex.setSelectedValues(values)}
-          options={codex.options}
-          onEditClick={() => setIsCodexEditOpen(true)}
-        />
-      </div>
+            <LocationsSelector
+              values={locations.selectedValues}
+              onChange={(values: string[]) => locations.setSelectedValues(values)}
+              options={locations.options}
+              onEditClick={() => setIsLocationsEditOpen(true)}
+            />
 
-      {/* Prompt Section */}
-      <div className="mb-6">
-      <PromptSection
-        rawPrompt={rawPrompt}
-        setRawPrompt={handleRawPromptChange}
-        finalPrompt={finalPrompt}
-        tokenCount={tokenCount}
-        onCopy={handleCopy}
-        onGenerateChatGPT={() => setPromptType('ChatGPT')}
-        onGenerateClaude={() => setPromptType('Claude')}
-        taskTypeChecked={taskTypeChecked}
-        currentPromptType={promptType}  // Add this prop
-      />
-      </div>
+            <CodexSelector
+              values={codex.selectedValues}
+              onChange={(values: string[]) => codex.setSelectedValues(values)}
+              options={codex.options}
+              onEditClick={() => setIsCodexEditOpen(true)}
+            />
+          </div>
+
+          {/* Prompt Section */}
+          <div>
+          <PromptSection
+            rawPrompt={rawPrompt}
+            setRawPrompt={handleRawPromptChange}
+            finalPrompt={finalPrompt}
+            tokenCount={tokenCount}
+            onCopy={handleCopy}
+            onGenerateChatGPT={() => setPromptType('ChatGPT')}
+            onGenerateClaude={() => setPromptType('Claude')}
+            taskTypeChecked={taskTypeChecked}
+            currentPromptType={promptType}
+          />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="prose-improvement">
+          <ProseImprovementTab />
+        </TabsContent>
+      </Tabs>
 
       {/* Edit Modals */}
       <TaskTypeEditModal

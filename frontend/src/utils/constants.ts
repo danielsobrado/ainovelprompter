@@ -1,4 +1,5 @@
 // utils/constants.ts
+import type { ProseImprovementPrompt } from '../types';
 
 export const PROMPT_TYPES = {
     CHATGPT: 'ChatGPT',
@@ -86,6 +87,37 @@ export const PROMPT_TYPES = {
     CODEX: 'codex',
     INSTRUCTION: 'instruction',
   } as const;
+
+  export const DEFAULT_PROSE_IMPROVEMENT_PROMPTS: readonly ProseImprovementPrompt[] = [
+    {
+      id: '1',
+      label: 'Enhance Imagery',
+      prompt: 'Review the following text and enhance the imagery. Focus on sensory details (sight, sound, smell, taste, touch) to make the descriptions more vivid and immersive. Provide changes in the specified JSON format.',
+      order: 1,
+      category: 'style',
+    },
+    {
+      id: '2',
+      label: 'Strengthen Verbs',
+      prompt: 'Identify weak verbs (e.g., is, was, have, go) in the text and replace them with stronger, more active verbs. Explain the reasoning for each change. Provide changes in the specified JSON format.',
+      order: 2,
+      category: 'style',
+    },
+    {
+      id: '3',
+      label: 'Check for Clichés',
+      prompt: 'Scan the text for common clichés or overused phrases. Suggest fresh alternatives for each one found. Provide changes in the specified JSON format.',
+      order: 3,
+      category: 'tropes',
+    },
+    {
+      id: '4',
+      label: 'Grammar and Punctuation',
+      prompt: 'Perform a thorough grammar and punctuation check on the text. Correct any errors found. Provide changes in the specified JSON format.',
+      order: 4,
+      category: 'grammar',
+    },
+  ] as const;
   
   // Default task types
   export const DEFAULT_TASK_TYPES = [

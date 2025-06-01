@@ -11,3 +11,4 @@ export { PreviousChapterInput } from './PreviousChapterInput';
 export { FutureChapterInput } from './FutureChapterInput';
 export { PromptSection } from './PromptSection'; 
 export { ChapterSection } from './ChapterSection';
+export { ProseImprovementTab } from './ProseImprovement';

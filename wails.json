@@ -14,5 +14,12 @@
   },
   "devtools": {
     "enabled": true
+  },
+  "ignorePathsOnCopy": [
+    "server"
+  ],
+  "build": {
+    "compiler": "go",
+    "skipModTidy": true
   }
 }
