@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>
+            Adjust application settings and preferences.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-4">
           <div className="grid grid-cols-4 items-center gap-3">

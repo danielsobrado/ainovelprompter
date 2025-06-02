@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription, // Import DialogDescription
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +30,10 @@ export function ProviderSettings({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>LLM Provider Settings</DialogTitle>
+          {/* Add a description */}
+          <DialogDescription>
+            Configure your connection to Manual, LM Studio, or OpenRouter providers.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">

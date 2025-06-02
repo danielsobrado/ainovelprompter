@@ -81,6 +81,7 @@ async function executeOpenRouterPrompt(
     body: JSON.stringify({
       model: config?.model || 'anthropic/claude-3-haiku',
       messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4096, // Added max_tokens
     }),
   });
 

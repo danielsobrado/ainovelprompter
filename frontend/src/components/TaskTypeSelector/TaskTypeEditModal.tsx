@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription, // Import DialogDescription
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -113,10 +114,12 @@ export default function TaskTypeEditModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Edit Task Types</DialogTitle>
+          <DialogTitle>Edit Task Type</DialogTitle>
+          <DialogDescription>
+            Modify the details of this task type.
+          </DialogDescription>
         </DialogHeader>
-
-        <div className="space-y-6 py-4">
+        <div className="grid gap-4 py-4">
           {error && (
             <div className="rounded-lg border border-red-500 p-4 text-red-500 text-sm">
               {error}

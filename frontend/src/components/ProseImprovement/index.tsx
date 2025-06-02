@@ -68,6 +68,9 @@ export function ProseImprovementTab() {
     try {
       // Build the full prompt with context
       const fullPrompt = buildFullPrompt(currentPrompt, session.currentText);
+      console.log("Full Prompt being sent to LLM (or copied for manual):", fullPrompt); // <-- ADD THIS LOG
+      console.log("Selected Provider for this prompt:", selectedProvider);
+      console.log("Current Prompt Object:", currentPrompt);
       
       if (selectedProvider.type === 'manual') {
         // Copy to clipboard

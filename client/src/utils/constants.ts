@@ -127,7 +127,14 @@ Example:
     "trope_category": "description"
   }
 ]
-\`\`\``,
+\`\`\`
+
+IMPORTANT: Your entire response MUST be a single, valid JSON array of objects.
+Do NOT include any introductory sentences, explanations, apologies, or any text whatsoever
+before the opening square bracket '[' or after the closing square bracket ']'.
+
+Text to analyze:
+[The original text will be appended here by the application]`,
     category: 'style',
     order: 2
   },
