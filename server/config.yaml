@@ -18,3 +18,11 @@ auth:
 ollama:
   generate_url: "http://localhost:11434/api/generate"
   chat_url: "http://localhost:11434/api/chat"
+
+openrouter:
+  api_key: "" 
+  default_model: "anthropic/claude-3-haiku"
+
+lmstudio:
+  api_url: "http://localhost:1234/v1/chat/completions"
+  default_model: "local-model"

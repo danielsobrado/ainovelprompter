@@ -76,13 +76,22 @@ export interface EditModalProps<T extends BaseOption> {
 /**
  * Prose Improvement Prompt interface
  */
+export interface ProsePromptVariant {
+  variantLabel?: string;
+  targetModelFamilies?: string[]; // e.g., ["claude", "gpt", "ollama"]
+  targetModels?: string[];      // e.g., ["anthropic/claude-3-opus", "openai/gpt-4o"]
+  promptText: string;
+}
 
-export interface ProseImprovementPrompt {
-  id: string;
-  label: string;
-  prompt: string;
-  order: number;
+export interface ProseImprovementPrompt { // This now represents a "Prompt Definition"
+  id: string; // e.g., "enhance-imagery"
+  label: string; // User-friendly label, e.g., "Enhance Imagery"
   category: 'tropes' | 'style' | 'grammar' | 'custom';
+  order: number;
+  description?: string;
+  defaultPromptText: string; // Fallback prompt
+  variants: ProsePromptVariant[];
+  // The 'prompt' field is removed as it's now split into defaultPromptText and variants
 }
 
 export interface ProseChange {
@@ -114,4 +123,24 @@ export interface LLMProvider {
     apiKey?: string;
     model?: string;
   };
+}
+
+/**
+ * New Backend-Driven Prompt System Types
+ */
+export interface PromptVariant {
+  variantLabel?: string;
+  targetModelFamilies?: string[];
+  targetModels?: string[];
+  promptText: string;
+}
+
+export interface PromptDefinition {
+  id: string;
+  label: string;
+  category: string;
+  order: number;
+  description?: string;
+  defaultPromptText: string;
+  variants?: PromptVariant[];
 }

@@ -45,3 +45,7 @@ repopack-output.txt
 ai-novel-prompter.exe 
 .history/
 client/pkg/mod/
+.env
+*.env
+server/.env
+frontend/pkg/mod/

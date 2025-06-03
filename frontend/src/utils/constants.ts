@@ -86,38 +86,158 @@ export const PROMPT_TYPES = {
     LOCATIONS: 'locations',
     CODEX: 'codex',
     INSTRUCTION: 'instruction',
-  } as const;
-
-  export const DEFAULT_PROSE_IMPROVEMENT_PROMPTS: readonly ProseImprovementPrompt[] = [
+  } as const;  export const DEFAULT_PROSE_IMPROVEMENT_PROMPTS: ProseImprovementPrompt[] = [
     {
-      id: '1',
+      id: 'enhance-imagery',
       label: 'Enhance Imagery',
-      prompt: `Review the following text and enhance the imagery. Focus on sensory details (sight, sound, smell, taste, touch) to make the descriptions more vivid and immersive. Provide changes in the specified JSON format.\n\nExample of a single object in the JSON array:\n{\n  "original_text": "The forest was quiet.",\n  "enhanced_text": "The ancient forest stood in hushed reverence, the only sounds the whisper of wind through pine needles and the distant caw of a crow.",\n  "reason": "Added specific auditory and visual details to create a more immersive and evocative scene."\n}\n\nIMPORTANT: Your entire response MUST be a single, valid JSON array of these objects. Do NOT include any introductory sentences, explanations, apologies, or any text whatsoever before the opening square bracket '[' or after the closing square bracket ']'. The response should start with '[' and end with ']'.\n\nIf no enhancements are made, return an empty JSON array: [].\n\nText to analyze:\n[The original text will be appended here by the application]`,
+      category: 'style',
       order: 1,
-      category: 'style',
+      description: 'Identifies specific phrases and suggests more vivid alternatives with sensory details.',
+      defaultPromptText: `Review the following text and enhance the imagery. Focus on sensory details (sight, sound, smell, taste, touch) to make the descriptions more vivid and immersive.
+
+REQUIRED JSON FORMAT: Your response must be a valid JSON array where each object has these exact keys:
+- "original_text": The original text that needs enhancement
+- "enhanced_text": The improved version with enhanced imagery  
+- "reason": Explanation of what was enhanced and why
+
+EXAMPLE RESPONSE:
+[
+  {
+    "original_text": "The forest was quiet.",
+    "enhanced_text": "The ancient forest stood in hushed reverence, the only sounds the whisper of wind through pine needles and the distant caw of a crow.",
+    "reason": "Added specific auditory and visual details to create a more immersive and evocative scene."
+  }
+]
+
+CRITICAL REQUIREMENTS:
+- Your entire response MUST be a single, valid JSON array starting with '[' and ending with ']'
+- Do NOT include any text before '[' or after ']'
+- If no enhancements are needed, return: []
+- Each object must have all three keys: "original_text", "enhanced_text", "reason"
+
+Text to analyze:
+[TEXT_TO_ANALYZE_PLACEHOLDER]`,
+      variants: [
+        {
+          variantLabel: "Claude Optimized",
+          targetModelFamilies: ["claude", "anthropic"],
+          promptText: `<instructions>
+You are a master of prose enhancement. For the following text, identify segments that can benefit from enhanced imagery and sensory details.
+
+Return only a JSON array of objects, each with "original_text", "enhanced_text", and "reason" keys.
+
+Example response format:
+[
+  {
+    "original_text": "It was dark.",
+    "enhanced_text": "Shadows danced across the moonlit ground, casting shifting patterns of silver and black.",
+    "reason": "Replaced vague 'dark' with specific visual imagery of shadows and moonlight."
+  }
+]
+</instructions>
+
+<document_to_analyze>
+[TEXT_TO_ANALYZE_PLACEHOLDER]
+</document_to_analyze>`
+        }
+      ]
     },
     {
-      id: '2',
+      id: 'strengthen-verbs',
       label: 'Strengthen Verbs',
-      prompt: `Identify weak verbs (e.g., is, was, have, go) in the provided text and replace them with stronger, more active verbs.\nFor each verb you change, explain the reasoning.\nProvide all changes in a JSON array format. Each object in the array must have the following exact keys:\n- "original_verb": The original weak verb or short phrase containing it.\n- "improved_verb": The new, stronger verb or short phrase.\n- "reason": Your explanation for the change.\n\nIMPORTANT: Your entire response MUST be a single, valid JSON array of these objects.\nDo NOT include any introductory sentences, explanations, apologies, or any text whatsoever\nbefore the opening square bracket '[' or after the closing square bracket ']'.\nThe response should start with '[' and end with ']'.\n\nExample of a single object in the JSON array:\n{\n  "original_verb": "The house was big.",\n  "improved_verb": "The house loomed.",\n  "reason": "Replaced 'was big' with 'loomed' to provide a stronger visual and sense of imposing size."\n}\n\nIf no weak verbs are found that require changing, return an empty JSON array: [].\n\nText to analyze:\n[The original text will be appended here by the application]`,
+      category: 'style',
       order: 2,
-      category: 'style',
+      description: 'Replaces weak verbs with stronger, more active ones.',
+      defaultPromptText: `Identify weak verbs (e.g., is, was, have, go, get, make, do) in the provided text and replace them with stronger, more active verbs.
+
+REQUIRED JSON FORMAT: Your response must be a valid JSON array where each object has these exact keys:
+- "original_text": The original text containing the weak verb
+- "improved_text": The text with the stronger verb replacement
+- "reason": Explanation of why this verb is stronger
+
+EXAMPLE RESPONSE:
+[
+  {
+    "original_text": "The house was big.",
+    "improved_text": "The house loomed.",
+    "reason": "Replaced 'was big' with 'loomed' to provide a stronger visual and sense of imposing size."
+  }
+]
+
+CRITICAL REQUIREMENTS:
+- Your entire response MUST be a single, valid JSON array starting with '[' and ending with ']'
+- Do NOT include any text before '[' or after ']'
+- If no weak verbs need strengthening, return: []
+- Each object must have all three keys: "original_text", "improved_text", "reason"
+
+Text to analyze:
+[TEXT_TO_ANALYZE_PLACEHOLDER]`,
+      variants: []
     },
     {
-      id: '3',
+      id: 'enhance-descriptions',
       label: 'Enhance Descriptions',
-      prompt: `Review the text and enhance its descriptions. Focus on making them more vivid, specific, and engaging. This may involve elaborating on existing descriptions, adding sensory details, or using stronger imagery. Provide changes in the specified JSON format. Each object in the array must have "original", "revised", and "reason" keys.\n\nExample of a single object in the JSON array:\n{\n  "original": "The car was red.",\n  "revised": "The cherry-red convertible gleamed under the afternoon sun.",\n  "reason": "Added specificity (convertible, cherry-red) and imagery (gleamed, afternoon sun) to make the description more vivid."\n}\n\nIMPORTANT: Your entire response MUST be a single, valid JSON array of objects. Do NOT include any introductory sentences, explanations, apologies, or any text whatsoever before the opening square bracket '[' or after the closing square bracket ']'. The response should start with '[' and end with ']'.\n\nIf no enhancements are made, return an empty JSON array: [].\n\nText to analyze:\n[The original text will be appended here by the application]`,
-      order: 3,
       category: 'style',
+      order: 3,
+      description: 'Makes descriptions more vivid, specific, and engaging.',
+      defaultPromptText: `Review the text and enhance its descriptions. Focus on making them more vivid, specific, and engaging by elaborating on existing descriptions, adding sensory details, or using stronger imagery.
+
+REQUIRED JSON FORMAT: Your response must be a valid JSON array where each object has these exact keys:
+- "original_text": The original descriptive text
+- "enhanced_text": The improved, more vivid description
+- "reason": Explanation of what makes the new description better
+
+EXAMPLE RESPONSE:
+[
+  {
+    "original_text": "The car was red.",
+    "enhanced_text": "The cherry-red convertible gleamed under the afternoon sun, its polished surface reflecting the azure sky.",
+    "reason": "Added specificity (convertible, cherry-red), visual imagery (gleamed, reflecting), and environmental details (afternoon sun, azure sky)."
+  }
+]
+
+CRITICAL REQUIREMENTS:
+- Your entire response MUST be a single, valid JSON array starting with '[' and ending with ']'
+- Do NOT include any text before '[' or after ']'
+- If no descriptions need enhancement, return: []
+- Each object must have all three keys: "original_text", "enhanced_text", "reason"
+
+Text to analyze:
+[TEXT_TO_ANALYZE_PLACEHOLDER]`,
+      variants: []
     },
     {
-      id: '4',
+      id: 'grammar-punctuation',
       label: 'Grammar and Punctuation',
-      prompt: `Perform a thorough grammar and punctuation check on the text. Correct any errors found. Provide changes in the specified JSON format.\n\nExample of a single object in the JSON array:\n{\n  "original": "Its a nice day isnt it.",\n  "corrected": "It's a nice day, isn't it?",\n  "reason": "Corrected apostrophe in 'It's', added comma before coordinating conjunction 'isn't', and added question mark."\n}\n\nIMPORTANT: Your entire response MUST be a single, valid JSON array of objects. Do NOT include any introductory sentences, explanations, apologies, or any text whatsoever before the opening square bracket '[' or after the closing square bracket ']'. The response should start with '[' and end with ']'.\n\nIf no corrections are made, return an empty JSON array: [].\n\nText to analyze:\n[The original text will be appended here by the application]`,
-      order: 4,
       category: 'grammar',
+      order: 4,
+      description: 'Corrects grammar, punctuation, and spelling errors.',
+      defaultPromptText: `Perform a thorough grammar and punctuation check on the text. Correct any errors found including spelling, punctuation, sentence structure, and grammatical mistakes.
+
+REQUIRED JSON FORMAT: Your response must be a valid JSON array where each object has these exact keys:
+- "original_text": The original text with errors
+- "corrected_text": The corrected version
+- "reason": Explanation of what grammar/punctuation issues were fixed
+
+EXAMPLE RESPONSE:
+[
+  {
+    "original_text": "Its a nice day isnt it.",
+    "corrected_text": "It's a nice day, isn't it?",
+    "reason": "Added apostrophe in 'It's', comma before tag question 'isn't it', and question mark at end."
+  }
+]
+
+CRITICAL REQUIREMENTS:
+- Your entire response MUST be a single, valid JSON array starting with '[' and ending with ']'
+- Do NOT include any text before '[' or after ']'
+- If no grammar/punctuation errors are found, return: []
+- Each object must have all three keys: "original_text", "corrected_text", "reason"
+
+Text to analyze:
+[TEXT_TO_ANALYZE_PLACEHOLDER]`,      variants: []
     },
-  ] as const;
+  ];
   
   // Default task types
   export const DEFAULT_TASK_TYPES = [

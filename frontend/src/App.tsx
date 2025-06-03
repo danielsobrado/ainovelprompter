@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { EventsOn } from '../wailsjs/runtime'; // Adjust path if needed
+import { EventsOn } from '../wailsjs/runtime/runtime';
 import WailsReadyContext from './contexts/WailsReadyContext'; // Import the context
 import { AppLayout } from './components/AppLayout';
 import { useOptionManagement } from './hooks/useOptionManagement';
@@ -36,10 +36,62 @@ export function App() {
   const [wailsReady, setWailsReady] = useState(false);
 
   useEffect(() => {
-    EventsOn("wails:ready", () => {
-      console.log("Wails is ready!");
-      setWailsReady(true);
-    });
+    let unlisten: (() => void) | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const checkWailsReady = () => {
+      // Check if Wails runtime and Go bindings are available
+      if (window.runtime && window.go && window.go.main && window.go.main.App) {
+        console.log("Wails is ready!");
+        setWailsReady(true);
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediate check first
+    if (checkWailsReady()) {
+      return;
+    }
+
+    // Set up event listener for Wails ready event
+    try {
+      unlisten = EventsOn("wails:ready", () => {
+        console.log("Wails ready event received!");
+        setWailsReady(true);
+      });
+    } catch (error) {
+      console.warn("Failed to set up Wails ready event listener:", error);
+    }
+
+    // Fallback: periodic check with timeout
+    const startTime = Date.now();
+    const maxWaitTime = 10000; // 10 seconds max wait
+    
+    const periodicCheck = () => {
+      if (checkWailsReady()) {
+        return;
+      }
+      
+      if (Date.now() - startTime > maxWaitTime) {
+        console.warn("Wails readiness timeout - proceeding anyway");
+        setWailsReady(true);
+        return;
+      }
+      
+      timeoutId = setTimeout(periodicCheck, 100);
+    };
+
+    periodicCheck();
+
+    return () => {
+      if (unlisten && typeof unlisten === 'function') {
+        unlisten();
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   // Option management hooks

@@ -13,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit2, Trash2, MoveUp, MoveDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, MoveUp, MoveDown, RotateCcw } from 'lucide-react';
 import type { ProseImprovementPrompt } from '@/types';
+import { DEFAULT_PROSE_IMPROVEMENT_PROMPTS } from '@/utils/constants';
 
 interface PromptManagerProps {
   prompts: ProseImprovementPrompt[];
@@ -25,23 +26,26 @@ export function PromptManager({ prompts, onPromptsChange }: PromptManagerProps) 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newPrompt, setNewPrompt] = useState<Partial<ProseImprovementPrompt>>({
     label: '',
-    prompt: '',
-    category: 'custom'
+    defaultPromptText: '',
+    category: 'custom',
+    variants: []
   });
 
   const handleAdd = () => {
-    if (!newPrompt.label || !newPrompt.prompt) return;
+    if (!newPrompt.label || !newPrompt.defaultPromptText) return;
     
     const prompt: ProseImprovementPrompt = {
       id: crypto.randomUUID(),
       label: newPrompt.label,
-      prompt: newPrompt.prompt,
+      defaultPromptText: newPrompt.defaultPromptText,
       category: newPrompt.category || 'custom',
-      order: prompts.length
+      order: prompts.length,
+      description: newPrompt.description,
+      variants: newPrompt.variants || []
     };
     
     onPromptsChange([...prompts, prompt]);
-    setNewPrompt({ label: '', prompt: '', category: 'custom' });
+    setNewPrompt({ label: '', defaultPromptText: '', category: 'custom', variants: [] });
   };
 
   const handleUpdate = (id: string, updates: Partial<ProseImprovementPrompt>) => {
@@ -54,7 +58,6 @@ export function PromptManager({ prompts, onPromptsChange }: PromptManagerProps) 
   const handleDelete = (id: string) => {
     onPromptsChange(prompts.filter(p => p.id !== id));
   };
-
   const handleReorder = (id: string, direction: 'up' | 'down') => {
     const index = prompts.findIndex(p => p.id === id);
     if (index === -1) return;
@@ -70,21 +73,31 @@ export function PromptManager({ prompts, onPromptsChange }: PromptManagerProps) 
     onPromptsChange(newPrompts);
   };
 
+  const handleResetToDefaults = () => {
+    if (confirm('Are you sure you want to reset all prompts to their default values? This will replace any custom changes you have made.')) {
+      onPromptsChange([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Add new prompt */}
-      <Card className="p-4">
-        <h3 className="font-semibold mb-3">Add New Prompt</h3>
+      <Card className="p-4">        <h3 className="font-semibold mb-3">Add New Prompt</h3>
         <div className="space-y-3">
           <Input
             placeholder="Prompt label"
             value={newPrompt.label || ''}
             onChange={e => setNewPrompt({ ...newPrompt, label: e.target.value })}
           />
+          <Input
+            placeholder="Description (optional)"
+            value={newPrompt.description || ''}
+            onChange={e => setNewPrompt({ ...newPrompt, description: e.target.value })}
+          />
           <Textarea
-            placeholder="Prompt text..."
-            value={newPrompt.prompt || ''}
-            onChange={e => setNewPrompt({ ...newPrompt, prompt: e.target.value })}
+            placeholder="Default prompt text..."
+            value={newPrompt.defaultPromptText || ''}
+            onChange={e => setNewPrompt({ ...newPrompt, defaultPromptText: e.target.value })}
             className="min-h-[100px]"
           />
           <div className="flex gap-2">
@@ -114,17 +127,21 @@ export function PromptManager({ prompts, onPromptsChange }: PromptManagerProps) 
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
           {prompts.sort((a, b) => a.order - b.order).map((prompt, index) => (
-            <Card key={prompt.id} className="p-3">
-              {editingId === prompt.id ? (
+            <Card key={prompt.id} className="p-3">              {editingId === prompt.id ? (
                 <div className="space-y-2">
                   <Input
                     value={prompt.label}
                     onChange={e => handleUpdate(prompt.id, { label: e.target.value })}
                   />
+                  <Input
+                    placeholder="Description (optional)"
+                    value={prompt.description || ''}
+                    onChange={e => handleUpdate(prompt.id, { description: e.target.value })}
+                  />
                   <Textarea
-                    value={prompt.prompt}
-                    onChange={e => handleUpdate(prompt.id, { prompt: e.target.value })}
-                    className="min-h-[80px]"
+                    value={prompt.defaultPromptText}
+                    onChange={e => handleUpdate(prompt.id, { defaultPromptText: e.target.value })}
+                    className="min-h-[200px]"
                   />
                   <div className="flex justify-end gap-2">
                     <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
@@ -136,17 +153,34 @@ export function PromptManager({ prompts, onPromptsChange }: PromptManagerProps) 
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                <div className="flex items-start justify-between">                  <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium">{prompt.label}</span>
                       <Badge variant="outline" className="text-xs">
                         {prompt.category}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {prompt.prompt}
+                    {prompt.description && (
+                      <p className="text-xs text-muted-foreground mb-2">{prompt.description}</p>
+                    )}
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {prompt.defaultPromptText}
                     </p>
+                    {prompt.variants && prompt.variants.length > 0 && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        +{prompt.variants.length} variant{prompt.variants.length !== 1 ? 's' : ''} available
+                      </p>
+                    )}
+                    {prompt.defaultPromptText.length > 150 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-1 h-auto p-0 text-xs"
+                        onClick={() => setEditingId(prompt.id)}
+                      >
+                        View full prompt →
+                      </Button>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 ml-2">
                     <Button

@@ -4,11 +4,14 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Copy, Play, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; // Import Alert
+import { Terminal } from 'lucide-react'; // For Alert icon
 import type { ProseImprovementSession, LLMProvider } from '@/types';
 
 interface ProcessingViewProps {
   session: ProseImprovementSession;
   isProcessing: boolean;
+  llmError: string | null; // Add this prop
   onProcessNext: () => void;
   selectedProvider: LLMProvider;
   manualResponse: string;
@@ -19,6 +22,7 @@ interface ProcessingViewProps {
 export function ProcessingView({
   session,
   isProcessing,
+  llmError, // Use this prop
   onProcessNext,
   selectedProvider,
   manualResponse,
@@ -30,7 +34,17 @@ export function ProcessingView({
 
   const copyFullPrompt = async () => {
     if (!currentPrompt) return;
-    const fullPrompt = `${currentPrompt.prompt}\n\nText to analyze:\n${session.currentText}`;
+    // Use defaultPromptText as fallback for manual copying
+    const promptText = currentPrompt.defaultPromptText || "Analyze the following text:";
+    const placeholder = "[TEXT_TO_ANALYZE_PLACEHOLDER]";
+    let fullPrompt: string;
+    
+    if (promptText.includes(placeholder)) {
+      fullPrompt = promptText.replace(placeholder, session.currentText);
+    } else {
+      fullPrompt = `${promptText}\n\nText to analyze:\n${session.currentText}`;
+    }
+    
     await navigator.clipboard.writeText(fullPrompt);
   };
 
@@ -50,11 +64,22 @@ export function ProcessingView({
         </div>
       </div>
 
-      {/* Current prompt */}
+      {/* LLM Error Message */}
+      {llmError && ( // Display LLM Error if it exists
+        <Alert variant="destructive">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>LLM Error</AlertTitle>
+          <AlertDescription>
+            {llmError}
+          </AlertDescription>
+        </Alert>
+      )}      {/* Current prompt */}
       {currentPrompt ? (
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Current Prompt: {currentPrompt.label}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{currentPrompt.prompt}</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            {currentPrompt.description || "Processing text with this prompt..."}
+          </p>
           
           {selectedProvider.type === 'manual' ? (
             <div className="space-y-3">

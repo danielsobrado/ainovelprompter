@@ -1,56 +1,77 @@
 # AI Novel Prompter
 
-AI Novel Prompter can generate writing prompts for novels based on user-specified characteristics. 
+AI Novel Prompter can generate writing prompts for novels based on user-specified characteristics.
 
 # Wails based Tool
 
-AI Novel Prompter is a desktop application designed to help writers create consistent and well-structured prompts for AI writing assistants like ChatGPT and Claude. The tool helps manage story elements, character details, and generate properly formatted prompts for continuing your novel.
+AI Novel Prompter is a desktop application designed to help writers create consistent and well-structured prompts for AI writing assistants like ChatGPT and Claude, and also to refine existing prose using LLMs. The tool helps manage story elements, character details, generate prompts for continuing your novel, and iteratively improve text through AI-powered suggestions.
 
 The Executable is on build/bin [Executable](https://github.com/danielsobrado/ainovelprompter/blob/main/build/bin/AINovelPrompter_0.0.1.exe)
 
 ## Features
 
-### 1. Task & Chapter Management
-- **Task Type Selection**: Define and customize different types of writing tasks
-- **Sample Chapter Management**: Store and reference sample chapters for style consistency
+### 1. Task & Chapter Management (Prompt Generation Tab)
+- **Task Type Selection**: Define and customize different types of writing tasks (e.g., "Write Next Chapter", "Revise Chapter").
+- **Sample Chapter Management**: Store and reference sample chapters for style consistency.
 - **Chapter Content Tabs**:
-  - Story Beats: Plan the main points for your next chapter
-  - Previous Chapter: Reference the last written chapter
-  - Future Notes: Keep track of planned future developments
+  - Story Beats: Plan the main points for your next chapter.
+  - Previous Chapter: Reference the last written chapter.
+  - Future Notes: Keep track of planned future developments.
 
 ![AI Novel 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/AINovel1.jpg)
 
-### 2. Story Element Management
+### 2. Story Element Management (Prompt Generation Tab)
 Each category can be edited, saved, and reused across different prompts:
+- **Rules**: Define writing rules and style guidelines.
+- **Characters**: Manage character profiles and details.
+- **Locations**: Keep track of story locations and their descriptions.
+- **Codex**: Store world-building elements and lore.
 
-- **Rules**: Define writing rules and style guidelines
-- **Characters**: Manage character profiles and details
-- **Locations**: Keep track of story locations and their descriptions
-- **Codex**: Store world-building elements and lore
+### 3. Prompt Generation (Prompt Generation Tab)
+- **Dual AI Support**:
+  - ChatGPT-optimized formatting.
+  - Claude-optimized XML formatting.
+- **Real-time Preview**: See your formatted prompt as you build it.
+- **Token Counting**: Track token usage for AI model limits.
+- **Custom Instructions**: Add specific requirements or guidelines to the main prompt.
 
-### 3. Prompt Generation
-- **Dual AI Support**: 
-  - ChatGPT-optimized formatting
-  - Claude-optimized XML formatting
-- **Real-time Preview**: See your formatted prompt as you build it
-- **Token Counting**: Track token usage for AI model limits
-- **Custom Instructions**: Add specific requirements or guidelines
+### 4. Prose Improvement (Prose Improvement Tab)
+- **Iterative Text Refinement**: Paste your text and apply a series of AI-powered improvement prompts.
+- **Customizable Improvement Prompts**:
+    - Manage a list of prompts (e.g., "Enhance Imagery," "Strengthen Verbs," "Check for Clichés," "Grammar and Punctuation").
+    - Add, edit, delete, and reorder these improvement prompts.
+    - Prompts include examples of the expected JSON output format to guide the LLM.
+- **LLM Provider Integration**:
+    - Supports Manual (copy/paste), LM Studio, and OpenRouter.
+    - Configure API URLs, API keys, and model identifiers for each provider.
+    - **Flexible Configuration**: Provider settings (API keys, models) can be loaded from a `.env` file (recommended for sensitive data), `server/config.yaml`, or overridden and saved via the UI to a local `llm_provider_settings.json` file.
+- **Step-by-Step Processing**: Execute improvement prompts one by one against your text.
+- **Change Review System**:
+    - AI suggestions are parsed from JSON responses.
+    - Review each suggested change (`initial` vs. `improved` text, and the `reason` for the change).
+    - Accept or reject suggestions.
+    - View context for each change within the original text.
+- **Live Preview of Accepted Changes**:
+    - A diff viewer (`react-diff-viewer`) shows the `originalText` vs. the `currentText` (with all accepted changes applied).
+- **Robust JSON Parsing**: The system attempts to extract and parse JSON even if the LLM includes conversational text around the JSON payload.
 
-### 4. Data Persistence
-- All data is automatically saved locally
+### 5. Data Persistence
+- All user-defined data is saved locally in the user's home directory under `.ai-novel-prompter` using Wails Go backend for file I/O.
 - Categories include:
-  - Task types
-  - Sample chapters
-  - Rules
-  - Characters
-  - Locations
-  - Codex entries
+  - Task types (`task_types.json`)
+  - Sample chapters (`sample_chapters.json`)
+  - Rules (`rules.json`)
+  - Characters (`characters.json`)
+  - Locations (`locations.json`)
+  - Codex entries (`codex.json`)
+  - Prose improvement prompts (`prose_prompts.json`)
+  - LLM provider settings chosen in UI (`llm_provider_settings.json`)
+  - General application settings (`settings.json`)
 
-### 5. User Interface
-- **Clean, Modern Design**: Built with shadcn/ui components
-- **Responsive Layout**: Adapts to different window sizes
-- **Tabbed Interface**: Organized content access
-- **Modal Editors**: Easy editing of story elements
+### 6. User Interface
+- **Clean, Modern Design**: Built with shadcn/ui components.
+- **Tabbed Interface**: Organized access to "Prompt Generation" and "Prose Improvement" features.
+- **Modal Editors**: Easy editing of all manageable data types.
 
 ## Technical Stack
 
@@ -59,29 +80,44 @@ Each category can be edited, saved, and reused across different prompts:
   - TypeScript
   - Tailwind CSS
   - shadcn/ui components
-
+  - `react-diff-viewer` for visualizing text changes.
 - **Backend**:
   - Go
   - Wails framework
+  - `github.com/joho/godotenv` for `.env` file support.
+  - `github.com/spf13/viper` for configuration management.
 
-## File Management
+## File Management & Configuration
 
-- Saves data in the user's home directory under `.ai-novel-prompter`
-- Supports files up to 500KB
-- Includes file and folder selection capabilities
+- **User Data**: Saved in the user's home directory (e.g., `~/.ai-novel-prompter` or `C:\Users\YourUser\.ai-novel-prompter`). This includes JSON files for task types, rules, characters, prose prompts, etc.
+- **LLM Provider Configuration Priority**:
+    1. Settings saved via the UI (`llm_provider_settings.json`).
+    2. Values from a `.env` file located in the project root (for `wails dev`) or next to the executable (for built app). Environment variables should be prefixed (e.g., `APP_OPENROUTER_API_KEY`).
+    3. Values from `server/config.yaml`.
+    4. Hardcoded defaults in the application.
+- **`.env` File**: Create a `.env` file in your project root for development to store API keys and default models (e.g., `APP_OPENROUTER_API_KEY="your_key"`). **Add `.env` to your `.gitignore` file.**
 
 ## Installation
 
 ```bash
 # Clone the repository
 git clone [repository-url]
+cd ainovelprompter
+
+# Install Go dependencies for the backend (if not already handled by Wails)
+# cd server
+# go mod tidy 
+# cd .. 
 
 # Install frontend dependencies
 cd frontend
 npm install
-
-# Build and run the application
 cd ..
+
+# Generate Wails bindings (important after Go backend changes)
+wails generate bindings
+
+# Build and run the application in development mode
 wails dev
 ```
 
@@ -106,36 +142,77 @@ The built application will be available in the `build` directory.
 
 ## Usage Guide
 
-1. **Initial Setup**:
-   - Define your task types (e.g., "Write Next Chapter", "Revise Chapter")
-   - Add sample chapters for style reference
-   - Set up your rules and guidelines
+### A. Prompt Generation 
+1.  **Initial Setup**:
+    *   In the "Prompt Generation" tab, define your task types (e.g., "Write Next Chapter," "Revise Chapter") by clicking the edit icon next to the "Task Type" selector.
+    *   Add sample chapters for style reference via the "Sample Chapters" selector and its edit icon.
+    *   Set up your "Rules," "Characters," "Locations," and "Codex" entries using their respective selectors and edit icons. All these are saved locally.
+2.  **Creating a Prompt**:
+    *   Select your desired "Task Type."
+    *   Input content into the "Story Beats," "Previous Chapter," and "Future Notes" tabs.
+    *   Select the relevant "Rules," "Characters," "Locations," and "Codex" entries that apply to the chapter you're planning.
+    *   Add any specific "Custom Instructions" in the text area provided.
+3.  **Generating Output**:
+    *   Choose between "ChatGPT" or "Claude" optimized prompt formats using the buttons in the "Generated Prompt" section.
+    *   Review the dynamically generated prompt in the preview area.
+    *   Use the "Copy to Clipboard" button and paste the prompt into your preferred AI writing assistant.
 
-2. **Creating a Prompt**:
-   - Select your task type
-   - Reference or add your previous chapter
-   - Write your story beats
-   - Select relevant rules, characters, and locations
-   - Add any custom instructions
-
-3. **Generating Output**:
-   - Choose between ChatGPT or Claude formatting
-   - Review the generated prompt
-   - Copy to clipboard
-   - Paste into your preferred AI assistant
+### B. Prose Improvement 
+1.  **Configure LLM Provider**:
+    *   Navigate to the "Prose Improvement" tab.
+    *   Click the "Provider Settings" button (cog icon).
+    *   In the modal:
+        *   Select your LLM provider: Manual (for copy/pasting), LM Studio, or OpenRouter.
+        *   **LM Studio**: Enter the API URL (e.g., `http://localhost:1234/v1/chat/completions`) and the model identifier loaded in your LM Studio instance.
+        *   **OpenRouter**: Enter your OpenRouter API Key and the desired model identifier (e.g., `anthropic/claude-3-haiku`, `openai/gpt-4o`). This is a free-text field.
+    *   These settings are loaded with a priority:
+        1.  Previously saved settings from the UI (stored in `llm_provider_settings.json`).
+        2.  Settings from your project's `.env` file (e.g., `APP_OPENROUTER_API_KEY`).
+        3.  Settings from `server/config.yaml`.
+        4.  Application defaults.
+    *   Changes made here are saved to `llm_provider_settings.json` for future sessions.
+2.  **Manage Improvement Prompts**:
+    *   Within the "Prose Improvement" tab, go to the "Prompts" sub-tab.
+    *   Review the default prompts (e.g., "Enhance Imagery," "Strengthen Verbs," "Check for Clichés," "Grammar and Punctuation").
+    *   You can add your own custom improvement prompts, edit existing ones (including their label, prompt text, category, and order), or delete them.
+    *   **Important**: For prompts expected to return structured data (like lists of changes), ensure the prompt text clearly instructs the LLM on the desired JSON format and **includes an example of the JSON structure with specific keys** (e.g., `"initial_text"`, `"improved_text"`, `"reason"`). This greatly improves parsing reliability.
+    *   These prompts are saved locally in `prose_prompts.json`.
+3.  **Process Text**:
+    *   Go to the "Input Text" sub-tab, paste the text you want to improve, and click "Start Improvement Session."
+    *   Navigate to the "Process" sub-tab.
+    *   The first prompt from your managed list will be displayed.
+    *   Click "Execute Prompt."
+        *   If using LM Studio or OpenRouter, the application will send the prompt and text to the LLM.
+        *   If using Manual mode, the full prompt (including your text) will be copied to your clipboard. Paste this into your chosen LLM, get the response, then paste the LLM's JSON response back into the "Paste AI response here..." text area in the app and click "Process Response."
+    *   The application will attempt to parse the LLM's JSON response.
+4.  **Review Changes**:
+    *   After processing, navigate to the "Review Changes" sub-tab.
+    *   Suggested changes from the LLM will be listed. Each card will show:
+        *   The original text segment (`initial`).
+        *   The LLM's suggested improvement (`improved`).
+        *   The LLM's `reason` for the change.
+        *   Context snippets from the original text (if available and enabled).
+    *   You can "Accept" or "Reject" each suggestion.
+    *   The "Current Text Preview" at the bottom uses `react-diff-viewer` to show a live diff between your original input text for the session and the current state of the text with all accepted changes applied.
+    *   Once you've reviewed changes from one prompt, you can go back to the "Process" tab to execute the next prompt in your list against the updated text.
 
 ## Development
 
 ### Adding New Features
-- The codebase supports easy addition of new selectors and options
-- Modal components follow a consistent pattern
-- Data persistence is handled automatically
+- **Prompt Generation**: The codebase supports easy addition of new selectors (for managing different types of story elements) and options. Modal components for editing these elements follow a consistent pattern. Data persistence is handled via Wails Go functions writing to JSON files.
+- **Prose Improvement**:
+    - New default improvement prompts can be added to the `DEFAULT_PROSE_IMPROVEMENT_PROMPTS` array in `src/utils/constants.ts`. Remember to include clear JSON output examples in the prompt text.
+    - The JSON parser in `src/hooks/useProseImprovement.ts` is designed to be somewhat flexible with key names from LLM responses by checking for common variations (e.g., `original`, `initial`, `original_text`). However, it benefits greatly from well-defined prompts that specify exact key names.
+    - Support for new LLM providers can be added by extending the `LLMProvider` type in `src/types.ts` and updating the logic in `src/hooks/useLLMProvider.ts` and `src/components/ProseImprovement/ProviderSettings.tsx`.
+- **Data Persistence**: To persist new types of application data, add corresponding `Read[DataType]File` and `Write[DataType]File` functions to a Go file bound to Wails (like `settings.go`). Then, create a React hook (similar to `useOptionManagement` or `useProseImprovement`) to manage this data on the frontend, calling the Go functions for loading and saving.
 
 ### Customization
-- All components use Tailwind CSS for styling
-- UI components can be customized through shadcn/ui
-- Prompt formatting can be modified in the promptGenerators utility
+- **Styling**: All components use Tailwind CSS. Customizations can be made by modifying utility classes or adding custom CSS to `src/index.css`.
+- **UI Components**: Built with shadcn/ui. These components can be customized as per shadcn/ui documentation.
+- **Prompt Formatting (Main Tab)**: The logic for constructing prompts for ChatGPT and Claude in the "Prompt Generation" tab can be modified in `src/utils/promptGenerators.ts` and `src/utils/promptInstructions.ts`.
+- **Prose Improvement Prompts**: These are primarily managed via the UI. Default prompts are in `src/utils/constants.ts`.
 
+---
 
 # Web based tool
 

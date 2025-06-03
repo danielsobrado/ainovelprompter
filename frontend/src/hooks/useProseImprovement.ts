@@ -2,60 +2,78 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ProseImprovementPrompt, ProseChange } from '@/types';
 import { DEFAULT_PROSE_IMPROVEMENT_PROMPTS } from '@/utils/constants';
-import { useWailsReady } from '@/contexts/WailsReadyContext'; // Import the context hook
-// Import Wails runtime for Go function calls if not already globally available
-// For newer Wails, direct calls like window.go.main.App... are typical.
-// Ensure your wailsjsdev.js or wailsjsruntime.js is loaded.
+import { useWailsReady } from '@/contexts/WailsReadyContext';
 
 export function useProseImprovement() {
-  const { wailsReady } = useWailsReady(); // Consume the context
-  const [prompts, setPrompts] = useState<ProseImprovementPrompt[]>([]);
-  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
+  const { wailsReady } = useWailsReady();
+  // This state now holds ProseImprovementPrompt[] which are definitions
+  const [promptDefinitions, setPromptDefinitions] = useState<ProseImprovementPrompt[]>([]);
+  const [isLoadingDefinitions, setIsLoadingDefinitions] = useState(true);
 
   useEffect(() => {
-    const loadPrompts = async () => {
-      setIsLoadingPrompts(true);
+    const loadDefinitions = async () => {
+      setIsLoadingDefinitions(true);
       try {
         // Check if Wails bindings are ready
         if (wailsReady && window.go && window.go.main && window.go.main.App) {
-          const savedPromptsJson = await window.go.main.App.ReadProsePromptsFile();
-          if (savedPromptsJson) {
-            const savedPrompts = JSON.parse(savedPromptsJson);
-            if (Array.isArray(savedPrompts) && savedPrompts.length > 0) {
-              setPrompts(savedPrompts);
+          const jsonString = await window.go.main.App.ReadPromptDefinitionsFile();
+          if (jsonString) {
+            const loadedDefs = JSON.parse(jsonString) as ProseImprovementPrompt[];
+            if (Array.isArray(loadedDefs) && loadedDefs.length > 0) {
+              setPromptDefinitions(loadedDefs);
             } else {
-              setPrompts([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
+              console.log("useProseImprovement: No definitions in file, using defaults.");
+              const defaultDefs = [...DEFAULT_PROSE_IMPROVEMENT_PROMPTS].map(p => ({...p}));
+              setPromptDefinitions(defaultDefs);
+              await window.go.main.App.WritePromptDefinitionsFile(JSON.stringify(defaultDefs));
             }
           } else {
-            setPrompts([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
+            console.log("useProseImprovement: Empty file, using defaults.");
+            const defaultDefs = [...DEFAULT_PROSE_IMPROVEMENT_PROMPTS].map(p => ({...p}));
+            setPromptDefinitions(defaultDefs);
+            await window.go.main.App.WritePromptDefinitionsFile(JSON.stringify(defaultDefs));
           }
         } else if (!wailsReady) {
           console.log("useProseImprovement: Wails not ready, waiting...");
           // No need for setTimeout here, effect will re-run when wailsReady changes
         } else {
           console.warn("Wails Go bindings not available, using defaults for prompts.");
-          setPrompts([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
+          setPromptDefinitions([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS].map(p => ({...p})));
         }
       } catch (error) {
-        console.error("Error loading prose prompts, using defaults:", error);
-        setPrompts([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
+        console.error("useProseImprovement: Error loading prompt definitions, using defaults:", error);
+        setPromptDefinitions([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS].map(p => ({...p})));
       } finally {
         // Only set loading to false if wails is ready or if we decided to use defaults
         if (wailsReady || !(window.go && window.go.main && window.go.main.App)) {
-          setIsLoadingPrompts(false);
+          setIsLoadingDefinitions(false);
         }
       }
     };
 
-    if (wailsReady) { // Only attempt to load if Wails is ready
-      loadPrompts();
+    if (wailsReady) {
+      loadDefinitions();
     } else {
       // If Wails is not ready yet, ensure prompts are default and not loading indefinitely
-      // This handles the initial state before Wails signals readiness.
-      setPrompts([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS]);
-      setIsLoadingPrompts(true); // Keep loading true until wailsReady or error
+      setPromptDefinitions([...DEFAULT_PROSE_IMPROVEMENT_PROMPTS].map(p => ({...p})));
+      setIsLoadingDefinitions(true); // Keep loading true until wailsReady or error
     }
   }, [wailsReady]); // Re-run when wailsReady changes
+
+  const updateAndSaveDefinitions = useCallback(
+    async (newDefs: ProseImprovementPrompt[] | ((prevState: ProseImprovementPrompt[]) => ProseImprovementPrompt[])) => {
+      setPromptDefinitions(prevDefs => {
+        const updated = typeof newDefs === 'function' ? newDefs(prevDefs) : newDefs;
+        if (wailsReady && window.go && window.go.main && window.go.main.App) {
+          window.go.main.App.WritePromptDefinitionsFile(JSON.stringify(updated)).catch(err => {
+            console.error("Error saving prompt definitions:", err);
+          });
+        } else {
+          console.warn("Wails not ready, cannot save prompt definitions.");
+        }
+        return updated;
+      });
+    }, [wailsReady]);
 
   const parseChanges = useCallback((response: string): ProseChange[] => {
     try {
@@ -162,18 +180,7 @@ export function useProseImprovement() {
     } catch (error) {
       console.error('Error in parseChanges:', error, "Original response string:", response);
       return [];
-    }
-  }, []);
-
-  const updateAndSavePrompts = useCallback(async (newPrompts: ProseImprovementPrompt[] | ((prevState: ProseImprovementPrompt[]) => ProseImprovementPrompt[])) => {
-    setPrompts(prevPrompts => {
-      const updated = typeof newPrompts === 'function' ? newPrompts(prevPrompts) : newPrompts;
-      window.go.main.App.WriteProsePromptsFile(JSON.stringify(updated)).catch(err => {
-        console.error("Error saving prose prompts:", err);
-      });
-      return updated;
-    });
-  }, []);
+    }  }, []);
 
 
   const applyChanges = useCallback((text: string, changes: ProseChange[]): string => {
@@ -217,13 +224,12 @@ export function useProseImprovement() {
       };
     });
   }, []);
-
   return {
-    prompts,
-    updatePrompts: updateAndSavePrompts, // Use the new save-aware updater
+    prompts: promptDefinitions, // This is now an array of PromptDefinition
+    updatePrompts: updateAndSaveDefinitions, // This now saves definitions
     parseChanges,
     applyChanges,
     findChangePositions,
-    isLoadingPrompts, // Expose loading state if needed by UI
+    isLoadingPrompts: isLoadingDefinitions,
   };
 }
