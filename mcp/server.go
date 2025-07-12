@@ -633,42 +633,30 @@ func (s *MCPServer) buildChatGPTPrompt(params map[string]interface{}) string {
 
 	// Add Previous Chapter
 	if previousChapter, ok := params["previousChapter"].(string); ok && previousChapter != "" {
-		prompt.WriteString("Previous Chapter:
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(previousChapter)
-		prompt.WriteString("
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Sample Chapter
 	if sampleChapter, ok := params["sampleChapter"].(string); ok && sampleChapter != "" {
-		prompt.WriteString("Sample Chapter:
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(sampleChapter)
-		prompt.WriteString("
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Future Notes
 	if futureNotes, ok := params["futureNotes"].(string); ok && futureNotes != "" {
-		prompt.WriteString("Future Chapter Notes:
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(futureNotes)
-		prompt.WriteString("
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Story Beats
 	if beats, ok := params["nextChapterBeats"].(string); ok && beats != "" {
-		prompt.WriteString("Next Chapter Beats:
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(beats)
-		prompt.WriteString("
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Rules
@@ -693,12 +681,9 @@ func (s *MCPServer) buildChatGPTPrompt(params map[string]interface{}) string {
 
 	// Add Task Instructions
 	if taskType, ok := params["taskType"].(string); ok && taskType != "" {
-		prompt.WriteString("Task:
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(taskType)
-		prompt.WriteString("
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	return prompt.String()
@@ -708,51 +693,34 @@ func (s *MCPServer) buildChatGPTPrompt(params map[string]interface{}) string {
 func (s *MCPServer) buildClaudePrompt(params map[string]interface{}) string {
 	var prompt strings.Builder
 
-	prompt.WriteString("<instructions>
-")
+	prompt.WriteString("$1\n$2")
 
 	// Add Previous Chapter
 	if previousChapter, ok := params["previousChapter"].(string); ok && previousChapter != "" {
-		prompt.WriteString("<previous_chapter>
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(previousChapter)
-		prompt.WriteString("
-</previous_chapter>
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Sample Chapter
 	if sampleChapter, ok := params["sampleChapter"].(string); ok && sampleChapter != "" {
-		prompt.WriteString("<sample_chapter>
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(sampleChapter)
-		prompt.WriteString("
-</sample_chapter>
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Future Notes
 	if futureNotes, ok := params["futureNotes"].(string); ok && futureNotes != "" {
-		prompt.WriteString("<future_chapters>
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(futureNotes)
-		prompt.WriteString("
-</future_chapters>
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Story Beats
 	if beats, ok := params["nextChapterBeats"].(string); ok && beats != "" {
-		prompt.WriteString("<beats>
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(beats)
-		prompt.WriteString("
-</beats>
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	// Add Rules with XML tags
@@ -777,13 +745,9 @@ func (s *MCPServer) buildClaudePrompt(params map[string]interface{}) string {
 
 	// Add Task Instructions
 	if taskType, ok := params["taskType"].(string); ok && taskType != "" {
-		prompt.WriteString("<task>
-")
+		prompt.WriteString("$1\n$2")
 		prompt.WriteString(taskType)
-		prompt.WriteString("
-</task>
-
-")
+		prompt.WriteString("$1\n$2")
 	}
 
 	prompt.WriteString("</instructions>")
@@ -794,27 +758,23 @@ func (s *MCPServer) buildClaudePrompt(params map[string]interface{}) string {
 // Helper methods for building prompts
 
 func (s *MCPServer) addRulesToPrompt(prompt *strings.Builder, ruleIds []interface{}) {
-	prompt.WriteString("Rules:
-")
+	prompt.WriteString("$1\n$2")
 	for _, ruleId := range ruleIds {
 		if ruleIdStr, ok := ruleId.(string); ok {
 			ruleResult, err := s.storyHandler.GetRuleByID(map[string]interface{}{"id": ruleIdStr})
 			if err == nil {
 				if rule, ok := ruleResult.(models.Rule); ok {
 					prompt.WriteString(rule.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addCharactersToPrompt(prompt *strings.Builder, characterIds []interface{}) {
-	prompt.WriteString("Characters:
-")
+	prompt.WriteString("$1\n$2")
 	for _, characterId := range characterIds {
 		if characterIdStr, ok := characterId.(string); ok {
 			charResult, err := s.storyHandler.GetCharacterByID(map[string]interface{}{"id": characterIdStr})
@@ -823,19 +783,16 @@ func (s *MCPServer) addCharactersToPrompt(prompt *strings.Builder, characterIds 
 					prompt.WriteString(character.Name)
 					prompt.WriteString(": ")
 					prompt.WriteString(character.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addLocationsToPrompt(prompt *strings.Builder, locationIds []interface{}) {
-	prompt.WriteString("Locations:
-")
+	prompt.WriteString("$1\n$2")
 	for _, locationId := range locationIds {
 		if locationIdStr, ok := locationId.(string); ok {
 			locResult, err := s.storyHandler.GetLocationByID(map[string]interface{}{"id": locationIdStr})
@@ -844,19 +801,16 @@ func (s *MCPServer) addLocationsToPrompt(prompt *strings.Builder, locationIds []
 					prompt.WriteString(location.Name)
 					prompt.WriteString(": ")
 					prompt.WriteString(location.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addCodexToPrompt(prompt *strings.Builder, codexIds []interface{}) {
-	prompt.WriteString("Codex Entries:
-")
+	prompt.WriteString("$1\n$2")
 	for _, codexId := range codexIds {
 		if codexIdStr, ok := codexId.(string); ok {
 			codexResult, err := s.storyHandler.GetCodexEntryByID(map[string]interface{}{"id": codexIdStr})
@@ -865,39 +819,32 @@ func (s *MCPServer) addCodexToPrompt(prompt *strings.Builder, codexIds []interfa
 					prompt.WriteString(codex.Title)
 					prompt.WriteString(": ")
 					prompt.WriteString(codex.Content)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addRulesToClaudePrompt(prompt *strings.Builder, ruleIds []interface{}) {
-	prompt.WriteString("<rules>
-")
+	prompt.WriteString("$1\n$2")
 	for _, ruleId := range ruleIds {
 		if ruleIdStr, ok := ruleId.(string); ok {
 			ruleResult, err := s.storyHandler.GetRuleByID(map[string]interface{}{"id": ruleIdStr})
 			if err == nil {
 				if rule, ok := ruleResult.(models.Rule); ok {
 					prompt.WriteString(rule.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("</rules>
-
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addCharactersToClaudePrompt(prompt *strings.Builder, characterIds []interface{}) {
-	prompt.WriteString("<characters>
-")
+	prompt.WriteString("$1\n$2")
 	for _, characterId := range characterIds {
 		if characterIdStr, ok := characterId.(string); ok {
 			charResult, err := s.storyHandler.GetCharacterByID(map[string]interface{}{"id": characterIdStr})
@@ -906,20 +853,16 @@ func (s *MCPServer) addCharactersToClaudePrompt(prompt *strings.Builder, charact
 					prompt.WriteString(character.Name)
 					prompt.WriteString(": ")
 					prompt.WriteString(character.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("</characters>
-
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addLocationsToClaudePrompt(prompt *strings.Builder, locationIds []interface{}) {
-	prompt.WriteString("<locations>
-")
+	prompt.WriteString("$1\n$2")
 	for _, locationId := range locationIds {
 		if locationIdStr, ok := locationId.(string); ok {
 			locResult, err := s.storyHandler.GetLocationByID(map[string]interface{}{"id": locationIdStr})
@@ -928,20 +871,16 @@ func (s *MCPServer) addLocationsToClaudePrompt(prompt *strings.Builder, location
 					prompt.WriteString(location.Name)
 					prompt.WriteString(": ")
 					prompt.WriteString(location.Description)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("</locations>
-
-")
+	prompt.WriteString("$1\n$2")
 }
 
 func (s *MCPServer) addCodexToClaudePrompt(prompt *strings.Builder, codexIds []interface{}) {
-	prompt.WriteString("<codex>
-")
+	prompt.WriteString("$1\n$2")
 	for _, codexId := range codexIds {
 		if codexIdStr, ok := codexId.(string); ok {
 			codexResult, err := s.storyHandler.GetCodexEntryByID(map[string]interface{}{"id": codexIdStr})
@@ -950,15 +889,12 @@ func (s *MCPServer) addCodexToClaudePrompt(prompt *strings.Builder, codexIds []i
 					prompt.WriteString(codex.Title)
 					prompt.WriteString(": ")
 					prompt.WriteString(codex.Content)
-					prompt.WriteString("
-")
+					prompt.WriteString("$1\n$2")
 				}
 			}
 		}
 	}
-	prompt.WriteString("</codex>
-
-")
+	prompt.WriteString("$1\n$2")
 }
 
 // MCP protocol types

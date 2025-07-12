@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -156,7 +155,7 @@ func (h *SearchHandler) GetCharacterMentions(params map[string]interface{}) (int
 
 	for _, chapter := range chapters {
 		// Skip if chapter range specified and this chapter is outside range
-		if chapterRange != "" && !h.isChapterInRange(chapter.Number, chapterRange) {
+		if chapterRange != "" && !h.isChapterInRange(fmt.Sprintf("%d", chapter.Number), chapterRange) {
 			continue
 		}
 
@@ -225,18 +224,20 @@ func (h *SearchHandler) GetTimelineEvents(params map[string]interface{}) (interf
 	}
 
 	// Add story beats as planned events
-	if beats, ok := beatsResult.([]models.StoryBeat); ok {
-		for _, beat := range beats {
+	if storyBeats, ok := beatsResult.([]models.StoryBeats); ok {
+		for _, storyBeat := range storyBeats {
 			if eventType == "" || eventType == "planned" {
-				events = append(events, map[string]interface{}{
-					"id":          beat.ID,
-					"type":        "planned",
-					"title":       beat.Description,
-					"chapter":     beat.ChapterNumber,
-					"description": beat.Notes,
-					"status":      "planned",
-					"createdAt":   beat.CreatedAt,
-				})
+				for _, beat := range storyBeat.Beats {
+					events = append(events, map[string]interface{}{
+						"id":          beat.ID,
+						"type":        "planned",
+						"title":       beat.Description,
+						"chapter":     storyBeat.ChapterNumber,
+						"description": storyBeat.Notes,
+						"status":      "planned",
+						"createdAt":   storyBeat.UpdatedAt,
+					})
+				}
 			}
 		}
 	}
@@ -409,14 +410,14 @@ func (h *SearchHandler) searchRules(query string) ([]models.SearchResult, error)
 
 	var results []models.SearchResult
 	for _, rule := range rules {
-		if h.matchesQuery(strings.ToLower(query), strings.ToLower(rule.Title), strings.ToLower(rule.Description)) {
+		if h.matchesQuery(strings.ToLower(query), strings.ToLower(rule.Name), strings.ToLower(rule.Description)) {
 			results = append(results, models.SearchResult{
 				ID:      rule.ID,
 				Type:    "rule",
-				Title:   rule.Title,
+				Title:   rule.Name,
 				Content: rule.Description,
 				Snippet: h.createSnippet(rule.Description, query),
-				Score:   h.calculateScore(query, rule.Title, rule.Description),
+				Score:   h.calculateScore(query, rule.Name, rule.Description),
 				Metadata: map[string]interface{}{
 					"category": rule.Category,
 					"active":   rule.Active,

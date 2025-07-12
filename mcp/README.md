@@ -36,10 +36,33 @@ This MCP (Model Context Protocol) server provides comprehensive tools for novel 
 
 ## Installation
 
+### For Claude Code Integration (Recommended)
+
+**Quick Installation:**
+```bash
+cd mcp
+# Windows
+.uild_claude_code.bat
+
+# macOS/Linux  
+chmod +x build_claude_code.sh
+./build_claude_code.sh
+```
+
+See **[CLAUDE_CODE_INSTALLATION.md](CLAUDE_CODE_INSTALLATION.md)** for complete setup guide.
+
+### For HTTP API Server
 ```bash
 cd mcp
 go mod download
 go build -o mcp-server main.go
+```
+
+### For Custom Integration
+```bash
+cd mcp
+go mod download
+go build -o ainovelprompter-mcp mcp_stdio_server.go
 ```
 
 ## Usage
@@ -132,11 +155,32 @@ go build -ldflags="-s -w" -o mcp-server main.go
 
 ## Integration
 
-This MCP server integrates seamlessly with:
-- Claude Desktop (via MCP protocol)
-- Custom MCP clients
-- The main AI Novel Prompter desktop application
-- Third-party writing tools supporting MCP
+This MCP server provides multiple integration options:
+
+### 🎯 Claude Code Integration
+- **Full MCP Protocol Support** via `mcp_stdio_server.go`
+- **41 Novel Writing Tools** directly in your coding environment
+- **Installation Guide**: [CLAUDE_CODE_INSTALLATION.md](CLAUDE_CODE_INSTALLATION.md)
+- **Build Scripts**: `build_claude_code.sh` / `build_claude_code.bat`
+- **Config Examples**: [claude_code_config_examples.md](claude_code_config_examples.md)
+
+### 🌐 HTTP API Server
+- **REST API Interface** via `http_server.go`
+- **Web Testing Interface** at http://localhost:8080/test
+- **JSON Responses** for easy integration
+- **Cross-Platform Access** from any HTTP client
+
+### 🔧 Direct Integration
+- **Go Library Import** via `server.go`
+- **Custom MCP Clients** 
+- **Main AI Novel Prompter App** compatibility
+- **Third-Party Tools** supporting MCP protocol
+
+### 📁 Files Overview
+- `mcp_stdio_server.go` - Claude Code MCP server (stdio protocol)
+- `http_server.go` - HTTP API server with web interface
+- `main.go` - Basic MCP server demonstration
+- `server.go` - Core MCP server library
 
 ## License
 

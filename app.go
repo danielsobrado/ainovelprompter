@@ -19,7 +19,10 @@ func NewApp() *App {
 }
 
 func (a *App) LogInfo(message string) {
-	runtime.LogInfo(a.ctx, message)
+	if a.ctx != nil {
+		runtime.LogInfo(a.ctx, message)
+	}
+	// In tests or when context is nil, this becomes a no-op
 }
 
 // startup is called when the app starts. The context is saved
@@ -49,7 +52,9 @@ func (a *App) shutdown(ctx context.Context) {
 func (a *App) GetCurrentDirectory() string {
 	dir, err := os.Getwd()
 	if err != nil {
-		runtime.LogError(a.ctx, fmt.Sprintf("Error getting current directory: %v", err))
+		if a.ctx != nil {
+			runtime.LogError(a.ctx, fmt.Sprintf("Error getting current directory: %v", err))
+		}
 		return "Error getting current directory"
 	}
 	return dir
