@@ -55,23 +55,85 @@ Each category can be edited, saved, and reused across different prompts:
     - A diff viewer (`react-diff-viewer`) shows the `originalText` vs. the `currentText` (with all accepted changes applied).
 - **Robust JSON Parsing**: The system attempts to extract and parse JSON even if the LLM includes conversational text around the JSON payload.
 
-### 5. Data Persistence
-- All user-defined data is saved locally in the user's home directory under `.ai-novel-prompter` using Wails Go backend for file I/O.
-- Categories include:
-  - Task types (`task_types.json`)
-  - Sample chapters (`sample_chapters.json`)
-  - Rules (`rules.json`)
-  - Characters (`characters.json`)
-  - Locations (`locations.json`)
-  - Codex entries (`codex.json`)
-  - Prose improvement prompts (`prose_prompts.json`)
-  - LLM provider settings chosen in UI (`llm_provider_settings.json`)
-  - General application settings (`settings.json`)
+### 5. Data Persistence & Versioning
 
-### 6. User Interface
+**📁 Folder-Based Storage with Complete Version History**
+- Revolutionary **folder-based system** replacing single JSON files
+- **Complete version history** with timestamped versioning for every entity
+- **Never lose data** - every create, update, and delete operation is preserved
+- **One-click restore** to any previous version of any entity
+- **Multiple data directories** support for different projects/stories
+
+**📂 Storage Structure:**
+```
+.ai-novel-prompter/
+├── characters/
+│   ├── aragorn_20250113_120000_create.json
+│   ├── aragorn_20250113_130000_update.json
+│   └── gandalf_20250113_140000_create.json
+├── locations/
+│   ├── rivendell_20250113_120000_create.json
+│   └── mordor_20250113_130000_create.json
+├── codex/
+├── rules/
+├── chapters/
+├── story_beats/
+├── future_notes/
+├── sample_chapters/
+├── task_types/
+├── prose_prompts/
+└── .metadata/
+    ├── config.json
+    └── indexes.json
+```
+
+**🔄 Version Management Features:**
+- **Complete Audit Trail**: Every change tracked with timestamp and operation type
+- **Intelligent File Naming**: `{entity_name}_{YYYYMMDD_HHMMSS}_{operation}.json` format
+- **Instant Restore**: Restore any entity to any previous version with one click
+- **Storage Analytics**: Detailed statistics on files, versions, and storage usage
+- **Retention Policies**: Configurable cleanup of old versions to manage disk space
+- **Atomic Operations**: All file operations are atomic and safe from corruption
+
+**💾 Automatic Migration Support:**
+- **Seamless Upgrade**: Automatic detection and migration from old JSON format
+- **Safe Migration**: Backup creation before migration ensures data safety
+- **Validation**: Complete verification that all data migrated successfully
+- **Zero Downtime**: All existing functionality preserved during transition
+
+### 6. Command Line Interface
+
+**🚀 Enhanced CLI with Data Directory Management:**
+```bash
+# Use default data directory (~/.ai-novel-prompter)
+./ainovelprompter
+
+# Specify custom data directory for project isolation
+./ainovelprompter --data-dir /path/to/project
+./ainovelprompter -d "./Fantasy Novel"
+
+# Multiple projects with different directories
+./ainovelprompter -d "./Project A"
+./ainovelprompter -d "./Project B" 
+
+# Show help and available options
+./ainovelprompter --help
+./ainovelprompter -h
+```
+
+**📁 Data Directory Benefits:**
+- **Project Isolation**: Keep different stories completely separate
+- **Easy Backup**: Copy entire project folder for instant backup
+- **Team Collaboration**: Share project folders via cloud storage
+- **Version Control**: Track entire project history with git
+- **Portable Projects**: Move projects between computers easily
+
+### 7. User Interface
 - **Clean, Modern Design**: Built with shadcn/ui components.
 - **Tabbed Interface**: Organized access to "Prompt Generation" and "Prose Improvement" features.
 - **Modal Editors**: Easy editing of all manageable data types.
+- **Version History UI**: Timeline view of all entity versions with visual operation indicators.
+- **Data Directory Manager**: Frontend interface for switching between project directories.
 
 ## Technical Stack
 
@@ -84,12 +146,17 @@ Each category can be edited, saved, and reused across different prompts:
 - **Backend**:
   - Go
   - Wails framework
+  - Atomic file operations for data integrity
+  - JSON-based storage with versioning
   - `github.com/joho/godotenv` for `.env` file support.
   - `github.com/spf13/viper` for configuration management.
 
 ## File Management & Configuration
 
-- **User Data**: Saved in the user's home directory (e.g., `~/.ai-novel-prompter` or `C:\Users\YourUser\.ai-novel-prompter`). This includes JSON files for task types, rules, characters, prose prompts, etc.
+- **User Data**: Saved in configurable data directories with complete version history
+  - **Default**: `~/.ai-novel-prompter` or `C:\Users\YourUser\.ai-novel-prompter`
+  - **Custom**: Any directory specified via CLI or frontend settings
+- **Version Management**: Each entity maintains complete history with atomic file operations
 - **LLM Provider Configuration Priority**:
     1. Settings saved via the UI (`llm_provider_settings.json`).
     2. Values from a `.env` file located in the project root (for `wails dev`) or next to the executable (for built app). Environment variables should be prefixed (e.g., `APP_OPENROUTER_API_KEY`).
@@ -119,7 +186,37 @@ wails generate bindings
 
 # Build and run the application in development mode
 wails dev
+
+# Or run with custom data directory
+wails dev --data-dir ./my-project-data
 ```
+
+### Command Line Options
+
+The application now supports CLI options for enhanced project management:
+
+```bash
+# Use default data directory (~/.ai-novel-prompter)
+./ainovelprompter
+
+# Specify custom data directory
+./ainovelprompter --data-dir /path/to/project
+./ainovelprompter -d "./Fantasy Novel"
+
+# Multiple projects with different directories
+./ainovelprompter -d "./Project A"
+./ainovelprompter -d "./Project B"
+
+# Show help
+./ainovelprompter --help
+./ainovelprompter -h
+```
+
+**Data Directory Benefits:**
+- **Project Isolation**: Keep different stories completely separate
+- **Easy Backup**: Copy entire project folder for backup
+- **Team Collaboration**: Share project folders via cloud storage
+- **Version Control**: Track entire project history with git
 
 ## Building for Production
 
@@ -146,7 +243,7 @@ The built application will be available in the `build` directory.
 1.  **Initial Setup**:
     *   In the "Prompt Generation" tab, define your task types (e.g., "Write Next Chapter," "Revise Chapter") by clicking the edit icon next to the "Task Type" selector.
     *   Add sample chapters for style reference via the "Sample Chapters" selector and its edit icon.
-    *   Set up your "Rules," "Characters," "Locations," and "Codex" entries using their respective selectors and edit icons. All these are saved locally.
+    *   Set up your "Rules," "Characters," "Locations," and "Codex" entries using their respective selectors and edit icons. All these are saved locally with complete version history.
 2.  **Creating a Prompt**:
     *   Select your desired "Task Type."
     *   Input content into the "Story Beats," "Previous Chapter," and "Future Notes" tabs.
@@ -176,7 +273,7 @@ The built application will be available in the `build` directory.
     *   Review the default prompts (e.g., "Enhance Imagery," "Strengthen Verbs," "Check for Clichés," "Grammar and Punctuation").
     *   You can add your own custom improvement prompts, edit existing ones (including their label, prompt text, category, and order), or delete them.
     *   **Important**: For prompts expected to return structured data (like lists of changes), ensure the prompt text clearly instructs the LLM on the desired JSON format and **includes an example of the JSON structure with specific keys** (e.g., `"initial_text"`, `"improved_text"`, `"reason"`). This greatly improves parsing reliability.
-    *   These prompts are saved locally in `prose_prompts.json`.
+    *   These prompts are saved locally with full version history.
 3.  **Process Text**:
     *   Go to the "Input Text" sub-tab, paste the text you want to improve, and click "Start Improvement Session."
     *   Navigate to the "Process" sub-tab.
@@ -196,21 +293,136 @@ The built application will be available in the `build` directory.
     *   The "Current Text Preview" at the bottom uses `react-diff-viewer` to show a live diff between your original input text for the session and the current state of the text with all accepted changes applied.
     *   Once you've reviewed changes from one prompt, you can go back to the "Process" tab to execute the next prompt in your list against the updated text.
 
+## Data Directory Management & Version Control
+
+### Managing Data Directories
+
+**🏠 Default Location**: `~/.ai-novel-prompter` (Windows: `C:\Users\{username}\.ai-novel-prompter`)
+
+**📁 Custom Directories**: Use CLI options or frontend settings to work with multiple projects:
+
+```bash
+# Different story projects
+./ainovelprompter -d "./Fantasy Novel"
+./ainovelprompter -d "./Sci-Fi Story" 
+./ainovelprompter -d "./Historical Fiction"
+```
+
+**🔧 Frontend Management**:
+1. Open **Settings** → **Data Directory Manager**
+2. **Browse** for new directory or **select from recent**
+3. **Validate** directory before switching
+4. **View storage statistics** and entity counts
+5. **Migrate** from old JSON format if needed
+
+### Version History & Restore
+
+**📖 Viewing History**:
+- Every entity maintains complete version history with timestamps
+- Timeline shows all create/update/delete operations with visual indicators
+- Click **History** icon next to any entity to view versions
+- Preview any version before restoring
+
+**⏪ Restoring Versions**:
+1. Navigate to entity's version history
+2. Select desired version from timeline
+3. **Preview** version content to verify
+4. Click **Restore** to create new version from selected point
+5. Current version becomes new historical entry
+6. **Atomic operation** - safe from corruption or data loss
+
+**🧹 Cleanup & Maintenance**:
+- **Automatic cleanup** removes old versions based on configurable retention policy
+- **Manual cleanup** via storage statistics interface  
+- **Backup entire directory** before major changes
+- **Storage analytics** show disk usage by entity type and version count
+
+### Migration from Legacy Format
+
+**🔄 Automatic Detection**: App detects old JSON files and offers migration wizard
+
+**📋 Migration Process**:
+1. **Backup Creation**: Automatic backup of old format with timestamp
+2. **Entity Conversion**: Each JSON entry becomes properly versioned entity
+3. **Timestamp Assignment**: Proper creation/update timestamps assigned
+4. **Validation**: Complete verification that all data migrated successfully
+5. **Cleanup**: Option to archive old JSON files post-migration
+
+**⚠️ Migration Notes**:
+- **One-time process** per data directory
+- **Irreversible** (but backup is created automatically)
+- **Maintains all data** including relationships and metadata
+- **Preserves settings** and configurations
+- **Zero data loss** with complete validation
+
+### Project Organization Best Practices
+
+**📂 Directory Structure**:
+```
+Stories/
+├── Fantasy-Series/
+│   ├── Book-1/
+│   └── Book-2/
+├── Standalone-Novel/
+└── Short-Stories/
+```
+
+**💾 Backup Strategy**:
+- **Cloud sync** entire project directories for automatic backup
+- **Git repositories** for version control across devices and team collaboration
+- **Scheduled backups** of active projects to external storage
+- **Export functionality** for sharing specific entities or projects
+
+**👥 Team Collaboration**:
+- **Share project directories** via cloud storage (Dropbox, Google Drive, etc.)
+- **Version conflicts** resolved automatically through timestamp comparison
+- **Entity-level granularity** minimizes merge conflicts between team members
+- **Complete audit trail** shows who changed what and when
+
 ## Development
 
 ### Adding New Features
-- **Prompt Generation**: The codebase supports easy addition of new selectors (for managing different types of story elements) and options. Modal components for editing these elements follow a consistent pattern. Data persistence is handled via Wails Go functions writing to JSON files.
+- **Prompt Generation**: The codebase supports easy addition of new selectors (for managing different types of story elements) and options. Modal components for editing these elements follow a consistent pattern. Data persistence is handled via versioned folder storage with atomic operations.
 - **Prose Improvement**:
     - New default improvement prompts can be added to the `DEFAULT_PROSE_IMPROVEMENT_PROMPTS` array in `src/utils/constants.ts`. Remember to include clear JSON output examples in the prompt text.
     - The JSON parser in `src/hooks/useProseImprovement.ts` is designed to be somewhat flexible with key names from LLM responses by checking for common variations (e.g., `original`, `initial`, `original_text`). However, it benefits greatly from well-defined prompts that specify exact key names.
     - Support for new LLM providers can be added by extending the `LLMProvider` type in `src/types.ts` and updating the logic in `src/hooks/useLLMProvider.ts` and `src/components/ProseImprovement/ProviderSettings.tsx`.
-- **Data Persistence**: To persist new types of application data, add corresponding `Read[DataType]File` and `Write[DataType]File` functions to a Go file bound to Wails (like `settings.go`). Then, create a React hook (similar to `useOptionManagement` or `useProseImprovement`) to manage this data on the frontend, calling the Go functions for loading and saving.
+- **Data Persistence**: All data operations use the versioned folder storage system. New entity types can be added by extending the storage interfaces and implementing the corresponding handlers. All operations are atomic and maintain complete version history.
+
+### Testing
+
+**📋 Comprehensive Test Suite**:
+```bash
+# Run all tests
+./scripts/test.sh
+
+# Frontend tests only
+./scripts/test.sh --frontend-only
+
+# Backend tests only  
+./scripts/test.sh --backend-only
+
+# With coverage reports
+./scripts/test.sh --coverage
+
+# Test storage system specifically
+cd cmd/test-storage
+go run main.go
+```
+
+**🧪 Storage System Tests**:
+- **Version Management**: Create, update, restore operations
+- **Migration Testing**: Old JSON to new folder format
+- **Atomic Operations**: Data integrity under concurrent access
+- **Performance**: Large dataset handling and cleanup
+- **Legacy Compatibility**: All existing MCP tools work unchanged
 
 ### Customization
 - **Styling**: All components use Tailwind CSS. Customizations can be made by modifying utility classes or adding custom CSS to `src/index.css`.
 - **UI Components**: Built with shadcn/ui. These components can be customized as per shadcn/ui documentation.
 - **Prompt Formatting (Main Tab)**: The logic for constructing prompts for ChatGPT and Claude in the "Prompt Generation" tab can be modified in `src/utils/promptGenerators.ts` and `src/utils/promptInstructions.ts`.
-- **Prose Improvement Prompts**: These are primarily managed via the UI. Default prompts are in `src/utils/constants.ts`.
+- **Prose Improvement Prompts**: These are primarily managed via the UI with complete version history. Default prompts are in `src/utils/constants.ts`.
+- **Storage System**: The folder-based storage can be extended for new entity types by implementing the versioned storage interfaces.
 
 ---
 
@@ -627,7 +839,7 @@ I'm open to collaborating with others to further fine-tune prompts for each mode
   - Break down tasks into steps and guide the model through them.
 - **Description Before Completion:**
   - Prompt the model to describe entities before answering.
-  - Ensure that description doesn’t bleed into completion unintentionally.
+  - Ensure that description doesn't bleed into completion unintentionally.
 - **Context Management:**
   - Provide essential context only, avoid unstructured paragraph dumps.
   - Direct the model towards the desired answer with sufficient but concise context.

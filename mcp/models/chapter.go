@@ -23,6 +23,7 @@ type Chapter struct {
 
 // StoryBeats represents planned beats for future chapters
 type StoryBeats struct {
+	ID            string    `json:"id"`
 	ChapterNumber int       `json:"chapterNumber"`
 	Beats         []Beat    `json:"beats"`
 	Notes         string    `json:"notes,omitempty"`

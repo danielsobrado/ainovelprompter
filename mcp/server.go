@@ -13,10 +13,11 @@ import (
 )
 
 type MCPServer struct {
-	storyHandler   *handlers.StoryContextHandler
-	chapterHandler *handlers.ChapterHandler
-	proseHandler   *handlers.ProseImprovementHandler
-	searchHandler  *handlers.SearchHandler
+	storyHandler    *handlers.StoryContextHandler
+	chapterHandler  *handlers.ChapterHandler
+	proseHandler    *handlers.ProseImprovementHandler
+	searchHandler   *handlers.SearchHandler
+	versionedStorage storage.VersionedStorage
 }
 
 func NewMCPServer() (*MCPServer, error) {
@@ -45,19 +46,20 @@ func NewMCPServerWithDataDir(dataDir string) (*MCPServer, error) {
 	}
 
 	// Initialize storage
-	fileStorage := storage.NewFileStorage(appDataDir)
+	folderStorage := storage.NewFolderStorage(appDataDir)
 
 	// Initialize handlers
-	storyHandler := handlers.NewStoryContextHandler(fileStorage)
-	chapterHandler := handlers.NewChapterHandler(fileStorage)
-	proseHandler := handlers.NewProseImprovementHandler(fileStorage)
-	searchHandler := handlers.NewSearchHandler(fileStorage, storyHandler, chapterHandler, proseHandler)
+	storyHandler := handlers.NewStoryContextHandler(folderStorage)
+	chapterHandler := handlers.NewChapterHandler(folderStorage)
+	proseHandler := handlers.NewProseImprovementHandler(folderStorage)
+	searchHandler := handlers.NewSearchHandler(folderStorage, storyHandler, chapterHandler, proseHandler)
 
 	return &MCPServer{
-		storyHandler:   storyHandler,
-		chapterHandler: chapterHandler,
-		proseHandler:   proseHandler,
-		searchHandler:  searchHandler,
+		storyHandler:     storyHandler,
+		chapterHandler:   chapterHandler,
+		proseHandler:     proseHandler,
+		searchHandler:    searchHandler,
+		versionedStorage: folderStorage,
 	}, nil
 }
 
@@ -429,6 +431,67 @@ func (s *MCPServer) GetTools() []Tool {
 			},
 		},
 
+		// Version Management Tools
+		{
+			Name:        "get_entity_versions",
+			Description: "Get version history for an entity",
+			Parameters: map[string]ParameterDef{
+				"entityType": {Type: "string", Description: "Entity type (characters, locations, codex, etc.)", Required: true},
+				"entityId":   {Type: "string", Description: "Entity ID", Required: true},
+			},
+		},
+		{
+			Name:        "get_entity_version",
+			Description: "Get a specific version of an entity",
+			Parameters: map[string]ParameterDef{
+				"entityType": {Type: "string", Description: "Entity type (characters, locations, codex, etc.)", Required: true},
+				"entityId":   {Type: "string", Description: "Entity ID", Required: true},
+				"timestamp":  {Type: "string", Description: "Timestamp in RFC3339 format", Required: true},
+			},
+		},
+		{
+			Name:        "restore_entity_version",
+			Description: "Restore an entity to a previous version",
+			Parameters: map[string]ParameterDef{
+				"entityType": {Type: "string", Description: "Entity type (characters, locations, codex, etc.)", Required: true},
+				"entityId":   {Type: "string", Description: "Entity ID", Required: true},
+				"timestamp":  {Type: "string", Description: "Timestamp in RFC3339 format", Required: true},
+			},
+		},
+		{
+			Name:        "get_storage_stats",
+			Description: "Get storage statistics and usage information",
+			Parameters: map[string]ParameterDef{},
+		},
+		{
+			Name:        "cleanup_old_versions",
+			Description: "Clean up old versions based on retention policy",
+			Parameters: map[string]ParameterDef{
+				"entityType":     {Type: "string", Description: "Entity type to clean up", Required: true},
+				"retentionDays": {Type: "number", Description: "Number of days to retain versions", Required: true},
+			},
+		},
+		{
+			Name:        "set_data_directory",
+			Description: "Change the data directory for the storage system",
+			Parameters: map[string]ParameterDef{
+				"path": {Type: "string", Description: "New data directory path", Required: true},
+			},
+		},
+		{
+			Name:        "get_data_directory",
+			Description: "Get the current data directory path",
+			Parameters: map[string]ParameterDef{},
+		},
+		{
+			Name:        "migrate_from_json",
+			Description: "Migrate data from old JSON format to new folder format",
+			Parameters: map[string]ParameterDef{
+				"oldPath":      {Type: "string", Description: "Path to old data directory with JSON files", Required: true},
+				"createBackup": {Type: "boolean", Description: "Create backup before migration", Required: false},
+			},
+		},
+
 		// Prompt Generation Tools
 		{
 			Name:        "generate_chapter_prompt",
@@ -550,6 +613,24 @@ func (s *MCPServer) ExecuteTool(toolName string, params map[string]interface{}) 
 		return s.searchHandler.GetCharacterMentions(params)
 	case "get_timeline_events":
 		return s.searchHandler.GetTimelineEvents(params)
+
+	// Version Management Tools
+	case "get_entity_versions":
+		return s.getEntityVersions(params)
+	case "get_entity_version":
+		return s.getEntityVersion(params)
+	case "restore_entity_version":
+		return s.restoreEntityVersion(params)
+	case "get_storage_stats":
+		return s.getStorageStats(params)
+	case "cleanup_old_versions":
+		return s.cleanupOldVersions(params)
+	case "set_data_directory":
+		return s.setDataDirectory(params)
+	case "get_data_directory":
+		return s.getDataDirectory(params)
+	case "migrate_from_json":
+		return s.migrateFromJSON(params)
 
 	// Prompt Generation Tools
 	case "generate_chapter_prompt":
@@ -906,6 +987,186 @@ func (s *MCPServer) addCodexToClaudePrompt(prompt *strings.Builder, codexIds []i
 		}
 	}
 	prompt.WriteString("$1\n$2")
+}
+
+// Version Management Methods
+
+func (s *MCPServer) getEntityVersions(params map[string]interface{}) (interface{}, error) {
+	entityType, ok := params["entityType"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityType parameter is required")
+	}
+	
+	entityId, ok := params["entityId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityId parameter is required")
+	}
+	
+	versions, err := s.versionedStorage.GetVersions(entityType, entityId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get versions: %v", err)
+	}
+	
+	return versions, nil
+}
+
+func (s *MCPServer) getEntityVersion(params map[string]interface{}) (interface{}, error) {
+	entityType, ok := params["entityType"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityType parameter is required")
+	}
+	
+	entityId, ok := params["entityId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityId parameter is required")
+	}
+	
+	timestampStr, ok := params["timestamp"].(string)
+	if !ok {
+		return nil, fmt.Errorf("timestamp parameter is required")
+	}
+	
+	timestamp, err := time.Parse(time.RFC3339, timestampStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid timestamp format: %v", err)
+	}
+	
+	entity, err := s.versionedStorage.GetVersion(entityType, entityId, timestamp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get version: %v", err)
+	}
+	
+	return entity, nil
+}
+
+func (s *MCPServer) restoreEntityVersion(params map[string]interface{}) (interface{}, error) {
+	entityType, ok := params["entityType"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityType parameter is required")
+	}
+	
+	entityId, ok := params["entityId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityId parameter is required")
+	}
+	
+	timestampStr, ok := params["timestamp"].(string)
+	if !ok {
+		return nil, fmt.Errorf("timestamp parameter is required")
+	}
+	
+	timestamp, err := time.Parse(time.RFC3339, timestampStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid timestamp format: %v", err)
+	}
+	
+	version, err := s.versionedStorage.RestoreVersion(entityType, entityId, timestamp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to restore version: %v", err)
+	}
+	
+	return version, nil
+}
+
+func (s *MCPServer) getStorageStats(params map[string]interface{}) (interface{}, error) {
+	stats, err := s.versionedStorage.GetStorageStats()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get storage stats: %v", err)
+	}
+	
+	return stats, nil
+}
+
+func (s *MCPServer) cleanupOldVersions(params map[string]interface{}) (interface{}, error) {
+	entityType, ok := params["entityType"].(string)
+	if !ok {
+		return nil, fmt.Errorf("entityType parameter is required")
+	}
+	
+	retentionDays, ok := params["retentionDays"].(float64)
+	if !ok {
+		return nil, fmt.Errorf("retentionDays parameter is required")
+	}
+	
+	err := s.versionedStorage.CleanupOldVersions(entityType, int(retentionDays))
+	if err != nil {
+		return nil, fmt.Errorf("failed to cleanup old versions: %v", err)
+	}
+	
+	return map[string]interface{}{
+		"success": true,
+		"message": fmt.Sprintf("Cleaned up versions older than %d days for %s", int(retentionDays), entityType),
+	}, nil
+}
+
+func (s *MCPServer) setDataDirectory(params map[string]interface{}) (interface{}, error) {
+	path, ok := params["path"].(string)
+	if !ok {
+		return nil, fmt.Errorf("path parameter is required")
+	}
+	
+	err := s.versionedStorage.SetDataDirectory(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to set data directory: %v", err)
+	}
+	
+	return map[string]interface{}{
+		"success": true,
+		"message": fmt.Sprintf("Data directory changed to: %s", path),
+		"path":    path,
+	}, nil
+}
+
+func (s *MCPServer) getDataDirectory(params map[string]interface{}) (interface{}, error) {
+	path := s.versionedStorage.GetDataDirectory()
+	
+	return map[string]interface{}{
+		"path": path,
+	}, nil
+}
+
+func (s *MCPServer) migrateFromJSON(params map[string]interface{}) (interface{}, error) {
+	oldPath, ok := params["oldPath"].(string)
+	if !ok {
+		return nil, fmt.Errorf("oldPath parameter is required")
+	}
+	
+	createBackup := false
+	if backup, ok := params["createBackup"].(bool); ok {
+		createBackup = backup
+	}
+	
+	// Check if old path exists
+	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("old data directory does not exist: %s", oldPath)
+	}
+	
+	// Create migration instance
+	migration := storage.NewMigration(oldPath, s.versionedStorage.GetDataDirectory())
+	
+	// Create backup if requested
+	if createBackup {
+		if err := migration.CreateBackup(); err != nil {
+			return nil, fmt.Errorf("failed to create backup: %v", err)
+		}
+	}
+	
+	// Perform migration
+	if err := migration.MigrateAll(); err != nil {
+		return nil, fmt.Errorf("migration failed: %v", err)
+	}
+	
+	// Validate migration
+	if err := migration.ValidateMigration(); err != nil {
+		return nil, fmt.Errorf("migration validation failed: %v", err)
+	}
+	
+	return map[string]interface{}{
+		"success": true,
+		"message": "Migration completed successfully",
+		"oldPath": oldPath,
+		"newPath": s.versionedStorage.GetDataDirectory(),
+	}, nil
 }
 
 // MCP protocol types

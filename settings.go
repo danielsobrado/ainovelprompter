@@ -41,6 +41,12 @@ func (a *App) WriteSettingsFile(content string) error {
 
 // getAppDataDir returns the path to the application data directory
 func (a *App) getAppDataDir() string {
+	// Use the configured data directory if available
+	if a.dataDir != "" {
+		return a.dataDir
+	}
+	
+	// Fallback to default directory
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		runtime.LogError(a.ctx, fmt.Sprintf("Error getting user home directory: %v", err))
