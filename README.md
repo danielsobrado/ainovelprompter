@@ -168,7 +168,7 @@ Each category can be edited, saved, and reused across different prompts:
 
 ```bash
 # Clone the repository
-git clone [repository-url]
+git clone https://github.com/danielsobrado/ainovelprompter
 cd ainovelprompter
 
 # Install Go dependencies for the backend (if not already handled by Wails)

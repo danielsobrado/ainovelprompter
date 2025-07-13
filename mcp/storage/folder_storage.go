@@ -1,17 +1,14 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/danielsobrado/ainovelprompter/mcp/models"
 	"github.com/google/uuid"
 )
 
@@ -283,6 +280,11 @@ func (fs *FolderStorage) GetVersions(entityType string, id string) ([]Version, e
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
 	
+	return fs.getVersionsInternal(entityType, id), nil
+}
+
+// getVersionsInternal gets versions without locking (internal use)
+func (fs *FolderStorage) getVersionsInternal(entityType string, id string) []Version {
 	var versions []Version
 	if cached, ok := fs.indexCache[entityType]; ok {
 		for _, version := range cached {
@@ -297,7 +299,7 @@ func (fs *FolderStorage) GetVersions(entityType string, id string) ([]Version, e
 		return versions[i].Timestamp.After(versions[j].Timestamp)
 	})
 	
-	return versions, nil
+	return versions
 }
 
 // GetVersion implements VersionedStorage.GetVersion
@@ -306,10 +308,7 @@ func (fs *FolderStorage) GetVersion(entityType string, id string, timestamp time
 	defer fs.mu.RUnlock()
 	
 	// Find version with exact or closest timestamp
-	versions, err := fs.GetVersions(entityType, id)
-	if err != nil {
-		return nil, err
-	}
+	versions := fs.getVersionsInternal(entityType, id)
 	
 	var targetVersion *Version
 	for _, version := range versions {

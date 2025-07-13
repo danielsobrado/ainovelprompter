@@ -67,12 +67,9 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
 
   const loadStorageStats = async () => {
     try {
-      // This would be an MCP call through the backend
-      const response = await fetch('/api/mcp/storage-stats');
-      if (response.ok) {
-        const statsData = await response.json();
-        setStats(statsData);
-      }
+      // Call the backend method through Wails
+      const statsData = await window.GetStorageStats();
+      setStats(statsData);
     } catch (err) {
       // Stats are optional
     }

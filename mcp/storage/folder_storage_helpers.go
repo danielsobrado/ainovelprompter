@@ -181,11 +181,11 @@ func (fs *FolderStorage) createEntityByType(entityType string) interface{} {
 	}
 }
 
-// getLatestEntity gets the latest version of an entity
+// getLatestEntity gets the latest version of an entity (internal, no locking)
 func (fs *FolderStorage) getLatestEntity(entityType string, id string) (interface{}, error) {
-	versions, err := fs.GetVersions(entityType, id)
-	if err != nil {
-		return nil, err
+	versions := fs.getVersionsInternal(entityType, id)
+	if len(versions) == 0 {
+		return nil, fmt.Errorf("entity not found")
 	}
 	
 	// Find latest active version
@@ -260,14 +260,18 @@ func (fs *FolderStorage) scanEntityDirectory(entityType string) {
 			continue
 		}
 		
-		// Parse filename: entityname_timestamp_operation.json
+		// Parse filename: entityname_YYYYMMDD_HHMMSS_operation.json
 		parts := strings.Split(strings.TrimSuffix(entry.Name(), ".json"), "_")
-		if len(parts) < 3 {
+		if len(parts) < 4 {
 			continue // Invalid filename format
 		}
 		
 		operation := parts[len(parts)-1]
-		timestampStr := parts[len(parts)-2]
+		timeStr := parts[len(parts)-2]
+		dateStr := parts[len(parts)-3]
+		
+		// Construct full timestamp
+		timestampStr := dateStr + "_" + timeStr
 		
 		// Parse timestamp
 		timestamp, err := time.Parse("20060102_150405", timestampStr)
@@ -318,46 +322,35 @@ func (fs *FolderStorage) extractEntityIDFromFile(filePath string, entityType str
 func (fs *FolderStorage) fixActiveStatus(entityType string) {
 	if versions, ok := fs.indexCache[entityType]; ok {
 		// Group by entity ID
-		entityVersions := make(map[string][]Version)
-		for _, version := range versions {
-			entityVersions[version.EntityID] = append(entityVersions[version.EntityID], version)
+		entityVersions := make(map[string][]int) // entity ID -> indices in cache
+		for i, version := range versions {
+			entityVersions[version.EntityID] = append(entityVersions[version.EntityID], i)
 		}
 		
 		// For each entity, mark only latest non-delete as active
-		for entityID, entityVersionList := range entityVersions {
-			// Sort by timestamp (newest first)
-			versions := entityVersionList
-			for i := range versions {
-				versions[i].Active = false // Reset all to inactive
+		for _, indices := range entityVersions {
+			// First, mark all versions of this entity as inactive
+			for _, idx := range indices {
+				fs.indexCache[entityType][idx].Active = false
 			}
 			
-			// Sort and find latest non-delete
-			for i := 0; i < len(versions); i++ {
-				for j := i + 1; j < len(versions); j++ {
-					if versions[j].Timestamp.After(versions[i].Timestamp) {
-						versions[i], versions[j] = versions[j], versions[i]
-					}
-				}
-			}
+			// Find the latest non-delete version
+			latestIdx := -1
+			latestTime := time.Time{}
 			
-			// Mark latest non-delete as active
-			for i, version := range versions {
+			for _, idx := range indices {
+				version := fs.indexCache[entityType][idx]
 				if version.Operation != OperationDelete {
-					versions[i].Active = true
-					break
+					if latestIdx == -1 || version.Timestamp.After(latestTime) {
+						latestIdx = idx
+						latestTime = version.Timestamp
+					}
 				}
 			}
 			
-			// Update cache
-			for i, version := range fs.indexCache[entityType] {
-				if version.EntityID == entityID {
-					for _, updated := range versions {
-						if version.ID == updated.ID {
-							fs.indexCache[entityType][i] = updated
-							break
-						}
-					}
-				}
+			// Mark the latest version as active
+			if latestIdx != -1 {
+				fs.indexCache[entityType][latestIdx].Active = true
 			}
 		}
 	}

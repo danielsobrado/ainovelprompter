@@ -3,6 +3,7 @@ module github.com/danielsobrado/ainovelprompter
 go 1.24.3
 
 require (
+	github.com/danielsobrado/ainovelprompter/mcp v0.0.0-20250712022600-6fbcfcef8281
 	github.com/danielsobrado/ainovelprompter/server v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.10.0
 	github.com/wailsapp/wails/v2 v2.10.1
@@ -14,7 +15,6 @@ replace github.com/danielsobrado/ainovelprompter/mcp => ./mcp
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
-	github.com/danielsobrado/ainovelprompter/mcp v0.0.0-20250712022600-6fbcfcef8281 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect

@@ -2,8 +2,6 @@ package storage
 
 import (
 	"time"
-
-	"github.com/danielsobrado/ainovelprompter/mcp/models"
 )
 
 // Entity types constants

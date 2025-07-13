@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/danielsobrado/ainovelprompter/mcp/storage"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -92,8 +93,24 @@ func (a *App) SetDataDirectory(newDataDir string) error {
 	return nil
 }
 
-// ValidateDataDirectory checks if a directory path is valid for use as data directory
-func (a *App) ValidateDataDirectory(path string) error {
+// GetRecentDataDirectories returns a list of recently used data directories
+func (a *App) GetRecentDataDirectories() []string {
+	// TODO: Implement reading from config file
+	// For now, return default directory
+	homeDir, _ := os.UserHomeDir()
+	defaultDir := filepath.Join(homeDir, ".ai-novel-prompter")
+	return []string{defaultDir}
+}
+
+// AddRecentDataDirectory adds a directory to the recent list
+func (a *App) AddRecentDataDirectory(path string) error {
+	// TODO: Implement saving to config file
+	// For now, just validate the path
+	return a.ValidateDataDirectoryPath(path)
+}
+
+// ValidateDataDirectoryPath checks if a directory path is valid for use as data directory
+func (a *App) ValidateDataDirectoryPath(path string) error {
 	// Check if path can be created/accessed
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -117,18 +134,50 @@ func (a *App) ValidateDataDirectory(path string) error {
 	return nil
 }
 
-// GetRecentDataDirectories returns a list of recently used data directories
-func (a *App) GetRecentDataDirectories() []string {
-	// TODO: Implement reading from config file
-	// For now, return default directory
-	homeDir, _ := os.UserHomeDir()
-	defaultDir := filepath.Join(homeDir, ".ai-novel-prompter")
-	return []string{defaultDir}
+// ValidateDataDirectory checks if the current data directory is valid
+func (a *App) ValidateDataDirectory() error {
+	if a.dataDir == "" {
+		return fmt.Errorf("data directory not set")
+	}
+	return a.ValidateDataDirectoryPath(a.dataDir)
 }
 
-// AddRecentDataDirectory adds a directory to the recent list
-func (a *App) AddRecentDataDirectory(path string) error {
-	// TODO: Implement saving to config file
-	// For now, just validate the path
-	return a.ValidateDataDirectory(path)
+// GetStorageStats returns storage statistics for the current data directory
+func (a *App) GetStorageStats() (*storage.StorageStats, error) {
+	if a.dataDir == "" {
+		return nil, fmt.Errorf("data directory not set")
+	}
+	
+	// Create folder storage instance
+	fs := storage.NewFolderStorage(a.dataDir)
+	
+	// Get storage stats
+	stats, err := fs.GetStorageStats()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get storage stats: %v", err)
+	}
+	
+	return &stats, nil
+}
+
+// CleanupOldVersions cleans up old versions based on retention policy
+func (a *App) CleanupOldVersions(entityType string, retentionDays int) error {
+	if a.dataDir == "" {
+		return fmt.Errorf("data directory not set")
+	}
+	
+	// Create folder storage instance
+	fs := storage.NewFolderStorage(a.dataDir)
+	
+	// Cleanup old versions
+	err := fs.CleanupOldVersions(entityType, retentionDays)
+	if err != nil {
+		return fmt.Errorf("failed to cleanup old versions: %v", err)
+	}
+	
+	if a.ctx != nil {
+		runtime.LogInfo(a.ctx, fmt.Sprintf("Cleaned up old versions for %s with %d days retention", entityType, retentionDays))
+	}
+	
+	return nil
 }
