@@ -20,13 +20,24 @@ type MCPServer struct {
 }
 
 func NewMCPServer() (*MCPServer, error) {
-	// Get app data directory
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
+	return NewMCPServerWithDataDir("")
+}
 
-	appDataDir := filepath.Join(homeDir, ".ai-novel-prompter")
+func NewMCPServerWithDataDir(dataDir string) (*MCPServer, error) {
+	var appDataDir string
+	var err error
+
+	if dataDir != "" {
+		// Use provided data directory
+		appDataDir = dataDir
+	} else {
+		// Fall back to default user home directory
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return nil, err
+		}
+		appDataDir = filepath.Join(homeDir, ".ai-novel-prompter")
+	}
 
 	// Create directory if it doesn't exist
 	if err := os.MkdirAll(appDataDir, 0755); err != nil {

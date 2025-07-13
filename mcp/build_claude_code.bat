@@ -27,7 +27,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo 🔧 Building MCP server executable...
-go build -o ainovelprompter-mcp.exe mcp_stdio_server.go
+go build -o ainovelprompter-mcp.exe main.go
 
 if %ERRORLEVEL% NEQ 0 (
     echo ❌ Error: Build failed

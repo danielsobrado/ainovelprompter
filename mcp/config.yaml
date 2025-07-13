@@ -1,0 +1,39 @@
+# AI Novel Prompter MCP Server Configuration
+# This file shows the supported configuration options.
+
+# Data directory where story files are stored
+# Can be relative or absolute path
+# If not specified, defaults to ~/.ai-novel-prompter
+# data_dir: "./my-story-data"
+# data_dir: "C:/Users/MyUser/Documents/MyStory"
+# data_dir: "/home/user/stories/my-novel"
+
+# Server configuration
+server:
+  name: "ai-novel-prompter-mcp"
+  version: "1.0.0"
+  protocol_version: "2024-11-05"
+
+# MCP Protocol settings
+mcp:
+  # Maximum message size (not currently enforced)
+  max_message_size: 1048576  # 1MB
+  
+  # Tool capabilities
+  capabilities:
+    tools:
+      listChanged: false
+
+# Logging configuration
+logging:
+  # Log level: debug, info, warn, error
+  level: "info"
+  
+  # Whether to log to file (in addition to stderr)
+  file_logging: false
+  
+  # Log file path (relative to data directory)
+  log_file: "mcp-server.log"
+
+# TODO: Add configuration loading using Viper
+# This template shows the structure for future configuration support
