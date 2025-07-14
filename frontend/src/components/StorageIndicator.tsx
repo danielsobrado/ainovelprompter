@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from './ui/badge';
 import { Database, HardDrive } from 'lucide-react';
+import { GetStorageStats } from '../../wailsjs/go/main/App';
 
 interface StorageStats {
   totalFiles: number;
@@ -26,7 +27,7 @@ const StorageIndicator: React.FC = () => {
     try {
       setIsLoading(true);
       // Call the backend method through Wails
-      const statsData = await window.GetStorageStats();
+      const statsData = await GetStorageStats();
       setStats(statsData);
     } catch (err) {
       // Silently fail for storage stats as they're informational

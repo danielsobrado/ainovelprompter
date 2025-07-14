@@ -18,6 +18,13 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp(dataDir string) *App {
+	// Debug logging for app creation
+	debugLog := fmt.Sprintf("DEBUG: NewApp called with dataDir='%s'\n", dataDir)
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
+	
 	return &App{
 		dataDir: dataDir,
 	}
@@ -34,6 +41,13 @@ func (a *App) LogInfo(message string) {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	
+	// Debug logging for startup
+	debugLog := fmt.Sprintf("DEBUG: startup() called, a.dataDir='%s'\n", a.dataDir)
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
 }
 
 // domReady is called after the front-end dom has been loaded

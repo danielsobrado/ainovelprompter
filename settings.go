@@ -41,8 +41,20 @@ func (a *App) WriteSettingsFile(content string) error {
 
 // getAppDataDir returns the path to the application data directory
 func (a *App) getAppDataDir() string {
+	// Debug logging to file
+	debugLog := fmt.Sprintf("DEBUG: getAppDataDir called, a.dataDir='%s'\n", a.dataDir)
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
+	
 	// Use the configured data directory if available
 	if a.dataDir != "" {
+		debugLog2 := fmt.Sprintf("DEBUG: Using configured data directory: '%s'\n", a.dataDir)
+		if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+			file.WriteString(debugLog2)
+			file.Close()
+		}
 		return a.dataDir
 	}
 	
@@ -52,7 +64,13 @@ func (a *App) getAppDataDir() string {
 		runtime.LogError(a.ctx, fmt.Sprintf("Error getting user home directory: %v", err))
 		return ""
 	}
-	return filepath.Join(homeDir, ".ai-novel-prompter")
+	defaultDir := filepath.Join(homeDir, ".ai-novel-prompter")
+	debugLog3 := fmt.Sprintf("DEBUG: Using fallback default directory: '%s'\n", defaultDir)
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog3)
+		file.Close()
+	}
+	return defaultDir
 }
 
 func (a *App) ReadTaskTypesFile() (string, error) {
@@ -107,6 +125,13 @@ func (a *App) WriteRulessFile(content string) error {
 
 // Characters
 func (a *App) ReadCharactersFile() (string, error) {
+	// Debug logging for character file reading
+	debugLog := fmt.Sprintf("DEBUG: ReadCharactersFile called\n")
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
+	
 	charactersPath := filepath.Join(a.getAppDataDir(), "characters.json")
 	content, err := os.ReadFile(charactersPath)
 	if err != nil {
@@ -119,6 +144,13 @@ func (a *App) ReadCharactersFile() (string, error) {
 }
 
 func (a *App) WriteCharactersFile(content string) error {
+	// Debug logging for character file writing
+	debugLog := fmt.Sprintf("DEBUG: WriteCharactersFile called with content length: %d\n", len(content))
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
+	
 	charactersPath := filepath.Join(a.getAppDataDir(), "characters.json")
 	err := os.MkdirAll(filepath.Dir(charactersPath), 0755)
 	if err != nil {

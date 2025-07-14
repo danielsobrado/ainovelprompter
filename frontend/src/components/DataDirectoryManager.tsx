@@ -8,6 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { FolderOpen, AlertTriangle, CheckCircle, Clock, Database } from 'lucide-react';
+import { 
+  GetDataDirectory, 
+  GetRecentDataDirectories, 
+  GetStorageStats, 
+  ValidateDataDirectoryPath, 
+  SetDataDirectory, 
+  AddRecentDataDirectory, 
+  SelectDirectory 
+} from '../../wailsjs/go/main/App';
 
 interface DataDirectoryManagerProps {
   onDirectoryChange?: (newPath: string) => void;
@@ -48,7 +57,7 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
 
   const loadCurrentDirectory = async () => {
     try {
-      const directory = await window.GetDataDirectory();
+      const directory = await GetDataDirectory();
       setCurrentDirectory(directory);
       setNewDirectory(directory);
     } catch (err) {
@@ -58,7 +67,7 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
 
   const loadRecentDirectories = async () => {
     try {
-      const recent = await window.GetRecentDataDirectories();
+      const recent = await GetRecentDataDirectories();
       setRecentDirectories(recent);
     } catch (err) {
       // Recent directories are optional
@@ -68,7 +77,7 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
   const loadStorageStats = async () => {
     try {
       // Call the backend method through Wails
-      const statsData = await window.GetStorageStats();
+      const statsData = await GetStorageStats();
       setStats(statsData);
     } catch (err) {
       // Stats are optional
@@ -81,16 +90,16 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
       setError('');
       
       // Validate directory first
-      await window.ValidateDataDirectory(newDirectory);
+      await ValidateDataDirectoryPath(newDirectory);
       
       // Change directory
-      await window.SetDataDirectory(newDirectory);
+      await SetDataDirectory(newDirectory);
       
       // Update current directory
       setCurrentDirectory(newDirectory);
       
       // Add to recent directories
-      await window.AddRecentDataDirectory(newDirectory);
+      await AddRecentDataDirectory(newDirectory);
       
       // Reload recent directories and stats
       await loadRecentDirectories();
@@ -113,7 +122,7 @@ const DataDirectoryManager: React.FC<DataDirectoryManagerProps> = ({ onDirectory
   const handleBrowseDirectory = async () => {
     try {
       // This would use Wails file dialog
-      const selected = await window.SelectDirectory();
+      const selected = await SelectDirectory();
       if (selected) {
         setNewDirectory(selected);
       }
@@ -336,7 +345,7 @@ const MigrationDialog: React.FC<MigrationDialogProps> = ({ onMigrate, progress, 
 
   const handleBrowseOldDirectory = async () => {
     try {
-      const selected = await window.SelectDirectory();
+      const selected = await SelectDirectory();
       if (selected) {
         setOldPath(selected);
       }

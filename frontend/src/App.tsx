@@ -1,5 +1,19 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { EventsOn } from '../wailsjs/runtime/runtime';
+import { 
+  ReadCharactersFile, 
+  WriteCharactersFile, 
+  ReadLocationsFile, 
+  WriteLocationsFile, 
+  ReadCodexFile, 
+  WriteCodexFile, 
+  ReadRulesFile, 
+  WriteRulesFile, 
+  ReadTaskTypesFile, 
+  WriteTaskTypesFile, 
+  ReadSampleChaptersFile, 
+  WriteSampleChaptersFile 
+} from '../wailsjs/go/main/App';
 import WailsReadyContext from './contexts/WailsReadyContext'; // Import the context
 import { AppLayout } from './components/AppLayout';
 import { useOptionManagement } from './hooks/useOptionManagement';
@@ -97,32 +111,38 @@ export function App() {
   // Option management hooks
   const taskTypes = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-task-types' 
+    readFile: ReadTaskTypesFile,
+    writeFile: WriteTaskTypesFile
   });
   
   const rules = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-rules' 
+    readFile: ReadRulesFile,
+    writeFile: WriteRulesFile
   });
   
   const characters = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-characters' 
+    readFile: ReadCharactersFile,
+    writeFile: WriteCharactersFile
   });
   
   const locations = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-locations' 
+    readFile: ReadLocationsFile,
+    writeFile: WriteLocationsFile
   });
   
   const codex = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-codex' 
+    readFile: ReadCodexFile,
+    writeFile: WriteCodexFile
   });
   
   const sampleChapters = useOptionManagement({ 
     initialOptions: [], 
-    storageKey: 'ai-novel-prompter-sample-chapters' 
+    readFile: ReadSampleChaptersFile,
+    writeFile: WriteSampleChaptersFile
   });
 
   // Modal states
@@ -407,42 +427,42 @@ export function App() {
           isOpen={isTaskTypeEditOpen}
           onClose={() => setIsTaskTypeEditOpen(false)}
           options={taskTypes.options}
-          onSave={taskTypes.setOptions}
+          onSave={taskTypes.saveOptions}
         />
 
         <SampleChapterEditModal
           isOpen={isSampleChapterEditOpen}
           onClose={() => setIsSampleChapterEditOpen(false)}
           options={sampleChapters.options}
-          onSave={sampleChapters.setOptions}
+          onSave={sampleChapters.saveOptions}
         />
 
         <RulesEditModal
           isOpen={isRulesEditOpen}
           onClose={() => setIsRulesEditOpen(false)}
           options={rules.options}
-          onSave={rules.setOptions}
+          onSave={rules.saveOptions}
         />
 
         <CharactersEditModal
           isOpen={isCharactersEditOpen}
           onClose={() => setIsCharactersEditOpen(false)}
           options={characters.options}
-          onSave={characters.setOptions}
+          onSave={characters.saveOptions}
         />
 
         <LocationsEditModal
           isOpen={isLocationsEditOpen}
           onClose={() => setIsLocationsEditOpen(false)}
           options={locations.options}
-          onSave={locations.setOptions}
+          onSave={locations.saveOptions}
         />
 
         <CodexEditModal
           isOpen={isCodexEditOpen}
           onClose={() => setIsCodexEditOpen(false)}
           options={codex.options}
-          onSave={codex.setOptions}
+          onSave={codex.saveOptions}
         />
       </AppLayout>
     </WailsReadyContext.Provider>

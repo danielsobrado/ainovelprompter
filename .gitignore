@@ -49,3 +49,8 @@ client/pkg/mod/
 *.env
 server/.env
 frontend/pkg/mod/
+
+temp_test
+tests\data\Book
+.serena\cache\
+*.pkl

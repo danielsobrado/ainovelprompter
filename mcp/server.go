@@ -26,7 +26,6 @@ func NewMCPServer() (*MCPServer, error) {
 
 func NewMCPServerWithDataDir(dataDir string) (*MCPServer, error) {
 	var appDataDir string
-	var err error
 
 	if dataDir != "" {
 		// Use provided data directory

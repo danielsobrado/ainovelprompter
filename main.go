@@ -33,6 +33,10 @@ func main() {
 	
 	flag.Parse()
 	
+	// Debug logging for command line arguments (write to file since Wails suppresses console)
+	debugLog := fmt.Sprintf("DEBUG: Raw arguments: %v\nDEBUG: Parsed dataDir: '%s'\n", os.Args, dataDir)
+	os.WriteFile("debug.log", []byte(debugLog), 0644)
+	
 	if showHelp {
 		showHelpMessage()
 		os.Exit(0)
@@ -40,6 +44,14 @@ func main() {
 	
 	// Resolve data directory
 	resolvedDataDir := resolveDataDirectory(dataDir)
+	
+	// Append more debug info to file
+	debugLog2 := fmt.Sprintf("DEBUG: Resolved data directory: '%s'\n", resolvedDataDir)
+	file, _ := os.OpenFile("debug.log", os.O_APPEND|os.O_WRONLY, 0644)
+	if file != nil {
+		file.WriteString(debugLog2)
+		file.Close()
+	}
 	
 	// Create an instance of the app structure with data directory
 	app := NewApp(resolvedDataDir)
