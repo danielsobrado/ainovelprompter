@@ -1,0 +1,1 @@
+// This file has been merged into settings.go and is no longer needed

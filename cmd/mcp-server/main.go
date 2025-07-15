@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"github.com/danielsobrado/ainovelprompter/mcp"
 )
@@ -20,8 +20,8 @@ type MCPMessage struct {
 }
 
 type MCPError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
@@ -54,25 +54,25 @@ type MCPStdioServer struct {
 func main() {
 	// Set up logging to stderr so it doesn't interfere with MCP communication
 	log.SetOutput(os.Stderr)
-	
+
 	server := &MCPStdioServer{}
-	
+
 	// Initialize our MCP server
 	mcpServer, err := mcp.NewMCPServer()
 	if err != nil {
 		log.Fatalf("Failed to create MCP server: %v", err)
 	}
 	server.mcpServer = mcpServer
-	
+
 	// Set up capabilities
 	server.capabilities = ServerCapabilities{
 		Tools: map[string]interface{}{
 			"listChanged": false,
 		},
 	}
-	
+
 	log.Println("AI Novel Prompter MCP Server starting...")
-	
+
 	// Handle stdin/stdout communication
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -80,22 +80,22 @@ func main() {
 		if line == "" {
 			continue
 		}
-		
+
 		log.Printf("Received: %s", line)
-		
+
 		var message MCPMessage
 		if err := json.Unmarshal([]byte(line), &message); err != nil {
 			log.Printf("Error parsing JSON: %v", err)
 			server.sendError(nil, -32700, "Parse error", nil)
 			continue
 		}
-		
+
 		response := server.handleMessage(message)
 		if response != nil {
 			server.sendMessage(*response)
 		}
 	}
-	
+
 	if err := scanner.Err(); err != nil {
 		log.Printf("Error reading stdin: %v", err)
 	}
@@ -126,7 +126,7 @@ func (s *MCPStdioServer) handleMessage(message MCPMessage) *MCPMessage {
 
 func (s *MCPStdioServer) handleInitialize(message MCPMessage) *MCPMessage {
 	log.Println("Handling initialize request")
-	
+
 	result := map[string]interface{}{
 		"protocolVersion": "2024-11-05",
 		"capabilities":    s.capabilities,
@@ -135,7 +135,7 @@ func (s *MCPStdioServer) handleInitialize(message MCPMessage) *MCPMessage {
 			Version: "1.0.0",
 		},
 	}
-	
+
 	return &MCPMessage{
 		JSONRPC: "2.0",
 		ID:      message.ID,
@@ -151,7 +151,7 @@ func (s *MCPStdioServer) handleInitialized(message MCPMessage) *MCPMessage {
 
 func (s *MCPStdioServer) handleToolsList(message MCPMessage) *MCPMessage {
 	log.Println("Handling tools/list request")
-	
+
 	if !s.initialized {
 		return &MCPMessage{
 			JSONRPC: "2.0",
@@ -162,15 +162,15 @@ func (s *MCPStdioServer) handleToolsList(message MCPMessage) *MCPMessage {
 			},
 		}
 	}
-	
+
 	tools := s.mcpServer.GetTools()
 	mcpTools := make([]map[string]interface{}, len(tools))
-	
+
 	for i, tool := range tools {
 		// Convert parameters to MCP format
 		properties := make(map[string]interface{})
 		required := make([]string, 0)
-		
+
 		for name, param := range tool.Parameters {
 			properties[name] = map[string]interface{}{
 				"type":        param.Type,
@@ -180,27 +180,27 @@ func (s *MCPStdioServer) handleToolsList(message MCPMessage) *MCPMessage {
 				required = append(required, name)
 			}
 		}
-		
+
 		inputSchema := map[string]interface{}{
 			"type":       "object",
 			"properties": properties,
 		}
-		
+
 		if len(required) > 0 {
 			inputSchema["required"] = required
 		}
-		
+
 		mcpTools[i] = map[string]interface{}{
 			"name":        tool.Name,
 			"description": tool.Description,
 			"inputSchema": inputSchema,
 		}
 	}
-	
+
 	result := map[string]interface{}{
 		"tools": mcpTools,
 	}
-	
+
 	return &MCPMessage{
 		JSONRPC: "2.0",
 		ID:      message.ID,
@@ -210,7 +210,7 @@ func (s *MCPStdioServer) handleToolsList(message MCPMessage) *MCPMessage {
 
 func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 	log.Println("Handling tools/call request")
-	
+
 	if !s.initialized {
 		return &MCPMessage{
 			JSONRPC: "2.0",
@@ -221,7 +221,7 @@ func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 			},
 		}
 	}
-	
+
 	params, ok := message.Params.(map[string]interface{})
 	if !ok {
 		return &MCPMessage{
@@ -233,7 +233,7 @@ func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 			},
 		}
 	}
-	
+
 	toolName, ok := params["name"].(string)
 	if !ok {
 		return &MCPMessage{
@@ -245,14 +245,14 @@ func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 			},
 		}
 	}
-	
+
 	arguments, ok := params["arguments"].(map[string]interface{})
 	if !ok {
 		arguments = make(map[string]interface{})
 	}
-	
+
 	log.Printf("Executing tool: %s with arguments: %v", toolName, arguments)
-	
+
 	// Execute the tool using our MCP server
 	result, err := s.mcpServer.ExecuteTool(toolName, arguments)
 	if err != nil {
@@ -267,7 +267,7 @@ func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 			},
 		}
 	}
-	
+
 	// Format result as MCP tool response
 	toolResult := map[string]interface{}{
 		"content": []map[string]interface{}{
@@ -277,7 +277,7 @@ func (s *MCPStdioServer) handleToolsCall(message MCPMessage) *MCPMessage {
 			},
 		},
 	}
-	
+
 	return &MCPMessage{
 		JSONRPC: "2.0",
 		ID:      message.ID,
@@ -291,7 +291,7 @@ func (s *MCPStdioServer) sendMessage(message MCPMessage) {
 		log.Printf("Error marshaling message: %v", err)
 		return
 	}
-	
+
 	fmt.Println(string(data))
 	log.Printf("Sent: %s", string(data))
 }

@@ -14,7 +14,7 @@ import (
 // TestSetDataDirectoryDebug specifically tests directory switching
 func TestSetDataDirectoryDebug(t *testing.T) {
 	dir1 := filepath.Join(t.TempDir(), "project1")
-	dir2 := filepath.Join(t.TempDir(), "project2") 
+	dir2 := filepath.Join(t.TempDir(), "project2")
 
 	t.Logf("Directory 1: %s", dir1)
 	t.Logf("Directory 2: %s", dir2)
@@ -62,7 +62,7 @@ func TestSetDataDirectoryDebug(t *testing.T) {
 
 	// Create character in dir2
 	char2 := &models.Character{
-		Name:        "Project 2 Character", 
+		Name:        "Project 2 Character",
 		Description: "Character in second project",
 	}
 	version2, err := fs.Create(storage.EntityCharacters, char2)
@@ -104,10 +104,10 @@ func TestSetDataDirectoryDebug(t *testing.T) {
 	characters1b, err := fs.GetCharacters()
 	require.NoError(t, err)
 	t.Logf("Characters retrieved from dir1 after switch back: %d", len(characters1b))
-	
+
 	if len(characters1b) == 0 {
 		t.Logf("ERROR: No characters found in dir1 after switch back!")
-		
+
 		// Debug the cache state
 		if entities, err := fs.GetAll(storage.EntityCharacters); err == nil {
 			t.Logf("GetAll returned %d entities", len(entities))

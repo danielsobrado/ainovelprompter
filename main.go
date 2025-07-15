@@ -25,26 +25,26 @@ func main() {
 	// Parse command line arguments
 	var dataDir string
 	var showHelp bool
-	
+
 	flag.StringVar(&dataDir, "data-dir", "", "Data directory path (defaults to ~/.ai-novel-prompter)")
 	flag.StringVar(&dataDir, "d", "", "Data directory path (short form)")
 	flag.BoolVar(&showHelp, "help", false, "Show help message")
 	flag.BoolVar(&showHelp, "h", false, "Show help message (short form)")
-	
+
 	flag.Parse()
-	
+
 	// Debug logging for command line arguments (write to file since Wails suppresses console)
 	debugLog := fmt.Sprintf("DEBUG: Raw arguments: %v\nDEBUG: Parsed dataDir: '%s'\n", os.Args, dataDir)
 	os.WriteFile("debug.log", []byte(debugLog), 0644)
-	
+
 	if showHelp {
 		showHelpMessage()
 		os.Exit(0)
 	}
-	
+
 	// Resolve data directory
 	resolvedDataDir := resolveDataDirectory(dataDir)
-	
+
 	// Append more debug info to file
 	debugLog2 := fmt.Sprintf("DEBUG: Resolved data directory: '%s'\n", resolvedDataDir)
 	file, _ := os.OpenFile("debug.log", os.O_APPEND|os.O_WRONLY, 0644)
@@ -52,7 +52,7 @@ func main() {
 		file.WriteString(debugLog2)
 		file.Close()
 	}
-	
+
 	// Create an instance of the app structure with data directory
 	app := NewApp(resolvedDataDir)
 
@@ -140,17 +140,17 @@ func resolveDataDirectory(dataDir string) string {
 		}
 		return filepath.Join(homeDir, ".ai-novel-prompter")
 	}
-	
+
 	// Expand relative paths to absolute paths
 	absPath, err := filepath.Abs(dataDir)
 	if err != nil {
 		log.Fatalf("Failed to resolve data directory path: %v", err)
 	}
-	
+
 	// Ensure directory exists
 	if err := os.MkdirAll(absPath, 0755); err != nil {
 		log.Fatalf("Failed to create data directory: %v", err)
 	}
-	
+
 	return absPath
 }

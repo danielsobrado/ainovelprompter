@@ -55,7 +55,7 @@ func main() {
 
 func (s *HTTPServer) handleRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	docs := map[string]interface{}{
 		"service": "AI Novel Prompter MCP Server",
 		"version": "1.0.0",
@@ -175,8 +175,8 @@ func (s *HTTPServer) handleTest(w http.ResponseWriter, r *http.Request) {
 		params map[string]interface{}
 	}{
 		{
-			name: "Get Characters (empty)",
-			tool: "get_characters",
+			name:   "Get Characters (empty)",
+			tool:   "get_characters",
 			params: map[string]interface{}{},
 		},
 		{
@@ -189,13 +189,13 @@ func (s *HTTPServer) handleTest(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		{
-			name: "Get Characters (after create)",
-			tool: "get_characters",
+			name:   "Get Characters (after create)",
+			tool:   "get_characters",
 			params: map[string]interface{}{},
 		},
 		{
-			name: "Get Prose Prompts",
-			tool: "get_prose_prompts",
+			name:   "Get Prose Prompts",
+			tool:   "get_prose_prompts",
 			params: map[string]interface{}{},
 		},
 		{
@@ -227,7 +227,7 @@ func (s *HTTPServer) handleTest(w http.ResponseWriter, r *http.Request) {
 
 	for _, test := range tests {
 		result, err := s.mcpServer.ExecuteTool(test.tool, test.params)
-		
+
 		testResult := map[string]interface{}{
 			"name":    test.name,
 			"tool":    test.tool,
@@ -250,11 +250,11 @@ func (s *HTTPServer) handleTest(w http.ResponseWriter, r *http.Request) {
 	errorHandlingWorks := err != nil
 
 	summary := map[string]interface{}{
-		"total_tests":         len(tests),
-		"successful_tests":    successCount,
-		"failed_tests":        len(tests) - successCount,
+		"total_tests":          len(tests),
+		"successful_tests":     successCount,
+		"failed_tests":         len(tests) - successCount,
 		"error_handling_works": errorHandlingWorks,
-		"success_rate":        fmt.Sprintf("%.1f%%", float64(successCount)/float64(len(tests))*100),
+		"success_rate":         fmt.Sprintf("%.1f%%", float64(successCount)/float64(len(tests))*100),
 	}
 
 	response := APIResponse{

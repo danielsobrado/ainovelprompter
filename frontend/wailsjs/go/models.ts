@@ -1,5 +1,29 @@
 export namespace main {
 	
+	export class MCPCharacterData {
+	    id: string;
+	    name: string;
+	    description: string;
+	    traits?: Record<string, any>;
+	    notes?: string;
+	    createdAt?: string;
+	    updatedAt?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new MCPCharacterData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.traits = source["traits"];
+	        this.notes = source["notes"];
+	        this.createdAt = source["createdAt"];
+	        this.updatedAt = source["updatedAt"];
+	    }
+	}
 	export class PromptVariant {
 	    variantLabel?: string;
 	    targetModelFamilies?: string[];

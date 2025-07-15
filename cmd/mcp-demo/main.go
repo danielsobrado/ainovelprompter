@@ -18,7 +18,7 @@ func main() {
 	// Example: Get all tools
 	tools := server.GetTools()
 	fmt.Printf("MCP Server initialized with %d tools:\n", len(tools))
-	
+
 	for _, tool := range tools {
 		fmt.Printf("- %s: %s\n", tool.Name, tool.Description)
 	}

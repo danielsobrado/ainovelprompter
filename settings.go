@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/danielsobrado/ainovelprompter/server/pkg/config"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -47,7 +48,7 @@ func (a *App) getAppDataDir() string {
 		file.WriteString(debugLog)
 		file.Close()
 	}
-	
+
 	// Use the configured data directory if available
 	if a.dataDir != "" {
 		debugLog2 := fmt.Sprintf("DEBUG: Using configured data directory: '%s'\n", a.dataDir)
@@ -57,7 +58,7 @@ func (a *App) getAppDataDir() string {
 		}
 		return a.dataDir
 	}
-	
+
 	// Fallback to default directory
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -74,225 +75,626 @@ func (a *App) getAppDataDir() string {
 }
 
 func (a *App) ReadTaskTypesFile() (string, error) {
-	taskTypesPath := filepath.Join(a.getAppDataDir(), "task_types.json")
-	content, err := os.ReadFile(taskTypesPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading task types file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("task-types", mcpTaskTypeToServer)
 }
 
 func (a *App) WriteTaskTypesFile(content string) error {
-	taskTypesPath := filepath.Join(a.getAppDataDir(), "task_types.json")
-	err := os.MkdirAll(filepath.Dir(taskTypesPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating task types directory: %v", err)
-	}
-	err = os.WriteFile(taskTypesPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing task types file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("task-types", content, serverTaskTypeToMCP)
 }
 
 func (a *App) ReadRulessFile() (string, error) {
-	RulessPath := filepath.Join(a.getAppDataDir(), "custom_instructions.json")
-	content, err := os.ReadFile(RulessPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading custom instructions file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("rules", mcpRuleToServer)
 }
 
 func (a *App) WriteRulessFile(content string) error {
-	RulessPath := filepath.Join(a.getAppDataDir(), "custom_instructions.json")
-	err := os.MkdirAll(filepath.Dir(RulessPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating custom instructions directory: %v", err)
-	}
-	err = os.WriteFile(RulessPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing custom instructions file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("rules", content, serverRuleToMCP)
 }
 
-// Characters
-func (a *App) ReadCharactersFile() (string, error) {
-	// Debug logging for character file reading
-	debugLog := fmt.Sprintf("DEBUG: ReadCharactersFile called\n")
+// =============================================================================
+// MCP VERSIONED STORAGE - ALL ENTITY TYPES
+// =============================================================================
+
+// Universal helper function for reading MCP versioned entities
+func (a *App) readMCPVersionedEntities(entityType string, convertToServer func(interface{}) interface{}) (string, error) {
+	debugLog := fmt.Sprintf("DEBUG: Read%sFile called (MCP versioned storage)\n", entityType)
 	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
 		file.WriteString(debugLog)
 		file.Close()
 	}
+
+	entitiesDir := filepath.Join(a.getAppDataDir(), entityType)
 	
-	charactersPath := filepath.Join(a.getAppDataDir(), "characters.json")
-	content, err := os.ReadFile(charactersPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading characters file: %v", err)
+	// Check if entities directory exists
+	if _, err := os.Stat(entitiesDir); os.IsNotExist(err) {
+		return "[]", nil
 	}
-	return string(content), nil
+
+	serverEntities := make([]interface{}, 0)
+
+	// Read all entity directories
+	entries, err := os.ReadDir(entitiesDir)
+	if err != nil {
+		return "[]", nil
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		entityDir := filepath.Join(entitiesDir, entry.Name())
+
+		// Find the latest version file
+		latestFile, err := a.findLatestVersionFile(entityDir)
+		if err != nil {
+			continue
+		}
+
+		// Read and convert the entity
+		content, err := os.ReadFile(latestFile)
+		if err != nil {
+			continue
+		}
+
+		var mcpEntity map[string]interface{}
+		if err := json.Unmarshal(content, &mcpEntity); err != nil {
+			continue
+		}
+
+		// Convert MCP format to Server format
+		serverEntity := convertToServer(mcpEntity)
+		if serverEntity != nil {
+			serverEntities = append(serverEntities, serverEntity)
+		}
+	}
+
+	// Marshal to JSON
+	if serverEntities == nil || len(serverEntities) == 0 {
+		return "[]", nil
+	}
+	
+	result, err := json.MarshalIndent(serverEntities, "", "  ")
+	if err != nil {
+		return "[]", err
+	}
+
+	return string(result), nil
+}
+
+// Universal helper function for writing MCP versioned entities
+func (a *App) writeMCPVersionedEntities(entityType string, content string, convertToMCP func(interface{}) map[string]interface{}) error {
+	debugLog := fmt.Sprintf("DEBUG: Write%sFile called with content length: %d (MCP versioned storage)\n", entityType, len(content))
+	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+		file.WriteString(debugLog)
+		file.Close()
+	}
+
+	// Parse server format entities
+	serverEntities := make([]map[string]interface{}, 0)
+	if err := json.Unmarshal([]byte(content), &serverEntities); err != nil {
+		return fmt.Errorf("error parsing %s JSON: %v", entityType, err)
+	}
+
+	entitiesDir := filepath.Join(a.getAppDataDir(), entityType)
+
+	// Ensure entities directory exists
+	if err := os.MkdirAll(entitiesDir, 0755); err != nil {
+		return fmt.Errorf("error creating %s directory: %v", entityType, err)
+	}
+
+	// Write each entity in MCP versioned format
+	for _, serverEntity := range serverEntities {
+		mcpEntity := convertToMCP(serverEntity)
+		if mcpEntity == nil {
+			continue
+		}
+
+		// Set timestamps
+		now := time.Now().Format(time.RFC3339)
+		mcpEntity["createdAt"] = now
+		mcpEntity["updatedAt"] = now
+
+		// Get entity ID
+		entityID, exists := mcpEntity["id"].(string)
+		if !exists || entityID == "" {
+			runtime.LogWarning(a.ctx, fmt.Sprintf("%s missing ID, skipping", entityType))
+			continue
+		}
+
+		// Create entity subdirectory
+		entityDir := filepath.Join(entitiesDir, entityID)
+		if err := os.MkdirAll(entityDir, 0755); err != nil {
+			continue
+		}
+
+		// Write entity file with timestamp
+		timestamp := time.Now().Format("2006-01-02T15-04-05.000Z07-00")
+		filename := fmt.Sprintf("%s.json", timestamp)
+		filePath := filepath.Join(entityDir, filename)
+
+		entityData, err := json.MarshalIndent(mcpEntity, "", "  ")
+		if err != nil {
+			continue
+		}
+
+		if err := os.WriteFile(filePath, entityData, 0644); err != nil {
+			continue
+		}
+	}
+
+	return nil
+}
+
+// Utility functions
+func getString(m map[string]interface{}, key string) string {
+	if val, exists := m[key]; exists {
+		if str, ok := val.(string); ok {
+			return str
+		}
+	}
+	return ""
+}
+
+func getStringSlice(m map[string]interface{}, key string) []string {
+	if val, exists := m[key]; exists {
+		if slice, ok := val.([]interface{}); ok {
+			result := make([]string, 0)
+			for _, item := range slice {
+				if str, ok := item.(string); ok {
+					result = append(result, str)
+				}
+			}
+			return result
+		}
+	}
+	return []string{}
+}
+
+// =============================================================================
+// DATA STRUCTURE DEFINITIONS
+// =============================================================================
+
+// Characters - MCP Versioned Storage
+// ServerCharacter represents the format expected by frontend (simple)
+type ServerCharacter struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Description string `json:"description"`
+}
+
+// MCPCharacter represents the enhanced MCP format with versioning
+type MCPCharacter struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Traits      map[string]interface{} `json:"traits,omitempty"`
+	Notes       string                 `json:"notes,omitempty"`
+	CreatedAt   string                 `json:"createdAt,omitempty"`
+	UpdatedAt   string                 `json:"updatedAt,omitempty"`
+}
+
+// Task Types
+type ServerTaskType struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Template    string `json:"template"`
+}
+
+type MCPTaskType struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Template    string `json:"template"`
+	CreatedAt   string `json:"createdAt,omitempty"`
+	UpdatedAt   string `json:"updatedAt,omitempty"`
+}
+
+// Rules  
+type ServerRule struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Content     string `json:"content"`
+}
+
+type MCPRule struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Content     string `json:"content"`
+	CreatedAt   string `json:"createdAt,omitempty"`
+	UpdatedAt   string `json:"updatedAt,omitempty"`
+}
+
+// Locations
+type ServerLocation struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Description string `json:"description"`
+	Details     string `json:"details"`
+}
+
+type MCPLocation struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Details     string `json:"details"`
+	CreatedAt   string `json:"createdAt,omitempty"`
+	UpdatedAt   string `json:"updatedAt,omitempty"`
+}
+
+// Codex
+type ServerCodex struct {
+	ID       string   `json:"id"`
+	Title    string   `json:"title"`
+	Category string   `json:"category"`
+	Content  string   `json:"content"`
+	Tags     []string `json:"tags"`
+}
+
+type MCPCodex struct {
+	ID        string   `json:"id"`
+	Title     string   `json:"title"`
+	Category  string   `json:"category"`
+	Content   string   `json:"content"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"createdAt,omitempty"`
+	UpdatedAt string   `json:"updatedAt,omitempty"`
+}
+
+// Sample Chapters
+type ServerSampleChapter struct {
+	ID      string   `json:"id"`
+	Title   string   `json:"title"`
+	Purpose string   `json:"purpose"`
+	Content string   `json:"content"`
+	Author  string   `json:"author"`
+	Source  string   `json:"source"`
+	Tags    []string `json:"tags"`
+}
+
+type MCPSampleChapter struct {
+	ID        string   `json:"id"`
+	Title     string   `json:"title"`
+	Purpose   string   `json:"purpose"`
+	Content   string   `json:"content"`
+	Author    string   `json:"author"`
+	Source    string   `json:"source"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"createdAt,omitempty"`
+	UpdatedAt string   `json:"updatedAt,omitempty"`
+}
+
+// Prose Prompts
+type ServerProsePrompt struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	PromptText  string `json:"defaultPromptText"`
+}
+
+type MCPProsePrompt struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	PromptText  string `json:"defaultPromptText"`
+	CreatedAt   string `json:"createdAt,omitempty"`
+	UpdatedAt   string `json:"updatedAt,omitempty"`
+}
+
+// =============================================================================
+// CONVERSION FUNCTIONS
+// =============================================================================
+
+// Character conversions
+func mcpCharacterToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerCharacter{
+		ID:          getString(mcpMap, "id"),
+		Label:       getString(mcpMap, "name"),
+		Description: getString(mcpMap, "description"),
+	}
+}
+
+func serverCharacterToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":          getString(serverMap, "id"),
+		"name":        getString(serverMap, "label"),
+		"description": getString(serverMap, "description"),
+		"traits":      make(map[string]interface{}),
+		"notes":       "",
+	}
+}
+
+// Task Type conversions
+func mcpTaskTypeToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerTaskType{
+		ID:          getString(mcpMap, "id"),
+		Label:       getString(mcpMap, "name"),
+		Category:    getString(mcpMap, "category"),
+		Description: getString(mcpMap, "description"),
+		Template:    getString(mcpMap, "template"),
+	}
+}
+
+func serverTaskTypeToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":          getString(serverMap, "id"),
+		"name":        getString(serverMap, "label"),
+		"category":    getString(serverMap, "category"),
+		"description": getString(serverMap, "description"),
+		"template":    getString(serverMap, "template"),
+	}
+}
+
+// Rule conversions
+func mcpRuleToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerRule{
+		ID:          getString(mcpMap, "id"),
+		Label:       getString(mcpMap, "name"),
+		Category:    getString(mcpMap, "category"),
+		Description: getString(mcpMap, "description"),
+		Content:     getString(mcpMap, "content"),
+	}
+}
+
+func serverRuleToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":          getString(serverMap, "id"),
+		"name":        getString(serverMap, "label"),
+		"category":    getString(serverMap, "category"),
+		"description": getString(serverMap, "description"),
+		"content":     getString(serverMap, "content"),
+	}
+}
+
+// Location conversions
+func mcpLocationToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerLocation{
+		ID:          getString(mcpMap, "id"),
+		Label:       getString(mcpMap, "name"),
+		Description: getString(mcpMap, "description"),
+		Details:     getString(mcpMap, "details"),
+	}
+}
+
+func serverLocationToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":          getString(serverMap, "id"),
+		"name":        getString(serverMap, "label"),
+		"description": getString(serverMap, "description"),
+		"details":     getString(serverMap, "details"),
+	}
+}
+
+// Codex conversions
+func mcpCodexToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerCodex{
+		ID:       getString(mcpMap, "id"),
+		Title:    getString(mcpMap, "title"),
+		Category: getString(mcpMap, "category"),
+		Content:  getString(mcpMap, "content"),
+		Tags:     getStringSlice(mcpMap, "tags"),
+	}
+}
+
+func serverCodexToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":       getString(serverMap, "id"),
+		"title":    getString(serverMap, "title"),
+		"category": getString(serverMap, "category"),
+		"content":  getString(serverMap, "content"),
+		"tags":     getStringSlice(serverMap, "tags"),
+	}
+}
+
+// Sample Chapter conversions
+func mcpSampleChapterToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerSampleChapter{
+		ID:      getString(mcpMap, "id"),
+		Title:   getString(mcpMap, "title"),
+		Purpose: getString(mcpMap, "purpose"),
+		Content: getString(mcpMap, "content"),
+		Author:  getString(mcpMap, "author"),
+		Source:  getString(mcpMap, "source"),
+		Tags:    getStringSlice(mcpMap, "tags"),
+	}
+}
+
+func serverSampleChapterToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":      getString(serverMap, "id"),
+		"title":   getString(serverMap, "title"),
+		"purpose": getString(serverMap, "purpose"),
+		"content": getString(serverMap, "content"),
+		"author":  getString(serverMap, "author"),
+		"source":  getString(serverMap, "source"),
+		"tags":    getStringSlice(serverMap, "tags"),
+	}
+}
+
+// Prose Prompt conversions
+func mcpProsePromptToServer(mcpData interface{}) interface{} {
+	mcpMap, ok := mcpData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return ServerProsePrompt{
+		ID:          getString(mcpMap, "id"),
+		Label:       getString(mcpMap, "name"),
+		Category:    getString(mcpMap, "category"),
+		Description: getString(mcpMap, "description"),
+		PromptText:  getString(mcpMap, "defaultPromptText"),
+	}
+}
+
+func serverProsePromptToMCP(serverData interface{}) map[string]interface{} {
+	serverMap, ok := serverData.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	
+	return map[string]interface{}{
+		"id":                getString(serverMap, "id"),
+		"name":              getString(serverMap, "label"),
+		"category":          getString(serverMap, "category"),
+		"description":       getString(serverMap, "description"),
+		"defaultPromptText": getString(serverMap, "defaultPromptText"),
+	}
+}
+
+func (a *App) ReadCharactersFile() (string, error) {
+	return a.readMCPVersionedEntities("characters", mcpCharacterToServer)
 }
 
 func (a *App) WriteCharactersFile(content string) error {
-	// Debug logging for character file writing
-	debugLog := fmt.Sprintf("DEBUG: WriteCharactersFile called with content length: %d\n", len(content))
-	if file, err := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
-		file.WriteString(debugLog)
-		file.Close()
-	}
-	
-	charactersPath := filepath.Join(a.getAppDataDir(), "characters.json")
-	err := os.MkdirAll(filepath.Dir(charactersPath), 0755)
+	return a.writeMCPVersionedEntities("characters", content, serverCharacterToMCP)
+}
+
+// findLatestVersionFile finds the most recent version file in an MCP entity directory
+func (a *App) findLatestVersionFile(entityDir string) (string, error) {
+	entries, err := os.ReadDir(entityDir)
 	if err != nil {
-		return fmt.Errorf("error creating characters directory: %v", err)
+		return "", err
 	}
-	err = os.WriteFile(charactersPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing characters file: %v", err)
+
+	var latestFile string
+	var latestTime time.Time
+
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".json" {
+			continue
+		}
+
+		filePath := filepath.Join(entityDir, entry.Name())
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+
+		if info.ModTime().After(latestTime) {
+			latestTime = info.ModTime()
+			latestFile = filePath
+		}
 	}
-	return nil
+
+	if latestFile == "" {
+		return "", fmt.Errorf("no version files found")
+	}
+
+	return latestFile, nil
 }
 
 // Locations
 func (a *App) ReadLocationsFile() (string, error) {
-	locationsPath := filepath.Join(a.getAppDataDir(), "locations.json")
-	content, err := os.ReadFile(locationsPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading locations file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("locations", mcpLocationToServer)
 }
 
 func (a *App) WriteLocationsFile(content string) error {
-	locationsPath := filepath.Join(a.getAppDataDir(), "locations.json")
-	err := os.MkdirAll(filepath.Dir(locationsPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating locations directory: %v", err)
-	}
-	err = os.WriteFile(locationsPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing locations file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("locations", content, serverLocationToMCP)
 }
 
 // Codex
 func (a *App) ReadCodexFile() (string, error) {
-	codexPath := filepath.Join(a.getAppDataDir(), "codex.json")
-	content, err := os.ReadFile(codexPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading codex file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("codex", mcpCodexToServer)
 }
 
 func (a *App) WriteCodexFile(content string) error {
-	codexPath := filepath.Join(a.getAppDataDir(), "codex.json")
-	err := os.MkdirAll(filepath.Dir(codexPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating codex directory: %v", err)
-	}
-	err = os.WriteFile(codexPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing codex file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("codex", content, serverCodexToMCP)
 }
 
 // Sample Chapters
 func (a *App) ReadSampleChaptersFile() (string, error) {
-	chaptersPath := filepath.Join(a.getAppDataDir(), "sample_chapters.json")
-	content, err := os.ReadFile(chaptersPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading sample chapters file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("sample-chapters", mcpSampleChapterToServer)
 }
 
 func (a *App) WriteSampleChaptersFile(content string) error {
-	chaptersPath := filepath.Join(a.getAppDataDir(), "sample_chapters.json")
-	err := os.MkdirAll(filepath.Dir(chaptersPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating sample chapters directory: %v", err)
-	}
-	err = os.WriteFile(chaptersPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing sample chapters file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("sample-chapters", content, serverSampleChapterToMCP)
 }
 
-// Fix the typo in ReadRulessFile
+// Standardized ReadRulesFile (same as ReadRulessFile)
 func (a *App) ReadRulesFile() (string, error) {
-	rulesPath := filepath.Join(a.getAppDataDir(), "rules.json")
-	content, err := os.ReadFile(rulesPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading rules file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("rules", mcpRuleToServer)
 }
 
 func (a *App) WriteRulesFile(content string) error {
-	rulesPath := filepath.Join(a.getAppDataDir(), "rules.json")
-	err := os.MkdirAll(filepath.Dir(rulesPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating rules directory: %v", err)
-	}
-	err = os.WriteFile(rulesPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing rules file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("rules", content, serverRuleToMCP)
 }
 
-// Prose Improvement Prompts
+// Prose Improvement Prompts  
 func (a *App) ReadProsePromptsFile() (string, error) {
-	prosePromptsPath := filepath.Join(a.getAppDataDir(), "prose_prompts.json")
-	content, err := os.ReadFile(prosePromptsPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			// If the file doesn't exist, return an empty JSON array string
-			// The frontend will handle populating with defaults if necessary
-			return "[]", nil
-		}
-		return "", fmt.Errorf("error reading prose prompts file: %v", err)
-	}
-	return string(content), nil
+	return a.readMCPVersionedEntities("prose-prompts", mcpProsePromptToServer)
 }
 
 func (a *App) WriteProsePromptsFile(content string) error {
-	prosePromptsPath := filepath.Join(a.getAppDataDir(), "prose_prompts.json")
-	err := os.MkdirAll(filepath.Dir(prosePromptsPath), 0755)
-	if err != nil {
-		return fmt.Errorf("error creating prose prompts directory: %v", err)
-	}
-	err = os.WriteFile(prosePromptsPath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing prose prompts file: %v", err)
-	}
-	return nil
+	return a.writeMCPVersionedEntities("prose-prompts", content, serverProsePromptToMCP)
 }
 
 // GetInitialLLMSettings retrieves LLM provider settings from config (env/.env/yaml)

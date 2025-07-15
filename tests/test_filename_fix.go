@@ -40,7 +40,7 @@ func TestFilenameParsingFix(t *testing.T) {
 
 	// Create a new storage instance to test cache rebuild
 	fs2 := storage.NewFolderStorage(tempDir)
-	
+
 	// Test that GetAll works
 	entities, err := fs2.GetAll(storage.EntityCharacters)
 	require.NoError(t, err)
@@ -57,7 +57,7 @@ func TestFilenameParsingFix(t *testing.T) {
 	characters, err := fs2.GetCharacters()
 	require.NoError(t, err)
 	t.Logf("GetCharacters returned %d characters", len(characters))
-	
+
 	require.Len(t, characters, 1)
 	assert.Equal(t, character.ID, characters[0].ID)
 	assert.Equal(t, character.Name, characters[0].Name)
@@ -75,7 +75,7 @@ func TestMigrationDebug(t *testing.T) {
 	// Create test character data
 	character := models.Character{
 		ID:          "test_char_1",
-		Name:        "Debug Test Character", 
+		Name:        "Debug Test Character",
 		Description: "Character for debugging migration",
 		CreatedAt:   time.Now().Add(-24 * time.Hour),
 		UpdatedAt:   time.Now().Add(-12 * time.Hour),
@@ -85,7 +85,7 @@ func TestMigrationDebug(t *testing.T) {
 	jsonData := fmt.Sprintf(`[%s]`, mustMarshalJSON(character))
 	err = os.WriteFile(filepath.Join(oldDir, "characters.json"), []byte(jsonData), 0644)
 	require.NoError(t, err)
-	
+
 	t.Logf("Created test data: %s", jsonData)
 
 	// Perform migration

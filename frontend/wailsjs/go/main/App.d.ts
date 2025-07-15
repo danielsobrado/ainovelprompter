@@ -7,6 +7,10 @@ export function AddRecentDataDirectory(arg1:string):Promise<void>;
 
 export function CleanupOldVersions(arg1:string,arg2:number):Promise<void>;
 
+export function ConvertMCPCharacterToServer(arg1:main.MCPCharacterData):Promise<Record<string, any>>;
+
+export function ConvertServerCharacterToMCP(arg1:Record<string, any>):Promise<main.MCPCharacterData>;
+
 export function DeletePromptDefinition(arg1:string):Promise<void>;
 
 export function FindPromptDefinitionByID(arg1:string):Promise<main.PromptDefinition>;
@@ -14,6 +18,8 @@ export function FindPromptDefinitionByID(arg1:string):Promise<main.PromptDefinit
 export function GetCurrentDirectory():Promise<string>;
 
 export function GetDataDirectory():Promise<string>;
+
+export function GetDataDirectoryInfo():Promise<Record<string, any>>;
 
 export function GetInitialLLMSettings():Promise<Record<string, string>>;
 
@@ -66,6 +72,8 @@ export function SelectDirectory():Promise<string>;
 export function SelectFile():Promise<string>;
 
 export function SetDataDirectory(arg1:string):Promise<void>;
+
+export function SetDataDirectoryMCP(arg1:string):Promise<void>;
 
 export function UpdatePromptDefinition(arg1:main.PromptDefinition):Promise<void>;
 

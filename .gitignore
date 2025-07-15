@@ -54,3 +54,4 @@ temp_test
 tests\data\Book
 .serena\cache\
 *.pkl
+tests/data/Book/

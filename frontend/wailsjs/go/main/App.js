@@ -10,6 +10,14 @@ export function CleanupOldVersions(arg1, arg2) {
   return window['go']['main']['App']['CleanupOldVersions'](arg1, arg2);
 }
 
+export function ConvertMCPCharacterToServer(arg1) {
+  return window['go']['main']['App']['ConvertMCPCharacterToServer'](arg1);
+}
+
+export function ConvertServerCharacterToMCP(arg1) {
+  return window['go']['main']['App']['ConvertServerCharacterToMCP'](arg1);
+}
+
 export function DeletePromptDefinition(arg1) {
   return window['go']['main']['App']['DeletePromptDefinition'](arg1);
 }
@@ -24,6 +32,10 @@ export function GetCurrentDirectory() {
 
 export function GetDataDirectory() {
   return window['go']['main']['App']['GetDataDirectory']();
+}
+
+export function GetDataDirectoryInfo() {
+  return window['go']['main']['App']['GetDataDirectoryInfo']();
 }
 
 export function GetInitialLLMSettings() {
@@ -128,6 +140,10 @@ export function SelectFile() {
 
 export function SetDataDirectory(arg1) {
   return window['go']['main']['App']['SetDataDirectory'](arg1);
+}
+
+export function SetDataDirectoryMCP(arg1) {
+  return window['go']['main']['App']['SetDataDirectoryMCP'](arg1);
 }
 
 export function UpdatePromptDefinition(arg1) {
