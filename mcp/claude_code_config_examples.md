@@ -41,6 +41,34 @@
 }
 ```
 
+## Sharing Data Between Desktop App and MCP Server
+
+Both the desktop application and MCP server can share the same data directory:
+
+**Desktop App:**
+```bash
+# Start desktop app with specific data directory
+ainovelprompter.exe --data-dir "C:\My Stories\Current Novel"
+```
+
+**MCP Server Configuration:**
+```json
+{
+  "mcpServers": {
+    "ai-novel-prompter": {
+      "command": "path/to/ainovelprompter-mcp.exe",
+      "args": ["--data-dir", "C:\\My Stories\\Current Novel"]
+    }
+  }
+}
+```
+
+This allows you to:
+- Edit your story in the desktop app
+- Use Claude Code for AI-assisted writing
+- Both tools access the same characters, chapters, and story data
+- Changes are immediately available in both applications
+
 ## Advanced Configurations
 
 ### With Custom Data Directory
@@ -75,6 +103,8 @@
 ```
 
 ### Multiple Novel Projects
+
+**Option 1: Using Environment Variables**
 ```json
 {
   "mcpServers": {
@@ -82,18 +112,35 @@
       "command": "path/to/ainovelprompter-mcp.exe",
       "args": [],
       "env": {
-        "AINOVEL_DATA_DIR": "C:\\Novels\\FantasyProject"
+        "AINOVEL_DATA_DIR": "C:\Novels\FantasyProject"
       }
     },
     "scifi-novel": {
       "command": "path/to/ainovelprompter-mcp.exe",
       "args": [],
       "env": {
-        "AINOVEL_DATA_DIR": "C:\\Novels\\SciFiProject"
+        "AINOVEL_DATA_DIR": "C:\Novels\SciFiProject"
       }
     }
   }
 }
+```
+
+**Option 2: Using Command Line Arguments**
+```json
+{
+  "mcpServers": {
+    "fantasy-novel": {
+      "command": "path/to/ainovelprompter-mcp.exe",
+      "args": ["--data-dir", "C:\Novels\FantasyProject"]
+    },
+    "scifi-novel": {
+      "command": "path/to/ainovelprompter-mcp.exe",
+      "args": ["-d", "C:\Novels\SciFiProject"]
+    }
+  }
+}
+```
 ```
 
 ### With Timeout Configuration

@@ -3,8 +3,8 @@ REM Build AI Novel Prompter MCP Server for Claude Code (Windows)
 echo 🔨 Building AI Novel Prompter MCP Server for Claude Code...
 
 REM Check if we're in the right directory
-if not exist "mcp_stdio_server.go" (
-    echo ❌ Error: mcp_stdio_server.go not found. Please run this script from the mcp\ directory.
+if not exist "..\cmd\mcp-server\main.go" (
+    echo ❌ Error: MCP server source not found. Please run this script from the mcp\ directory.
     pause
     exit /b 1
 )
@@ -27,7 +27,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo 🔧 Building MCP server executable...
-go build -o ainovelprompter-mcp.exe main.go
+go build -o ainovelprompter-mcp.exe ..\cmd\mcp-server\main.go
 
 if %ERRORLEVEL% NEQ 0 (
     echo ❌ Error: Build failed

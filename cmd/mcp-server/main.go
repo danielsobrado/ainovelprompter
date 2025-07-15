@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -52,13 +53,38 @@ type MCPStdioServer struct {
 }
 
 func main() {
+	// Parse command line arguments
+	var dataDir string
+	var showHelp bool
+
+	flag.StringVar(&dataDir, "data-dir", "", "Data directory path (defaults to ~/.ai-novel-prompter)")
+	flag.StringVar(&dataDir, "d", "", "Data directory path (short form)")
+	flag.BoolVar(&showHelp, "help", false, "Show help message")
+	flag.BoolVar(&showHelp, "h", false, "Show help message (short form)")
+
+	flag.Parse()
+
+	if showHelp {
+		showHelpMessage()
+		os.Exit(0)
+	}
+
 	// Set up logging to stderr so it doesn't interfere with MCP communication
 	log.SetOutput(os.Stderr)
 
 	server := &MCPStdioServer{}
 
-	// Initialize our MCP server
-	mcpServer, err := mcp.NewMCPServer()
+	// Initialize our MCP server with optional data directory
+	var mcpServer *mcp.MCPServer
+	var err error
+
+	if dataDir != "" {
+		log.Printf("Using data directory: %s", dataDir)
+		mcpServer, err = mcp.NewMCPServerWithDataDir(dataDir)
+	} else {
+		mcpServer, err = mcp.NewMCPServer()
+	}
+
 	if err != nil {
 		log.Fatalf("Failed to create MCP server: %v", err)
 	}
@@ -315,4 +341,25 @@ func formatResult(result interface{}) string {
 		return fmt.Sprintf("Error formatting result: %v", err)
 	}
 	return string(data)
+}
+
+// showHelpMessage displays the command line help
+func showHelpMessage() {
+	fmt.Fprintf(os.Stderr, `AI Novel Prompter MCP Server
+
+Usage: %s [OPTIONS]
+
+Options:
+  -d, --data-dir PATH    Data directory path (default: ~/.ai-novel-prompter)
+  -h, --help            Show this help message
+
+Examples:
+  %s                                        # Use default data directory
+  %s -d ./my-story                         # Use relative path
+  %s --data-dir /path/to/story/data       # Use absolute path
+  %s -d "C:\My Stories\Novel Data"       # Windows path with spaces
+
+The MCP server will create the data directory if it doesn't exist.
+This allows sharing data between the desktop app and MCP server.
+`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
 }

@@ -25,56 +25,48 @@ func main() {
 	}()
 
 	// Test 1: Basic Storage Operations
-	fmt.Println("
-📁 Test 1: Basic Storage Operations")
+	fmt.Println("📁 Test 1: Basic Storage Operations")
 	if !testBasicOperations(testDir) {
 		return
 	}
 
 	// Test 2: Version Management
-	fmt.Println("
-📚 Test 2: Version Management")
+	fmt.Println("📚 Test 2: Version Management")
 	if !testVersionManagement(testDir) {
 		return
 	}
 
 	// Test 3: Legacy Interface Compatibility
-	fmt.Println("
-🔄 Test 3: Legacy Interface Compatibility")
+	fmt.Println("🔄 Test 3: Legacy Interface Compatibility")
 	if !testLegacyInterface(testDir) {
 		return
 	}
 
 	// Test 4: Multiple Entity Types
-	fmt.Println("
-🏗️ Test 4: Multiple Entity Types")
+	fmt.Println("🏗️ Test 4: Multiple Entity Types")
 	if !testMultipleEntityTypes(testDir) {
 		return
 	}
 
 	// Test 5: Storage Statistics
-	fmt.Println("
-📊 Test 5: Storage Statistics")
+	fmt.Println("📊 Test 5: Storage Statistics")
 	if !testStorageStatistics(testDir) {
 		return
 	}
 
 	// Test 6: Migration from JSON
-	fmt.Println("
-🔄 Test 6: Migration from JSON")
+	fmt.Println("🔄 Test 6: Migration from JSON")
 	if !testMigration(oldDir, testDir+"_migrated") {
 		return
 	}
 
 	// Test 7: Data Directory Management
-	fmt.Println("
-📂 Test 7: Data Directory Management")
+	fmt.Println("📂 Test 7: Data Directory Management")
 	if !testDataDirectoryManagement(testDir) {
 		return
 	}
 
-	fmt.Println("
-🎉 All tests passed! Folder-based storage with versioning is working correctly.")
+	fmt.Println("🎉 All tests passed! Folder-based storage with versioning is working correctly.")
 	fmt.Println("✅ Storage system is ready for production use.")
 }
 

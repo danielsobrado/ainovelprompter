@@ -103,7 +103,7 @@ func (a *App) readMCPVersionedEntities(entityType string, convertToServer func(i
 	}
 
 	entitiesDir := filepath.Join(a.getAppDataDir(), entityType)
-	
+
 	// Check if entities directory exists
 	if _, err := os.Stat(entitiesDir); os.IsNotExist(err) {
 		return "[]", nil
@@ -152,7 +152,7 @@ func (a *App) readMCPVersionedEntities(entityType string, convertToServer func(i
 	if serverEntities == nil || len(serverEntities) == 0 {
 		return "[]", nil
 	}
-	
+
 	result, err := json.MarshalIndent(serverEntities, "", "  ")
 	if err != nil {
 		return "[]", err
@@ -292,7 +292,7 @@ type MCPTaskType struct {
 	UpdatedAt   string `json:"updatedAt,omitempty"`
 }
 
-// Rules  
+// Rules
 type ServerRule struct {
 	ID          string `json:"id"`
 	Label       string `json:"label"`
@@ -399,7 +399,7 @@ func mcpCharacterToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerCharacter{
 		ID:          getString(mcpMap, "id"),
 		Label:       getString(mcpMap, "name"),
@@ -412,7 +412,7 @@ func serverCharacterToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":          getString(serverMap, "id"),
 		"name":        getString(serverMap, "label"),
@@ -428,7 +428,7 @@ func mcpTaskTypeToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerTaskType{
 		ID:          getString(mcpMap, "id"),
 		Label:       getString(mcpMap, "name"),
@@ -443,7 +443,7 @@ func serverTaskTypeToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":          getString(serverMap, "id"),
 		"name":        getString(serverMap, "label"),
@@ -459,7 +459,7 @@ func mcpRuleToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerRule{
 		ID:          getString(mcpMap, "id"),
 		Label:       getString(mcpMap, "name"),
@@ -474,7 +474,7 @@ func serverRuleToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":          getString(serverMap, "id"),
 		"name":        getString(serverMap, "label"),
@@ -490,7 +490,7 @@ func mcpLocationToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerLocation{
 		ID:          getString(mcpMap, "id"),
 		Label:       getString(mcpMap, "name"),
@@ -504,7 +504,7 @@ func serverLocationToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":          getString(serverMap, "id"),
 		"name":        getString(serverMap, "label"),
@@ -519,7 +519,7 @@ func mcpCodexToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerCodex{
 		ID:       getString(mcpMap, "id"),
 		Title:    getString(mcpMap, "title"),
@@ -534,7 +534,7 @@ func serverCodexToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":       getString(serverMap, "id"),
 		"title":    getString(serverMap, "title"),
@@ -550,7 +550,7 @@ func mcpSampleChapterToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerSampleChapter{
 		ID:      getString(mcpMap, "id"),
 		Title:   getString(mcpMap, "title"),
@@ -567,7 +567,7 @@ func serverSampleChapterToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":      getString(serverMap, "id"),
 		"title":   getString(serverMap, "title"),
@@ -585,7 +585,7 @@ func mcpProsePromptToServer(mcpData interface{}) interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return ServerProsePrompt{
 		ID:          getString(mcpMap, "id"),
 		Label:       getString(mcpMap, "name"),
@@ -600,7 +600,7 @@ func serverProsePromptToMCP(serverData interface{}) map[string]interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	return map[string]interface{}{
 		"id":                getString(serverMap, "id"),
 		"name":              getString(serverMap, "label"),
@@ -688,7 +688,7 @@ func (a *App) WriteRulesFile(content string) error {
 	return a.writeMCPVersionedEntities("rules", content, serverRuleToMCP)
 }
 
-// Prose Improvement Prompts  
+// Prose Improvement Prompts
 func (a *App) ReadProsePromptsFile() (string, error) {
 	return a.readMCPVersionedEntities("prose-prompts", mcpProsePromptToServer)
 }

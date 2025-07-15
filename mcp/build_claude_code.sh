@@ -4,8 +4,8 @@
 echo "🔨 Building AI Novel Prompter MCP Server for Claude Code..."
 
 # Check if we're in the right directory
-if [ ! -f "mcp_stdio_server.go" ]; then
-    echo "❌ Error: mcp_stdio_server.go not found. Please run this script from the mcp/ directory."
+if [ ! -f "../cmd/mcp-server/main.go" ]; then
+    echo "❌ Error: MCP server source not found. Please run this script from the mcp/ directory."
     exit 1
 fi
 
@@ -24,7 +24,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "🔧 Building MCP server executable..."
-go build -o ainovelprompter-mcp mcp_stdio_server.go
+go build -o ainovelprompter-mcp ../cmd/mcp-server/main.go
 
 if [ $? -ne 0 ]; then
     echo "❌ Error: Build failed"
