@@ -157,10 +157,31 @@ func (a *App) ValidateDataDirectory() error {
 	return a.ValidateDataDirectoryPath(a.dataDir)
 }
 
+// TODO: Improve storage initialization and error handling
+// - Ensure data directory is properly initialized on app startup
+// - Add data directory validation on startup
+// - Improve error messaging for storage issues
+// - Consider adding a data directory setup wizard for first-time users
+
 // GetStorageStats returns storage statistics for the current data directory
 func (a *App) GetStorageStats() (*storage.StorageStats, error) {
 	if a.dataDir == "" {
+		// Log this issue for debugging
+		if a.ctx != nil {
+			runtime.LogError(a.ctx, "GetStorageStats: data directory not set")
+		}
 		return nil, fmt.Errorf("data directory not set")
+	}
+
+	// Check if data directory exists
+	if _, err := os.Stat(a.dataDir); os.IsNotExist(err) {
+		// Try to create it
+		if err := os.MkdirAll(a.dataDir, 0755); err != nil {
+			if a.ctx != nil {
+				runtime.LogError(a.ctx, fmt.Sprintf("GetStorageStats: failed to create data directory %s: %v", a.dataDir, err))
+			}
+			return nil, fmt.Errorf("failed to create data directory: %v", err)
+		}
 	}
 
 	// Create folder storage instance
@@ -169,7 +190,16 @@ func (a *App) GetStorageStats() (*storage.StorageStats, error) {
 	// Get storage stats
 	stats, err := fs.GetStorageStats()
 	if err != nil {
+		// Log detailed error for debugging
+		if a.ctx != nil {
+			runtime.LogError(a.ctx, fmt.Sprintf("GetStorageStats: failed to get storage stats from %s: %v", a.dataDir, err))
+		}
 		return nil, fmt.Errorf("failed to get storage stats: %v", err)
+	}
+
+	// Log successful stats for debugging
+	if a.ctx != nil {
+		runtime.LogInfo(a.ctx, fmt.Sprintf("GetStorageStats: success - %d files, %d bytes from %s", stats.TotalFiles, stats.TotalSize, a.dataDir))
 	}
 
 	return &stats, nil

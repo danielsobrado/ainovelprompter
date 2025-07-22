@@ -15,6 +15,7 @@ interface StorageStats {
 const StorageIndicator: React.FC = () => {
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     loadStorageStats();
@@ -26,12 +27,23 @@ const StorageIndicator: React.FC = () => {
   const loadStorageStats = async () => {
     try {
       setIsLoading(true);
+      setHasError(false);
       // Call the backend method through Wails
       const statsData = await GetStorageStats();
       setStats(statsData);
     } catch (err) {
-      // Silently fail for storage stats as they're informational
+      // Track error state but don't fail completely
       console.warn('Failed to load storage stats:', err);
+      setHasError(true);
+      // Set fallback stats to show something useful
+      setStats({
+        totalFiles: 0,
+        totalSize: 0,
+        entitiesByType: {},
+        versionsByType: {},
+        oldestTimestamp: '',
+        newestTimestamp: ''
+      });
     } finally {
       setIsLoading(false);
     }
@@ -52,19 +64,34 @@ const StorageIndicator: React.FC = () => {
     return `${size.toFixed(size < 10 ? 1 : 0)} ${units[unitIndex]}`;
   };
 
-  if (!stats) {
-    return null; // Don't show anything if no stats available
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-gray-400">
+        <Database className="h-3 w-3 animate-spin" />
+        <span>Loading...</span>
+      </div>
+    );
   }
+
+  // Always show something, even with fallback data
+  const displayStats = stats || {
+    totalFiles: 0,
+    totalSize: 0,
+    entitiesByType: {},
+    versionsByType: {},
+    oldestTimestamp: '',
+    newestTimestamp: ''
+  };
 
   return (
     <div className="flex items-center gap-2 text-xs text-gray-500">
       <div className="flex items-center gap-1">
-        <Database className="h-3 w-3" />
-        <span>{stats.totalFiles} files</span>
+        <Database className={`h-3 w-3 ${hasError ? 'text-orange-500' : ''}`} />
+        <span>{displayStats.totalFiles} files{hasError ? ' (!)' : ''}</span>
       </div>
       <div className="flex items-center gap-1">
-        <HardDrive className="h-3 w-3" />
-        <span>{formatFileSize(stats.totalSize)}</span>
+        <HardDrive className={`h-3 w-3 ${hasError ? 'text-orange-500' : ''}`} />
+        <span>{formatFileSize(displayStats.totalSize)}</span>
       </div>
     </div>
   );
