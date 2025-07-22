@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CharacterOption } from '@/types';
+import { EntityValidator } from '@/utils/validation';
 
 interface CharactersEditModalProps {
   isOpen: boolean;
@@ -61,15 +62,17 @@ export default function CharactersEditModal({
   }, [selectedItemId, localOptions]);
 
   const handleSave = () => {
-    if (label.trim() === '') {
-      setError('Label is required');
+    // Validate using the entity validator
+    const validation = EntityValidator.validateCharacter(label, description);
+    
+    if (!validation.isValid) {
+      setError(validation.error || 'Validation failed');
       return;
     }
 
-    if (description.trim() === '') {
-      setError('Description is required');
-      return;
-    }
+    // Get sanitized values
+    const trimmedLabel = EntityValidator.sanitize(label);
+    const trimmedDescription = EntityValidator.sanitize(description);
 
     setError('');
 
@@ -77,8 +80,8 @@ export default function CharactersEditModal({
       // Add new item
       const newOption: CharacterOption = {
         id: crypto.randomUUID(),
-        label: label.trim(),
-        description: description.trim(),
+        label: trimmedLabel,
+        description: trimmedDescription,
       };
       setLocalOptions((prev) => [...prev, newOption]);
     } else {
@@ -86,7 +89,7 @@ export default function CharactersEditModal({
       setLocalOptions((prev) =>
         prev.map((option) =>
           option.id === selectedItemId
-            ? { ...option, label: label.trim(), description: description.trim() }
+            ? { ...option, label: trimmedLabel, description: trimmedDescription }
             : option
         )
       );

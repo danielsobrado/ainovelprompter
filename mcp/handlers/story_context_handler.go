@@ -5,6 +5,7 @@ import (
 
 	"github.com/danielsobrado/ainovelprompter/mcp/models"
 	"github.com/danielsobrado/ainovelprompter/mcp/storage"
+	"github.com/danielsobrado/ainovelprompter/mcp/validation"
 )
 
 type StoryContextHandler struct {
@@ -51,15 +52,28 @@ func (h *StoryContextHandler) GetCharacterByID(params map[string]interface{}) (i
 
 func (h *StoryContextHandler) CreateCharacter(params map[string]interface{}) (interface{}, error) {
 	var character models.Character
+	validator := validation.NewEntityValidator()
 
+	// Validate and sanitize name
 	if name, ok := params["name"].(string); ok {
-		character.Name = name
+		sanitizedName, err := validator.ValidateAndSanitize(name, "name", "Character", true)
+		if err != nil {
+			return nil, err
+		}
+		character.Name = sanitizedName
 	} else {
 		return nil, fmt.Errorf("character name is required")
 	}
 
+	// Validate and sanitize description
 	if desc, ok := params["description"].(string); ok {
-		character.Description = desc
+		sanitizedDesc, err := validator.ValidateAndSanitize(desc, "description", "Character", true)
+		if err != nil {
+			return nil, err
+		}
+		character.Description = sanitizedDesc
+	} else {
+		return nil, fmt.Errorf("character description is required")
 	}
 
 	if traits, ok := params["traits"].(map[string]interface{}); ok {
@@ -92,12 +106,22 @@ func (h *StoryContextHandler) UpdateCharacter(params map[string]interface{}) (in
 		return nil, err
 	}
 
+	validator := validation.NewEntityValidator()
+
 	if name, ok := params["name"].(string); ok {
-		character.Name = name
+		sanitizedName, err := validator.ValidateAndSanitize(name, "name", "Character", true)
+		if err != nil {
+			return nil, err
+		}
+		character.Name = sanitizedName
 	}
 
 	if desc, ok := params["description"].(string); ok {
-		character.Description = desc
+		sanitizedDesc, err := validator.ValidateAndSanitize(desc, "description", "Character", true)
+		if err != nil {
+			return nil, err
+		}
+		character.Description = sanitizedDesc
 	}
 
 	if traits, ok := params["traits"].(map[string]interface{}); ok {
@@ -153,15 +177,28 @@ func (h *StoryContextHandler) GetLocationByID(params map[string]interface{}) (in
 
 func (h *StoryContextHandler) CreateLocation(params map[string]interface{}) (interface{}, error) {
 	var location models.Location
+	validator := validation.NewEntityValidator()
 
+	// Validate and sanitize name
 	if name, ok := params["name"].(string); ok {
-		location.Name = name
+		sanitizedName, err := validator.ValidateAndSanitize(name, "name", "Location", true)
+		if err != nil {
+			return nil, err
+		}
+		location.Name = sanitizedName
 	} else {
 		return nil, fmt.Errorf("location name is required")
 	}
 
+	// Validate and sanitize description
 	if desc, ok := params["description"].(string); ok {
-		location.Description = desc
+		sanitizedDesc, err := validator.ValidateAndSanitize(desc, "description", "Location", true)
+		if err != nil {
+			return nil, err
+		}
+		location.Description = sanitizedDesc
+	} else {
+		return nil, fmt.Errorf("location description is required")
 	}
 
 	if details, ok := params["details"].(string); ok {
@@ -215,15 +252,26 @@ func (h *StoryContextHandler) GetCodexEntryByID(params map[string]interface{}) (
 
 func (h *StoryContextHandler) CreateCodexEntry(params map[string]interface{}) (interface{}, error) {
 	var entry models.CodexEntry
+	validator := validation.NewEntityValidator()
 
+	// Validate and sanitize title
 	if title, ok := params["title"].(string); ok {
-		entry.Title = title
+		sanitizedTitle, err := validator.ValidateAndSanitize(title, "title", "Codex entry", true)
+		if err != nil {
+			return nil, err
+		}
+		entry.Title = sanitizedTitle
 	} else {
 		return nil, fmt.Errorf("codex entry title is required")
 	}
 
+	// Validate and sanitize content
 	if content, ok := params["content"].(string); ok {
-		entry.Content = content
+		sanitizedContent, err := validator.ValidateAndSanitize(content, "content", "Codex entry", true)
+		if err != nil {
+			return nil, err
+		}
+		entry.Content = sanitizedContent
 	} else {
 		return nil, fmt.Errorf("codex entry content is required")
 	}
