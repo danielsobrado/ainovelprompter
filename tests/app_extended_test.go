@@ -210,7 +210,7 @@ func TestVersionedStorageIntegration(t *testing.T) {
 	character := &models.Character{
 		Name:        "Integration Test Character",
 		Description: "Testing integration with versioned storage",
-		Traits:      map[string]string{"role": "test"},
+		Traits:      map[string]interface{}{"role": "test"},
 	}
 
 	version1, err := fs.Create(storage.EntityCharacters, character)
@@ -287,113 +287,7 @@ func TestStorageStatisticsAndCleanup(t *testing.T) {
 	assert.LessOrEqual(t, newStats.TotalFiles, stats.TotalFiles)
 }
 
-// TestMigrationFunctionality tests migration from old JSON format
-func TestMigrationFunctionality(t *testing.T) {
-	oldDir := filepath.Join(t.TempDir(), "old_format")
-	newDir := filepath.Join(t.TempDir(), "new_format")
 
-	// Create old format directory
-	err := os.MkdirAll(oldDir, 0755)
-	require.NoError(t, err)
-
-	// Create old format test data
-	oldCharacters := []models.Character{
-		{
-			ID:          "legacy_char_1",
-			Name:        "Legacy Character 1",
-			Description: "Character from old format",
-			CreatedAt:   time.Now().Add(-48 * time.Hour),
-			UpdatedAt:   time.Now().Add(-24 * time.Hour),
-		},
-		{
-			ID:          "legacy_char_2",
-			Name:        "Legacy Character 2",
-			Description: "Another legacy character",
-			CreatedAt:   time.Now().Add(-72 * time.Hour),
-			UpdatedAt:   time.Now().Add(-12 * time.Hour),
-		},
-	}
-
-	// Write old format data
-	writeJSONToFile(t, oldDir, "characters.json", oldCharacters)
-
-	// Perform migration
-	fs := storage.NewFolderStorage(newDir)
-	err = fs.MigrateFromJSON(oldDir)
-	require.NoError(t, err)
-
-	// Debug: Check if files were actually created
-	charDir := filepath.Join(newDir, storage.EntityCharacters)
-	if entries, err := os.ReadDir(charDir); err == nil {
-		t.Logf("Found %d files in characters directory", len(entries))
-		for _, entry := range entries {
-			t.Logf("  File: %s", entry.Name())
-		}
-	} else {
-		t.Logf("Error reading characters directory: %v", err)
-	}
-
-	// Force cache rebuild to ensure migration data is loaded
-	fs2 := storage.NewFolderStorage(newDir)
-
-	// Debug: Let's also manually check one file to see if it contains valid data
-	if entries, err := os.ReadDir(charDir); err == nil && len(entries) > 0 {
-		firstFile := filepath.Join(charDir, entries[0].Name())
-		if data, err := os.ReadFile(firstFile); err == nil {
-			t.Logf("First file content: %s", string(data))
-			// Try to parse it as character
-			var char models.Character
-			if err := json.Unmarshal(data, &char); err == nil {
-				t.Logf("Parsed character: ID=%s, Name=%s", char.ID, char.Name)
-			} else {
-				t.Logf("Failed to parse character: %v", err)
-			}
-		}
-	}
-
-	// Debug: Check cache state
-	if entities, err := fs2.GetAll(storage.EntityCharacters); err == nil {
-		t.Logf("GetAll returned %d entities", len(entities))
-		for i, entity := range entities {
-			if char, ok := entity.(*models.Character); ok {
-				t.Logf("Entity %d: ID=%s, Name=%s", i, char.ID, char.Name)
-			} else {
-				t.Logf("Entity %d: type assertion failed, type=%T", i, entity)
-			}
-		}
-	} else {
-		t.Logf("GetAll failed: %v", err)
-	}
-
-	// Verify migration results
-	characters, err := fs2.GetCharacters()
-	require.NoError(t, err)
-	t.Logf("Retrieved %d characters after migration", len(characters))
-	if len(characters) > 0 {
-		for i, char := range characters {
-			t.Logf("Character %d: ID=%s, Name=%s", i, char.ID, char.Name)
-		}
-	}
-	assert.Len(t, characters, 2)
-
-	// Verify specific character data
-	var char1 *models.Character
-	for _, c := range characters {
-		if c.ID == "legacy_char_1" {
-			char1 = &c
-			break
-		}
-	}
-	require.NotNil(t, char1)
-	assert.Equal(t, "Legacy Character 1", char1.Name)
-	assert.Equal(t, "Character from old format", char1.Description)
-
-	// Verify version history was created
-	versions, err := fs.GetVersions(storage.EntityCharacters, "legacy_char_1")
-	require.NoError(t, err)
-	assert.Len(t, versions, 1) // Should have one create version from migration
-	assert.Equal(t, storage.OperationCreate, versions[0].Operation)
-}
 
 // TestDataDirectoryManagement tests dynamic data directory changes
 func TestDataDirectoryManagement(t *testing.T) {

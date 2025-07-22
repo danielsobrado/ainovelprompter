@@ -63,56 +63,7 @@ func TestFilenameParsingFix(t *testing.T) {
 	assert.Equal(t, character.Name, characters[0].Name)
 }
 
-// TestMigrationDebug tests migration with detailed debugging
-func TestMigrationDebug(t *testing.T) {
-	oldDir := filepath.Join(t.TempDir(), "old")
-	newDir := filepath.Join(t.TempDir(), "new")
 
-	// Create old directory
-	err := os.MkdirAll(oldDir, 0755)
-	require.NoError(t, err)
-
-	// Create test character data
-	character := models.Character{
-		ID:          "test_char_1",
-		Name:        "Debug Test Character",
-		Description: "Character for debugging migration",
-		CreatedAt:   time.Now().Add(-24 * time.Hour),
-		UpdatedAt:   time.Now().Add(-12 * time.Hour),
-	}
-
-	// Write JSON file
-	jsonData := fmt.Sprintf(`[%s]`, mustMarshalJSON(character))
-	err = os.WriteFile(filepath.Join(oldDir, "characters.json"), []byte(jsonData), 0644)
-	require.NoError(t, err)
-
-	t.Logf("Created test data: %s", jsonData)
-
-	// Perform migration
-	fs := storage.NewFolderStorage(newDir)
-	err = fs.MigrateFromJSON(oldDir)
-	require.NoError(t, err)
-
-	// Check files created
-	charDir := filepath.Join(newDir, storage.EntityCharacters)
-	entries, err := os.ReadDir(charDir)
-	require.NoError(t, err)
-	t.Logf("Migration created %d files", len(entries))
-
-	// Create fresh storage instance
-	fs2 := storage.NewFolderStorage(newDir)
-
-	// Test retrieval
-	characters, err := fs2.GetCharacters()
-	require.NoError(t, err)
-	t.Logf("Retrieved %d characters", len(characters))
-
-	if len(characters) > 0 {
-		t.Logf("First character: ID=%s, Name=%s", characters[0].ID, characters[0].Name)
-		assert.Equal(t, "test_char_1", characters[0].ID)
-		assert.Equal(t, "Debug Test Character", characters[0].Name)
-	}
-}
 
 func mustMarshalJSON(v interface{}) string {
 	data, err := json.Marshal(v)

@@ -52,7 +52,6 @@ type VersionedStorage interface {
 	// Directory management
 	SetDataDirectory(path string) error
 	GetDataDirectory() string
-	MigrateFromJSON(oldPath string) error
 
 	// Cleanup operations
 	CleanupOldVersions(entityType string, retentionDays int) error

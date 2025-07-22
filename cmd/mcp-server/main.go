@@ -55,10 +55,13 @@ type MCPStdioServer struct {
 func main() {
 	// Parse command line arguments
 	var dataDir string
+	var logLevel string
 	var showHelp bool
 
 	flag.StringVar(&dataDir, "data-dir", "", "Data directory path (defaults to ~/.ai-novel-prompter)")
 	flag.StringVar(&dataDir, "d", "", "Data directory path (short form)")
+	flag.StringVar(&logLevel, "log-level", "", "Log level (DEBUG, INFO, WARN, ERROR)")
+	flag.StringVar(&logLevel, "l", "", "Log level (short form)")
 	flag.BoolVar(&showHelp, "help", false, "Show help message")
 	flag.BoolVar(&showHelp, "h", false, "Show help message (short form)")
 
@@ -67,6 +70,12 @@ func main() {
 	if showHelp {
 		showHelpMessage()
 		os.Exit(0)
+	}
+
+	// Set log level if provided
+	if logLevel != "" {
+		os.Setenv("AINOVEL_LOG_LEVEL", logLevel)
+		log.Printf("Log level set to: %s", logLevel)
 	}
 
 	// Set up logging to stderr so it doesn't interfere with MCP communication
@@ -350,16 +359,25 @@ func showHelpMessage() {
 Usage: %s [OPTIONS]
 
 Options:
-  -d, --data-dir PATH    Data directory path (default: ~/.ai-novel-prompter)
-  -h, --help            Show this help message
+  -d, --data-dir PATH      Data directory path (default: ~/.ai-novel-prompter)
+  -l, --log-level LEVEL    Log level (DEBUG, INFO, WARN, ERROR) (default: INFO)
+  -h, --help              Show this help message
 
 Examples:
-  %s                                        # Use default data directory
-  %s -d ./my-story                         # Use relative path
-  %s --data-dir /path/to/story/data       # Use absolute path
-  %s -d "C:\My Stories\Novel Data"       # Windows path with spaces
+  %s                                          # Use defaults
+  %s -d ./my-story                           # Use relative path
+  %s --data-dir /path/to/story/data         # Use absolute path
+  %s -d "C:\My Stories\Novel Data"         # Windows path with spaces
+  %s --log-level DEBUG                      # Enable debug logging
+  %s -d ./data -l DEBUG                     # Custom data dir with debug logging
+
+Log Levels:
+  DEBUG    - Detailed operation logging (verbose)
+  INFO     - Standard operational logging (default)
+  WARN     - Warnings and unexpected conditions only
+  ERROR    - Errors only
 
 The MCP server will create the data directory if it doesn't exist.
 This allows sharing data between the desktop app and MCP server.
-`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
+`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
 }

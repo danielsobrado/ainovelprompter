@@ -6,13 +6,13 @@ import (
 
 // Character represents a story character
 type Character struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Traits      map[string]string `json:"traits,omitempty"`
-	Notes       string            `json:"notes,omitempty"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Traits      map[string]interface{} `json:"traits,omitempty"`
+	Notes       string                 `json:"notes,omitempty"`
+	CreatedAt   time.Time              `json:"createdAt"`
+	UpdatedAt   time.Time              `json:"updatedAt"`
 }
 
 // Location represents a story location

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -23,20 +24,18 @@ type FolderStorage struct {
 func NewFolderStorage(basePath string) *FolderStorage {
 	fs := &FolderStorage{
 		basePath:   basePath,
-		indexCache: make(map[string][]Version),
+		indexCache: make(map[string][]Version), // Still needed for versioning operations
 	}
 	
 	// Ensure base directory exists
 	if err := os.MkdirAll(basePath, 0755); err != nil {
 		// Log error but don't fail initialization
-		fmt.Printf("Warning: failed to create base directory %s: %v\n", basePath, err)
 	}
 	
 	// Create entity directories
 	fs.initializeDirectories()
 	
-	// Load index cache
-	fs.rebuildIndexCache()
+	// Note: No longer rebuilding cache on startup - using direct file reading for GetAll
 	
 	return fs
 }
@@ -52,41 +51,27 @@ func (fs *FolderStorage) initializeDirectories() {
 	for _, entityType := range entityTypes {
 		dirPath := filepath.Join(fs.basePath, entityType)
 		if err := os.MkdirAll(dirPath, 0755); err != nil {
-			fmt.Printf("Warning: failed to create directory %s: %v\n", dirPath, err)
+			// Log error but continue
 		}
 	}
 	
 	// Create metadata directory
 	metadataPath := filepath.Join(fs.basePath, ".metadata")
 	if err := os.MkdirAll(metadataPath, 0755); err != nil {
-		fmt.Printf("Warning: failed to create metadata directory: %v\n", err)
+		// Log error but continue
 	}
 }
 
-// generateFileName creates a timestamped filename for an entity
-func (fs *FolderStorage) generateFileName(entityName, operation string) string {
-	// Slugify entity name (lowercase, spaces to underscores, remove special chars)
-	slug := strings.ToLower(entityName)
-	slug = strings.ReplaceAll(slug, " ", "_")
-	slug = strings.ReplaceAll(slug, "-", "_")
-	// Remove special characters but keep underscores and alphanumeric
-	var result strings.Builder
-	for _, r := range slug {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_' {
-			result.WriteRune(r)
-		}
-	}
-	slug = result.String()
-	
-	// Ensure slug is not empty
-	if slug == "" {
-		slug = "unnamed"
-	}
-	
-	// Generate timestamp
-	timestamp := time.Now().Format("20060102_150405")
-	
-	return fmt.Sprintf("%s_%s_%s.json", slug, timestamp, operation)
+// generateFileName creates a timestamped filename for an entity using directory-per-entity format
+func (fs *FolderStorage) generateFileName(entityID string, operation string) string {
+	// Use RFC3339 format with timezone offset (matching desktop app format)
+	timestamp := time.Now().Format("2006-01-02T15-04-05.000-07-00")
+	return fmt.Sprintf("%s.json", timestamp)
+}
+
+// getEntityPath creates entity path using directory-per-entity structure
+func (fs *FolderStorage) getEntityPath(entityType, entityID string) string {
+	return filepath.Join(fs.basePath, entityType, entityID)
 }
 
 // Create implements VersionedStorage.Create
@@ -110,9 +95,15 @@ func (fs *FolderStorage) Create(entityType string, entity interface{}) (*Version
 	now := time.Now()
 	fs.setEntityTimestamps(entity, now, now)
 	
-	// Generate filename
-	filename := fs.generateFileName(entityInfo.Name, OperationCreate)
-	filePath := filepath.Join(fs.basePath, entityType, filename)
+	// Create entity directory
+	entityDir := fs.getEntityPath(entityType, entityInfo.ID)
+	if err := os.MkdirAll(entityDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create entity directory: %v", err)
+	}
+	
+	// Generate filename using desktop app format
+	filename := fs.generateFileName(entityInfo.ID, OperationCreate)
+	filePath := filepath.Join(entityDir, filename)
 	
 	// Write entity to file
 	if err := fs.writeEntityToFile(filePath, entity); err != nil {
@@ -162,9 +153,15 @@ func (fs *FolderStorage) Update(entityType string, id string, entity interface{}
 	now := time.Now()
 	fs.setEntityTimestamps(entity, existingInfo.CreatedAt, now)
 	
-	// Generate filename
-	filename := fs.generateFileName(entityInfo.Name, OperationUpdate)
-	filePath := filepath.Join(fs.basePath, entityType, filename)
+	// Create entity directory if not exists
+	entityDir := fs.getEntityPath(entityType, id)
+	if err := os.MkdirAll(entityDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create entity directory: %v", err)
+	}
+	
+	// Generate filename using desktop app format
+	filename := fs.generateFileName(id, OperationUpdate)
+	filePath := filepath.Join(entityDir, filename)
 	
 	// Write entity to file
 	if err := fs.writeEntityToFile(filePath, entity); err != nil {
@@ -204,7 +201,14 @@ func (fs *FolderStorage) Delete(entityType string, id string) (*Version, error) 
 	// Create delete marker file
 	now := time.Now()
 	filename := fs.generateFileName(fmt.Sprintf("deleted_%s", id), OperationDelete)
-	filePath := filepath.Join(fs.basePath, entityType, filename)
+	
+	// Create entity directory if it doesn't exist
+	entityDir := fs.getEntityPath(entityType, id)
+	if err := os.MkdirAll(entityDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create entity directory: %v", err)
+	}
+	
+	filePath := filepath.Join(entityDir, filename)
 	
 	// Write delete marker
 	deleteMarker := map[string]interface{}{
@@ -249,26 +253,142 @@ func (fs *FolderStorage) GetAll(entityType string) ([]interface{}, error) {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
 	
-	// Get all active entities of this type
-	versions := fs.getActiveVersionsByType(entityType)
-	var entities []interface{}
+	log.Printf("[STORAGE] GetAll called for entityType: %s", entityType)
 	
-	// Group by entity ID and get latest version
-	entityMap := make(map[string]Version)
-	for _, version := range versions {
-		if existing, ok := entityMap[version.EntityID]; !ok || version.Timestamp.After(existing.Timestamp) {
-			entityMap[version.EntityID] = version
-		}
+	result, err := fs.scanDirectoryForEntities(entityType)
+	
+	if err != nil {
+		log.Printf("[STORAGE] GetAll failed for %s: %v", entityType, err)
+	} else {
+		log.Printf("[STORAGE] GetAll completed for %s: returned %d entities", entityType, len(result))
 	}
 	
-	// Load entities from latest versions
-	for _, version := range entityMap {
-		if version.Operation != OperationDelete {
-			entity, err := fs.loadEntityFromFile(version.FilePath, entityType)
-			if err != nil {
-				continue // Skip corrupted files
+	return result, err
+}
+
+// scanDirectoryForEntities scans directory directly without cache
+func (fs *FolderStorage) scanDirectoryForEntities(entityType string) ([]interface{}, error) {
+	dirPath := filepath.Join(fs.basePath, entityType)
+	
+	log.Printf("[STORAGE] Starting scan for entityType=%s in directory=%s", entityType, dirPath)
+	
+	// Check if directory exists
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		log.Printf("[STORAGE] Directory does not exist: %s", dirPath)
+		return []interface{}{}, nil
+	}
+	
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		log.Printf("[STORAGE] Failed to read directory %s: %v", dirPath, err)
+		return nil, fmt.Errorf("failed to read directory %s: %v", dirPath, err)
+	}
+	
+	log.Printf("[STORAGE] Found %d entries in directory %s", len(entries), dirPath)
+	
+	var entities []interface{}
+	var errors []string // Collect errors for debugging
+	var skippedDirs, processedDirs, deletedEntities int
+	
+	// Process each entity directory
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			skippedDirs++
+			continue // Skip non-directory files
+		}
+		
+		entityID := entry.Name()
+		entityDirPath := filepath.Join(dirPath, entityID)
+		processedDirs++
+		
+		log.Printf("[STORAGE] Processing entity directory: %s (ID: %s)", entityDirPath, entityID)
+		
+		// Find latest version file
+		files, err := os.ReadDir(entityDirPath)
+		if err != nil {
+			errorMsg := fmt.Sprintf("Failed to read entity directory %s: %v", entityDirPath, err)
+			errors = append(errors, errorMsg)
+			log.Printf("[STORAGE] ERROR: %s", errorMsg)
+			continue
+		}
+		
+		log.Printf("[STORAGE] Found %d files in entity directory %s", len(files), entityDirPath)
+		
+		var latestFile string
+		var latestTime time.Time
+		var timestampErrors []string
+		var jsonFileCount int
+		
+		// Find the most recent .json file
+		for _, file := range files {
+			if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+				continue
 			}
-			entities = append(entities, entity)
+			
+			jsonFileCount++
+			log.Printf("[STORAGE] Processing JSON file: %s", file.Name())
+			
+			// Parse timestamp from filename (remove .json extension)
+			timestampStr := strings.TrimSuffix(file.Name(), ".json")
+			timestamp, err := fs.parseTimestampFromFilename(timestampStr)
+			if err != nil {
+				errorMsg := fmt.Sprintf("Invalid timestamp in file %s: %v", file.Name(), err)
+				timestampErrors = append(timestampErrors, errorMsg)
+				log.Printf("[STORAGE] TIMESTAMP ERROR: %s", errorMsg)
+				continue
+			}
+			
+			log.Printf("[STORAGE] Successfully parsed timestamp %s -> %v", timestampStr, timestamp)
+			
+			if latestFile == "" || timestamp.After(latestTime) {
+				latestTime = timestamp
+				latestFile = filepath.Join(entityDirPath, file.Name())
+				log.Printf("[STORAGE] Updated latest file to: %s (timestamp: %v)", latestFile, latestTime)
+			}
+		}
+		
+		log.Printf("[STORAGE] Entity %s: processed %d JSON files, latest file: %s", entityID, jsonFileCount, latestFile)
+		
+		if latestFile == "" {
+			errorMsg := fmt.Sprintf("No valid files found for entity %s (processed %d JSON files)", entityID, jsonFileCount)
+			if len(timestampErrors) > 0 {
+				errorMsg += ". Timestamp errors: " + strings.Join(timestampErrors, ", ")
+			}
+			errors = append(errors, errorMsg)
+			log.Printf("[STORAGE] ERROR: %s", errorMsg)
+			continue
+		}
+		
+		// Skip if this is a delete marker
+		if fs.isDeleteMarker(latestFile) {
+			deletedEntities++
+			log.Printf("[STORAGE] Skipping deleted entity %s (file: %s)", entityID, latestFile)
+			continue // This is expected behavior, not an error
+		}
+		
+		// Load entity from latest file
+		log.Printf("[STORAGE] Loading entity %s from file: %s", entityID, latestFile)
+		entity, err := fs.loadEntityFromFile(latestFile, entityType)
+		if err != nil {
+			errorMsg := fmt.Sprintf("Failed to load entity %s from file %s: %v", entityID, latestFile, err)
+			errors = append(errors, errorMsg)
+			log.Printf("[STORAGE] LOAD ERROR: %s", errorMsg)
+			continue
+		}
+		
+		entities = append(entities, entity)
+		log.Printf("[STORAGE] Successfully loaded entity %s", entityID)
+	}
+	
+	// Summary logging
+	log.Printf("[STORAGE] Scan complete for %s: processed=%d dirs, skipped=%d non-dirs, deleted=%d, loaded=%d entities, errors=%d", 
+		entityType, processedDirs, skippedDirs, deletedEntities, len(entities), len(errors))
+	
+	// Log detailed errors if any
+	if len(errors) > 0 {
+		log.Printf("[STORAGE] ERRORS encountered during scan of %s:", entityType)
+		for i, err := range errors {
+			log.Printf("[STORAGE] Error %d: %s", i+1, err)
 		}
 	}
 	
@@ -374,8 +494,7 @@ func (fs *FolderStorage) CleanupOldVersions(entityType string, retentionDays int
 		if version.Timestamp.Before(cutoffTime) && !version.Active {
 			// Remove old inactive versions
 			if err := os.Remove(version.FilePath); err != nil {
-				fmt.Printf("Warning: failed to remove old version file %s: %v\n", version.FilePath, err)
-			}
+						}
 		}
 	}
 	

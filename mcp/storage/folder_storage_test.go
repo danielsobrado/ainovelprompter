@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func TestFolderStorage_CharacterOperations(t *testing.T) {
 		character := &models.Character{
 			Name:        "Test Character",
 			Description: "A test character",
-			Traits:      map[string]string{"personality": "brave"},
+			Traits:      map[string]interface{}{"personality": "brave"},
 			Notes:       "Test notes",
 		}
 
@@ -278,22 +279,31 @@ func TestFolderStorage_FileNaming(t *testing.T) {
 	_, err := fs.Create(EntityCharacters, character)
 	require.NoError(t, err)
 
-	// Check that file was created with proper naming
+	// Check that entity directory was created with proper structure
 	charDir := filepath.Join(tempDir, EntityCharacters)
-	files, err := os.ReadDir(charDir)
+	entities, err := os.ReadDir(charDir)
+	require.NoError(t, err)
+	assert.Len(t, entities, 1)
+	
+	// Should be a directory (entity ID)
+	entityDir := entities[0]
+	assert.True(t, entityDir.IsDir())
+	
+	// Check files in entity directory
+	entityPath := filepath.Join(charDir, entityDir.Name())
+	files, err := os.ReadDir(entityPath)
 	require.NoError(t, err)
 	assert.Len(t, files, 1)
-
+	
+	// Should be a timestamped JSON file (RFC3339 format)
 	filename := files[0].Name()
+	assert.True(t, strings.HasSuffix(filename, ".json"))
+	assert.False(t, strings.Contains(filename, "_create")) // Should not contain operation in filename
 	
-	// Should contain slugified name
-	assert.Contains(t, filename, "test_character_with_spaces")
-	assert.Contains(t, filename, "_create.json")
-	
-	// Should not contain special characters
-	assert.NotContains(t, filename, " ")
-	assert.NotContains(t, filename, "&")
-	assert.NotContains(t, filename, "!")
+	// Filename should be RFC3339 timestamp format
+	timestampStr := strings.TrimSuffix(filename, ".json")
+	_, err = time.Parse("2006-01-02T15-04-05.000-07-00", timestampStr)
+	assert.NoError(t, err, "Filename should be RFC3339 timestamp format")
 }
 
 func TestFolderStorage_StorageStats(t *testing.T) {

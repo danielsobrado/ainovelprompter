@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,9 +28,17 @@ func NewMCPServer() (*MCPServer, error) {
 func NewMCPServerWithDataDir(dataDir string) (*MCPServer, error) {
 	var appDataDir string
 
+	// Check for environment variable override
+	envDataDir := os.Getenv("AINOVEL_DATA_DIR")
+	
 	if dataDir != "" {
 		// Use provided data directory
 		appDataDir = dataDir
+		log.Printf("[MCP] Using provided data directory: %s", appDataDir)
+	} else if envDataDir != "" {
+		// Use environment variable
+		appDataDir = envDataDir
+		log.Printf("[MCP] Using data directory from AINOVEL_DATA_DIR: %s", appDataDir)
 	} else {
 		// Fall back to default user home directory
 		homeDir, err := os.UserHomeDir()
@@ -37,21 +46,30 @@ func NewMCPServerWithDataDir(dataDir string) (*MCPServer, error) {
 			return nil, err
 		}
 		appDataDir = filepath.Join(homeDir, ".ai-novel-prompter")
+		log.Printf("[MCP] Using default data directory: %s", appDataDir)
 	}
+
+	log.Printf("[MCP] Final data directory: %s", appDataDir)
 
 	// Create directory if it doesn't exist
 	if err := os.MkdirAll(appDataDir, 0755); err != nil {
+		log.Printf("[MCP] ERROR: Failed to create app data directory %s: %v", appDataDir, err)
 		return nil, fmt.Errorf("failed to create app data directory: %v", err)
 	}
 
+	log.Printf("[MCP] Successfully ensured data directory exists: %s", appDataDir)
+
 	// Initialize storage
 	folderStorage := storage.NewFolderStorage(appDataDir)
+	log.Printf("[MCP] Initialized folder storage")
 
 	// Initialize handlers
 	storyHandler := handlers.NewStoryContextHandler(folderStorage)
 	chapterHandler := handlers.NewChapterHandler(folderStorage)
 	proseHandler := handlers.NewProseImprovementHandler(folderStorage)
 	searchHandler := handlers.NewSearchHandler(folderStorage, storyHandler, chapterHandler, proseHandler)
+	
+	log.Printf("[MCP] Initialized all handlers")
 
 	return &MCPServer{
 		storyHandler:     storyHandler,
@@ -482,14 +500,7 @@ func (s *MCPServer) GetTools() []Tool {
 			Description: "Get the current data directory path",
 			Parameters: map[string]ParameterDef{},
 		},
-		{
-			Name:        "migrate_from_json",
-			Description: "Migrate data from old JSON format to new folder format",
-			Parameters: map[string]ParameterDef{
-				"oldPath":      {Type: "string", Description: "Path to old data directory with JSON files", Required: true},
-				"createBackup": {Type: "boolean", Description: "Create backup before migration", Required: false},
-			},
-		},
+
 
 		// Prompt Generation Tools
 		{
@@ -628,8 +639,7 @@ func (s *MCPServer) ExecuteTool(toolName string, params map[string]interface{}) 
 		return s.setDataDirectory(params)
 	case "get_data_directory":
 		return s.getDataDirectory(params)
-	case "migrate_from_json":
-		return s.migrateFromJSON(params)
+
 
 	// Prompt Generation Tools
 	case "generate_chapter_prompt":
@@ -1124,49 +1134,7 @@ func (s *MCPServer) getDataDirectory(params map[string]interface{}) (interface{}
 	}, nil
 }
 
-func (s *MCPServer) migrateFromJSON(params map[string]interface{}) (interface{}, error) {
-	oldPath, ok := params["oldPath"].(string)
-	if !ok {
-		return nil, fmt.Errorf("oldPath parameter is required")
-	}
-	
-	createBackup := false
-	if backup, ok := params["createBackup"].(bool); ok {
-		createBackup = backup
-	}
-	
-	// Check if old path exists
-	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("old data directory does not exist: %s", oldPath)
-	}
-	
-	// Create migration instance
-	migration := storage.NewMigration(oldPath, s.versionedStorage.GetDataDirectory())
-	
-	// Create backup if requested
-	if createBackup {
-		if err := migration.CreateBackup(); err != nil {
-			return nil, fmt.Errorf("failed to create backup: %v", err)
-		}
-	}
-	
-	// Perform migration
-	if err := migration.MigrateAll(); err != nil {
-		return nil, fmt.Errorf("migration failed: %v", err)
-	}
-	
-	// Validate migration
-	if err := migration.ValidateMigration(); err != nil {
-		return nil, fmt.Errorf("migration validation failed: %v", err)
-	}
-	
-	return map[string]interface{}{
-		"success": true,
-		"message": "Migration completed successfully",
-		"oldPath": oldPath,
-		"newPath": s.versionedStorage.GetDataDirectory(),
-	}, nil
-}
+
 
 // MCP protocol types
 type Tool struct {

@@ -45,7 +45,7 @@ func TestFileStorage_Characters(t *testing.T) {
 		Name:        "Test Character",
 		Description: "A test character for storage testing",
 		Notes:       "Created in storage test",
-		Traits: map[string]string{
+		Traits: map[string]interface{}{
 			"brave":  "true",
 			"height": "tall",
 		},

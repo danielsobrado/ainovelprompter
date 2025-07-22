@@ -21,7 +21,7 @@ func TestBasicStorageOperations(t *testing.T) {
 	character := &models.Character{
 		Name:        "Test Character",
 		Description: "A character for testing storage operations",
-		Traits:      map[string]string{"role": "protagonist"},
+		Traits:      map[string]interface{}{"role": "protagonist"},
 		Notes:       "Created during testing",
 	}
 

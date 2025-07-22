@@ -63,11 +63,9 @@ func (h *StoryContextHandler) CreateCharacter(params map[string]interface{}) (in
 	}
 
 	if traits, ok := params["traits"].(map[string]interface{}); ok {
-		character.Traits = make(map[string]string)
+		character.Traits = make(map[string]interface{})
 		for k, v := range traits {
-			if strVal, ok := v.(string); ok {
-				character.Traits[k] = strVal
-			}
+			character.Traits[k] = v
 		}
 	}
 
@@ -103,11 +101,9 @@ func (h *StoryContextHandler) UpdateCharacter(params map[string]interface{}) (in
 	}
 
 	if traits, ok := params["traits"].(map[string]interface{}); ok {
-		character.Traits = make(map[string]string)
+		character.Traits = make(map[string]interface{})
 		for k, v := range traits {
-			if strVal, ok := v.(string); ok {
-				character.Traits[k] = strVal
-			}
+			character.Traits[k] = v
 		}
 	}
 
