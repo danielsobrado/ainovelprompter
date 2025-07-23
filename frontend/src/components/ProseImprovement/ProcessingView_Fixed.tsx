@@ -3,9 +3,8 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Copy, Play, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; // Import Alert
-import { Terminal } from 'lucide-react'; // For Alert icon
+import { Copy, Play, RefreshCw, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { ProseImprovementSession, LLMProvider } from '@/types';
 
 interface ProcessingViewProps {
@@ -50,6 +49,11 @@ export function ProcessingView({
     await navigator.clipboard.writeText(fullPrompt);
   };
 
+  const handleRetry = () => {
+    onClearError();
+    onProcessNext();
+  };
+
   return (
     <div className="space-y-4">
       {/* Progress bar */}
@@ -66,21 +70,23 @@ export function ProcessingView({
         </div>
       </div>
 
-      {/* LLM Error Message */}
-      {llmError && ( // Display LLM Error if it exists
+      {/* Enhanced LLM Error Message with Recovery Options */}
+      {llmError && (
         <Alert variant="destructive">
-          <Terminal className="h-4 w-4" />
-          <AlertTitle>LLM Error</AlertTitle>
-          <AlertDescription className="space-y-2">
-            <div>{llmError}</div>
-            <div className="flex gap-2 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>LLM Provider Error</AlertTitle>
+          <AlertDescription className="space-y-3">
+            <div className="font-mono text-sm bg-destructive/10 p-2 rounded">
+              {llmError}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              This error occurred while trying to process your text with the {selectedProvider.type} provider.
+            </div>
+            <div className="flex flex-wrap gap-2">
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => {
-                  onClearError();
-                  onProcessNext();
-                }}
+                onClick={handleRetry}
                 disabled={isProcessing}
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -89,10 +95,7 @@ export function ProcessingView({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => {
-                  // Clear error by switching to manual mode temporarily
-                  window.location.reload();
-                }}
+                onClick={onClearError}
               >
                 Clear Error
               </Button>
@@ -104,9 +107,14 @@ export function ProcessingView({
                 Reset App
               </Button>
             </div>
+            <div className="text-xs text-muted-foreground">
+              💡 <strong>Troubleshooting:</strong> Check your API keys in Provider Settings, verify network connection, or try switching to manual mode.
+            </div>
           </AlertDescription>
         </Alert>
-      )}      {/* Current prompt */}
+      )}
+
+      {/* Current prompt */}
       {currentPrompt ? (
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Current Prompt: {currentPrompt.label}</h3>
@@ -136,7 +144,7 @@ export function ProcessingView({
           ) : (
             <Button 
               onClick={onProcessNext}
-              disabled={isProcessing}
+              disabled={isProcessing || !!llmError}
             >
               {isProcessing ? (
                 <>

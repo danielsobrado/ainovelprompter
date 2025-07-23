@@ -18,7 +18,7 @@
 - **Configurable Logging**: Debug character loading issues with detailed logging
 - **Robust Data Validation**: Prevents creation of incomplete or empty entities
 
-![AI Novel MCP 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/mcp1.png)
+![AI Novel MCP 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/MCP1.jpg)
 
 ## 📦 Installation & Setup
 
@@ -122,6 +122,7 @@ go build -o ainovelprompter-mcp.exe ..\cmd\mcp-server\main.go
 
 2. **Prose Improvement Tab**:
    - Configure LLM providers (Manual, LM Studio, OpenRouter)
+![Providers 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/Provider1.jpg)
    - Apply customizable improvement prompts
    - Review and accept/reject AI suggestions
    - Live diff preview of changes
