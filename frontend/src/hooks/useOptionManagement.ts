@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BaseOption } from '../types';
 import { generateUniqueId } from '../utils/helpers';
+import { cleanAndDeduplicateEntities } from '../utils/entityDeduplication';
 
 interface UseOptionManagementProps<T extends BaseOption> {
   initialOptions?: T[];
@@ -9,7 +10,7 @@ interface UseOptionManagementProps<T extends BaseOption> {
   writeFile?: (content: string) => Promise<void>;
 }
 
-export function useOptionManagement<T extends BaseOption>({ 
+export function useOptionManagement<T extends BaseOption & Record<string, any>>({ 
   initialOptions = [],
   storageKey,
   readFile,
@@ -27,8 +28,10 @@ export function useOptionManagement<T extends BaseOption>({
       try {
         const content = await readFile();
         const parsedOptions = JSON.parse(content || '[]');
-        setOptions(parsedOptions);
-        return parsedOptions;
+        // Deduplicate entities to show only latest versions
+        const deduplicatedOptions = cleanAndDeduplicateEntities(parsedOptions);
+        setOptions(deduplicatedOptions);
+        return deduplicatedOptions;
       } catch (err) {
         setError('Failed to load options');
         console.error('Failed to load options:', err);
@@ -42,8 +45,9 @@ export function useOptionManagement<T extends BaseOption>({
       if (savedOptions) {
         try {
           const parsedOptions = JSON.parse(savedOptions);
-          setOptions(parsedOptions);
-          return parsedOptions;
+          const deduplicatedOptions = cleanAndDeduplicateEntities(parsedOptions);
+          setOptions(deduplicatedOptions);
+          return deduplicatedOptions;
         } catch (err) {
           console.error('Failed to parse stored options:', err);
           setError('Failed to parse stored options');

@@ -124,8 +124,10 @@ go build -o ainovelprompter-mcp.exe ..\cmd\mcp-server\main.go
    - Configure LLM providers (Manual, LM Studio, OpenRouter)
 ![Providers 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/Provider1.jpg)
    - Apply customizable improvement prompts
+![AI Novel Prose 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/Prose1.jpg)
    - Review and accept/reject AI suggestions
    - Live diff preview of changes
+![AI Novel Prose 2](https://github.com/danielsobrado/ainovelprompter/blob/main/images/Prose2.jpg)
 
 ### Claude Desktop Integration
 
