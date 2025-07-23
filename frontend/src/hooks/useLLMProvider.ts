@@ -6,6 +6,11 @@ export function useLLMProvider(provider: LLMProvider) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Add function to clear error state
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   const executePrompt = useCallback(async (prompt: string): Promise<string> => {
     setIsLoading(true);
     setError(null);
@@ -30,7 +35,7 @@ export function useLLMProvider(provider: LLMProvider) {
     }
   }, [provider]);
 
-  return { executePrompt, isLoading, error };
+  return { executePrompt, isLoading, error, clearError };
 }
 
 async function executeLMStudioPrompt(

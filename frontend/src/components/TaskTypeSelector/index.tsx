@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import { TaskTypeOption } from '../../types';
 import { CheckedState } from '@radix-ui/react-checkbox';
+import RefreshButton from '../RefreshButton';
 
 interface TaskTypeSelectorProps {
   value: string;
@@ -63,6 +64,11 @@ export default function TaskTypeSelector({
           ))}
         </SelectContent>
       </Select>
+      <RefreshButton 
+        type="taskTypes" 
+        size="icon" 
+        variant="ghost"
+      />
       <Button variant="ghost" size="icon" onClick={onEditClick}>
         <Edit className="h-4 w-4" />
       </Button>

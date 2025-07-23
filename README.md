@@ -18,6 +18,8 @@
 - **Configurable Logging**: Debug character loading issues with detailed logging
 - **Robust Data Validation**: Prevents creation of incomplete or empty entities
 
+![AI Novel MCP 1](https://github.com/danielsobrado/ainovelprompter/blob/main/images/mcp1.png)
+
 ## 📦 Installation & Setup
 
 ### Desktop Application

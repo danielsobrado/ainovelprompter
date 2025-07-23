@@ -12,3 +12,4 @@ export { FutureChapterInput } from './FutureChapterInput';
 export { PromptSection } from './PromptSection'; 
 export { ChapterSection } from './ChapterSection';
 export { ProseImprovementTab } from './ProseImprovement';
+export { default as RefreshButton } from './RefreshButton';

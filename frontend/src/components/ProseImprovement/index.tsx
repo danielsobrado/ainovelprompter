@@ -39,7 +39,7 @@ export function ProseImprovementTab() {
   const [showProviderSettings, setShowProviderSettings] = useState(false);
   const [manualResponse, setManualResponse] = useState('');
   
-  const { executePrompt, isLoading: isLLMLoading, error: llmError } = useLLMProvider(selectedProvider);
+  const { executePrompt, isLoading: isLLMLoading, error: llmError, clearError } = useLLMProvider(selectedProvider);
   const { 
     prompts, 
     updatePrompts,
@@ -310,6 +310,7 @@ export function ProseImprovementTab() {
                   isProcessing={isProcessing || isLLMLoading} // Combine processing states
                   llmError={llmError} // Pass LLM error
                   onProcessNext={processNextPrompt}
+                  onClearError={clearError} // Add clear error function
                   selectedProvider={selectedProvider}
                   manualResponse={manualResponse}
                   onManualResponseChange={setManualResponse}

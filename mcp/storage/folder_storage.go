@@ -514,29 +514,27 @@ func (fs *FolderStorage) GetStorageStats() (StorageStats, error) {
 		VersionsByType: make(map[string]int),
 	}
 	
-	for entityType, versions := range fs.indexCache {
-		stats.VersionsByType[entityType] = len(versions)
+	entityTypes := []string{
+		EntityCharacters, EntityLocations, EntityCodex, EntityRules,
+		EntityChapters, EntityStoryBeats, EntityFutureNotes,
+		EntitySampleChapters, EntityTaskTypes, EntityProsePrompts,
+	}
+	
+	for _, entityType := range entityTypes {
+		// Count entities and files directly from filesystem
+		entityCount, fileCount, oldestTime, newestTime := fs.scanForStats(entityType)
 		
-		// Count active entities
-		activeEntities := make(map[string]bool)
-		for _, version := range versions {
-			if version.Active && version.Operation != OperationDelete {
-				activeEntities[version.EntityID] = true
-			}
-		}
-		stats.EntitiesByType[entityType] = len(activeEntities)
+		stats.EntitiesByType[entityType] = entityCount
+		stats.VersionsByType[entityType] = fileCount
+		stats.TotalFiles += fileCount
 		
 		// Track timestamps
-		for _, version := range versions {
-			if stats.OldestTimestamp.IsZero() || version.Timestamp.Before(stats.OldestTimestamp) {
-				stats.OldestTimestamp = version.Timestamp
-			}
-			if stats.NewestTimestamp.IsZero() || version.Timestamp.After(stats.NewestTimestamp) {
-				stats.NewestTimestamp = version.Timestamp
-			}
+		if !oldestTime.IsZero() && (stats.OldestTimestamp.IsZero() || oldestTime.Before(stats.OldestTimestamp)) {
+			stats.OldestTimestamp = oldestTime
 		}
-		
-		stats.TotalFiles += len(versions)
+		if !newestTime.IsZero() && (stats.NewestTimestamp.IsZero() || newestTime.After(stats.NewestTimestamp)) {
+			stats.NewestTimestamp = newestTime
+		}
 	}
 	
 	// Calculate total size by walking directories
@@ -548,6 +546,80 @@ func (fs *FolderStorage) GetStorageStats() (StorageStats, error) {
 	})
 	
 	return stats, nil
+}
+
+// scanForStats scans entity directory and returns counts and timestamps without caching
+func (fs *FolderStorage) scanForStats(entityType string) (entityCount, fileCount int, oldestTime, newestTime time.Time) {
+	dirPath := filepath.Join(fs.basePath, entityType)
+	
+	// Check if directory exists
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		return 0, 0, time.Time{}, time.Time{}
+	}
+	
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return 0, 0, time.Time{}, time.Time{}
+	}
+	
+	activeEntities := make(map[string]bool)
+	
+	// Process each entity directory
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue // Skip non-directory files
+		}
+		
+		entityID := entry.Name()
+		entityDirPath := filepath.Join(dirPath, entityID)
+		
+		// Find latest version file
+		files, err := os.ReadDir(entityDirPath)
+		if err != nil {
+			continue
+		}
+		
+		var latestFile string
+		var latestTime time.Time
+		
+		// Process all JSON files in entity directory
+		for _, file := range files {
+			if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+			
+			fileCount++ // Count all JSON files
+			
+			// Parse timestamp from filename
+			timestampStr := strings.TrimSuffix(file.Name(), ".json")
+			timestamp, err := fs.parseTimestampFromFilename(timestampStr)
+			if err != nil {
+				continue
+			}
+			
+			// Track global oldest/newest times
+			if oldestTime.IsZero() || timestamp.Before(oldestTime) {
+				oldestTime = timestamp
+			}
+			if newestTime.IsZero() || timestamp.After(newestTime) {
+				newestTime = timestamp
+			}
+			
+			// Find latest file for this entity
+			if latestFile == "" || timestamp.After(latestTime) {
+				latestTime = timestamp
+				latestFile = filepath.Join(entityDirPath, file.Name())
+			}
+		}
+		
+		// Check if latest version is not a delete marker
+		if latestFile != "" && !fs.isDeleteMarker(latestFile) {
+			activeEntities[entityID] = true
+		}
+	}
+	
+	entityCount = len(activeEntities)
+	return
 }
 
 // Helper methods continue in next file...

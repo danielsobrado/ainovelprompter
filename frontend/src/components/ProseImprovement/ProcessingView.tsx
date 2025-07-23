@@ -13,6 +13,7 @@ interface ProcessingViewProps {
   isProcessing: boolean;
   llmError: string | null; // Add this prop
   onProcessNext: () => void;
+  onClearError: () => void; // Add clear error function
   selectedProvider: LLMProvider;
   manualResponse: string;
   onManualResponseChange: (value: string) => void;
@@ -69,8 +70,29 @@ export function ProcessingView({
         <Alert variant="destructive">
           <Terminal className="h-4 w-4" />
           <AlertTitle>LLM Error</AlertTitle>
-          <AlertDescription>
-            {llmError}
+          <AlertDescription className="space-y-2">
+            <div>{llmError}</div>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onProcessNext}
+                disabled={isProcessing}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  // Clear error by switching to manual mode temporarily
+                  window.location.reload();
+                }}
+              >
+                Reset Session
+              </Button>
+            </div>
           </AlertDescription>
         </Alert>
       )}      {/* Current prompt */}

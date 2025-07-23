@@ -15,6 +15,7 @@ import {
   WriteSampleChaptersFile 
 } from '../wailsjs/go/main/App';
 import WailsReadyContext from './contexts/WailsReadyContext'; // Import the context
+import { DataRefreshProvider, useDataRefresh } from './contexts/DataRefreshContext';
 import { AppLayout } from './components/AppLayout';
 import { useOptionManagement } from './hooks/useOptionManagement';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
@@ -46,7 +47,8 @@ import SampleChapterEditModal from './components/SampleChapter/SampleChapterEdit
 import { ChapterSection } from './components/ChapterSection';
 import { ProseImprovementTab } from './components/ProseImprovement';
 
-export function App() {
+// Main app content component  
+function AppContent() {
   const [wailsReady, setWailsReady] = useState(false);
 
   useEffect(() => {
@@ -144,6 +146,54 @@ export function App() {
     readFile: ReadSampleChaptersFile,
     writeFile: WriteSampleChaptersFile
   });
+
+  // Set up refresh context
+  const { setRefreshFunctions } = useDataRefresh();
+
+  // Initialize refresh functions
+  useEffect(() => {
+    if (wailsReady) {
+      const refreshFunctions = {
+        refreshTaskTypes: async () => {
+          console.log('Refreshing task types...');
+          await taskTypes.refreshOptions();
+        },
+        refreshRules: async () => {
+          console.log('Refreshing rules...');
+          await rules.refreshOptions();
+        },
+        refreshCharacters: async () => {
+          console.log('Refreshing characters...');
+          await characters.refreshOptions();
+        },
+        refreshLocations: async () => {
+          console.log('Refreshing locations...');
+          await locations.refreshOptions();
+        },
+        refreshCodex: async () => {
+          console.log('Refreshing codex...');
+          await codex.refreshOptions();
+        },
+        refreshSampleChapters: async () => {
+          console.log('Refreshing sample chapters...');
+          await sampleChapters.refreshOptions();
+        },
+        refreshAll: async () => {
+          console.log('Refreshing all data...');
+          await Promise.all([
+            taskTypes.refreshOptions(),
+            rules.refreshOptions(),
+            characters.refreshOptions(),
+            locations.refreshOptions(),
+            codex.refreshOptions(),
+            sampleChapters.refreshOptions(),
+          ]);
+        },
+      };
+      setRefreshFunctions(refreshFunctions);
+    }
+  }, [wailsReady, taskTypes.refreshOptions, rules.refreshOptions, characters.refreshOptions, 
+      locations.refreshOptions, codex.refreshOptions, sampleChapters.refreshOptions, setRefreshFunctions]);
 
   // Modal states
   const [isTaskTypeEditOpen, setIsTaskTypeEditOpen] = useState(false);
@@ -466,6 +516,15 @@ export function App() {
         />
       </AppLayout>
     </WailsReadyContext.Provider>
+  );
+}
+
+// Main App component with DataRefreshProvider
+export function App() {
+  return (
+    <DataRefreshProvider>
+      <AppContent />
+    </DataRefreshProvider>
   );
 }
 

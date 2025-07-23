@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
+import RefreshButton from '../RefreshButton';
 
 interface SampleChapterOption {
   id: string;
@@ -43,6 +44,11 @@ export default function SampleChaptersSelector({
             ))}
           </SelectContent>
         </Select>
+        <RefreshButton 
+          type="sampleChapters" 
+          size="icon" 
+          variant="ghost"
+        />
         <Button variant="ghost" size="icon" onClick={onEditClick}>
             <Edit className="h-4 w-4" />
         </Button>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import { CodexOption } from '../../types';
 import { FancyMultiSelect } from '@/components/ui/fancy-multi-select';
+import RefreshButton from '../RefreshButton';
 
 interface CodexSelectorProps {
   values: string[];
@@ -36,6 +37,11 @@ export default function CodexSelector({
           placeholder="Select codex entries..."
         />
       </div>
+      <RefreshButton 
+        type="codex" 
+        size="icon" 
+        variant="ghost"
+      />
       <Button variant="ghost" size="icon" onClick={onEditClick}>
         <Edit className="h-4 w-4" />
       </Button>

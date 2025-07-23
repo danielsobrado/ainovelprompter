@@ -19,37 +19,50 @@ export function useOptionManagement<T extends BaseOption>({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Load options on mount
-  useEffect(() => {
-    const loadOptions = async () => {
-      if (readFile) {
-        setIsLoading(true);
-        setError(null);
+  // Centralized load function
+  const loadOptions = useCallback(async (showLoading = true) => {
+    if (readFile) {
+      if (showLoading) setIsLoading(true);
+      setError(null);
+      try {
+        const content = await readFile();
+        const parsedOptions = JSON.parse(content || '[]');
+        setOptions(parsedOptions);
+        return parsedOptions;
+      } catch (err) {
+        setError('Failed to load options');
+        console.error('Failed to load options:', err);
+        throw err;
+      } finally {
+        if (showLoading) setIsLoading(false);
+      }
+    } else if (storageKey) {
+      // Fallback to localStorage
+      const savedOptions = localStorage.getItem(storageKey);
+      if (savedOptions) {
         try {
-          const content = await readFile();
-          const parsedOptions = JSON.parse(content || '[]');
+          const parsedOptions = JSON.parse(savedOptions);
           setOptions(parsedOptions);
+          return parsedOptions;
         } catch (err) {
-          setError('Failed to load options');
-          console.error('Failed to load options:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      } else if (storageKey) {
-        // Fallback to localStorage
-        const savedOptions = localStorage.getItem(storageKey);
-        if (savedOptions) {
-          try {
-            setOptions(JSON.parse(savedOptions));
-          } catch (err) {
-            console.error('Failed to parse stored options:', err);
-          }
+          console.error('Failed to parse stored options:', err);
+          setError('Failed to parse stored options');
+          throw err;
         }
       }
-    };
-    
-    loadOptions();
+    }
+    return [];
   }, [readFile, storageKey]);
+
+  // Refresh function - can be called manually
+  const refreshOptions = useCallback(async (showLoading = true) => {
+    return await loadOptions(showLoading);
+  }, [loadOptions]);
+  
+  // Load options on mount
+  useEffect(() => {
+    loadOptions();
+  }, [loadOptions]);
   
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -110,6 +123,8 @@ export function useOptionManagement<T extends BaseOption>({
     addOption,
     updateOption,
     deleteOption,
-    saveOptions
+    saveOptions,
+    refreshOptions, // New refresh function
+    loadOptions    // Expose load function as well
   };
 }

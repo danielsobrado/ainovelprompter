@@ -21,7 +21,7 @@ export class EntityValidator {
     allowEmpty: false,
   };
 
-  private static readonly DESCRIPTION_CONFIG = {
+  public static readonly DESCRIPTION_CONFIG = {
     minLength: 1,
     maxLength: 2000,
     required: true,

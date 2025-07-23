@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from "./ui/button"
 import { Settings } from 'lucide-react'
 import StorageIndicator from './StorageIndicator'
+import RefreshButton from './RefreshButton'
 
 interface HeaderProps {
   onSettingsClick: () => void;
@@ -16,6 +17,11 @@ export default function Header({ onSettingsClick }: HeaderProps) {
       </div>
       <div className="flex items-center gap-4">
         <StorageIndicator />
+        <RefreshButton 
+          type="all" 
+          size="icon" 
+          variant="ghost"
+        />
         <Button variant="ghost" size="icon" onClick={onSettingsClick}>
           <Settings className="h-5 w-5" />
         </Button>
